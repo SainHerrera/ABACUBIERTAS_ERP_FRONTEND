@@ -1,5 +1,5 @@
 import { IonContent, IonMenu, IonList, IonItem, IonIcon, IonLabel, IonAvatar, IonText, IonButton } from '@ionic/react'
-import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, businessOutline, logOutOutline, flaskOutline } from 'ionicons/icons'
+import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, businessOutline, calculatorOutline, logOutOutline, flaskOutline } from 'ionicons/icons'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
@@ -94,6 +94,34 @@ export const Sidebar = () => {
           >
             <IonIcon slot="start" icon={flaskOutline} />
             <IonLabel>Demo</IonLabel>
+          </IonItem>
+        </IonList>
+
+        <p className="section-label">Ventas</p>
+        <IonList lines="none">
+          <IonItem
+            button
+            className={isSelected('/sales/customers') ? 'selected' : ''}
+            onClick={() => navigate('/sales/customers')}
+          >
+            <IonIcon slot="start" icon={peopleOutline} />
+            <IonLabel>Clientes</IonLabel>
+          </IonItem>
+          <IonItem
+            button
+            className={isSelected('/sales/quotations') ? 'selected' : ''}
+            onClick={() => navigate('/sales/quotations')}
+          >
+            <IonIcon slot="start" icon={calculatorOutline} />
+            <IonLabel>Cotizaciones</IonLabel>
+          </IonItem>
+          <IonItem
+            button
+            className={isSelected('/sales/orders') ? 'selected' : ''}
+            onClick={() => navigate('/sales/orders')}
+          >
+            <IonIcon slot="start" icon={gridOutline} />
+            <IonLabel>Pedidos</IonLabel>
           </IonItem>
         </IonList>
 

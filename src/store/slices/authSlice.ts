@@ -15,6 +15,7 @@ import {
   updateUserApi,
   deleteUserApi,
 } from '../../api/authApi';
+import { getCurrentUserFromToken } from '../../utils/jwt';
 
 const initialState: AuthState = {
   user: null,
@@ -149,6 +150,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
+        state.user = getCurrentUserFromToken(action.payload.access_token);
         state.isAuthenticated = true;
         localStorage.setItem('accessToken', action.payload.access_token);
         localStorage.setItem('refreshToken', action.payload.refresh_token);
@@ -171,6 +173,7 @@ const authSlice = createSlice({
       .addCase(refreshTokenThunk.fulfilled, (state, action) => {
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
+        state.user = getCurrentUserFromToken(action.payload.access_token);
         localStorage.setItem('accessToken', action.payload.access_token);
         localStorage.setItem('refreshToken', action.payload.refresh_token);
       })

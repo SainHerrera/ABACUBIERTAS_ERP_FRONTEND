@@ -1,4 +1,4 @@
-import { IonApp, IonRouterOutlet } from '@ionic/react'
+import { IonApp, IonRouterOutlet, IonText } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { Route, Redirect } from 'react-router-dom'
 import { ProtectedRoute } from './components/guards/ProtectedRoute'
@@ -14,6 +14,8 @@ import { ProductDetailPage } from './pages/inventory/ProductDetailPage'
 import { MovementsPage } from './pages/inventory/MovementsPage'
 import { ProvidersPage } from './pages/inventory/ProvidersPage'
 import { SeedDataPage } from './pages/inventory/SeedDataPage'
+import { CustomersPage } from './pages/sales/CustomersPage'
+import { QuotationsPage } from './pages/sales/QuotationsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 function App() {
@@ -113,6 +115,9 @@ function App() {
             )}
             exact
           />
+          <Route path="/sales/customers" component={CustomersPage} exact />
+          <Route path="/sales/quotations" component={QuotationsPage} exact />
+          <Route path="/sales/orders" render={() => <IonText>Pedidos - en construcción</IonText>} exact /> 
           <Redirect exact from="/" to="/dashboard" />
           <Route component={NotFoundPage} />
         </IonRouterOutlet>

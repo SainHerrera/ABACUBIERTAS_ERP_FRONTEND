@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import { useHistory, Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { IonList, IonItem, IonLabel, IonInput, IonButton, IonText, useIonToast } from '@ionic/react'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { login, clearError } from '../../store/slices/authSlice'
-import { getCurrentUserFromToken } from '../../utils/jwt'
 
 export const LoginForm = () => {
   const dispatch = useAppDispatch()
   const history = useHistory()
-  const { isLoading, error } = useAppSelector((state) => state.auth)
+  const { isLoading } = useAppSelector((state) => state.auth)
   const [present] = useIonToast()
 
   const [email, setEmail] = useState('')
@@ -33,13 +32,9 @@ export const LoginForm = () => {
     const result = await dispatch(login({ email, password }))
 
     if (login.fulfilled.match(result)) {
-      const user = getCurrentUserFromToken(result.payload.access_token)
-      if (user) {
-        dispatch({ type: 'auth/setUser', payload: user })
-      }
       history.replace('/dashboard')
     } else {
-      showError(error || 'Error al iniciar sesión')
+      showError((result.payload as string) || 'Error al iniciar sesión')
     }
   }
 

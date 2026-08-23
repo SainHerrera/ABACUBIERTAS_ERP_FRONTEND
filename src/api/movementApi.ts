@@ -1,4 +1,3 @@
-import axiosInstance from './axiosInstance'
 import type {
   Movement,
   MovementEntryCreate,
@@ -6,6 +5,7 @@ import type {
   MovementAdjustmentCreate,
   MovementListResponse,
 } from '../types/movement'
+import { StorageEngine } from '../services/localStorage/storageEngine'
 
 export const getMovementsApi = async (
   skip = 0,
@@ -14,25 +14,19 @@ export const getMovementsApi = async (
   date_from?: string,
   date_to?: string,
 ): Promise<MovementListResponse> => {
-  const response = await axiosInstance.get<MovementListResponse>('/movements', {
-    params: { skip, limit, product_id, date_from, date_to },
-  })
-  return response.data
+  return StorageEngine.getMovements(skip, limit, product_id, date_from, date_to)
 }
 
 export const createEntryApi = async (data: MovementEntryCreate): Promise<Movement> => {
-  const response = await axiosInstance.post<Movement>('/movements/entry', data)
-  return response.data
+  return StorageEngine.createEntry(data)
 }
 
 export const createOutputApi = async (data: MovementOutputCreate): Promise<Movement> => {
-  const response = await axiosInstance.post<Movement>('/movements/output', data)
-  return response.data
+  return StorageEngine.createOutput(data)
 }
 
 export const createAdjustmentApi = async (
   data: MovementAdjustmentCreate,
 ): Promise<Movement> => {
-  const response = await axiosInstance.post<Movement>('/movements/adjustment', data)
-  return response.data
+  return StorageEngine.createAdjustment(data)
 }

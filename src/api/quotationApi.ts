@@ -1,5 +1,11 @@
-import axiosInstance from './axiosInstance'
-import type { Quotation, QuotationCreate, QuotationUpdate, QuotationEstadoUpdate, QuotationListResponse } from '../types/sales'
+import type {
+  Quotation,
+  QuotationCreate,
+  QuotationUpdate,
+  QuotationEstadoUpdate,
+  QuotationListResponse,
+} from '../types/sales'
+import { StorageEngine } from '../services/localStorage/storageEngine'
 
 export const getQuotesApi = async (
   skip = 0,
@@ -7,36 +13,29 @@ export const getQuotesApi = async (
   id_cliente?: number,
   estado?: string,
 ): Promise<QuotationListResponse> => {
-  const response = await axiosInstance.get<QuotationListResponse>('/quotes', {
-    params: { skip, limit, id_cliente, estado },
-  })
-  return response.data
+  return StorageEngine.getQuotes(skip, limit, id_cliente, estado)
 }
 
 export const getQuoteApi = async (quoteId: number): Promise<Quotation> => {
-  const response = await axiosInstance.get<Quotation>(`/quotes/${quoteId}`)
-  return response.data
+  return StorageEngine.getQuote(quoteId)
 }
 
 export const createQuoteApi = async (data: QuotationCreate): Promise<Quotation> => {
-  const response = await axiosInstance.post<Quotation>('/quotes', data)
-  return response.data
+  return StorageEngine.createQuote(data)
 }
 
 export const updateQuoteApi = async (
   quoteId: number,
   data: QuotationUpdate,
 ): Promise<Quotation> => {
-  const response = await axiosInstance.put<Quotation>(`/quotes/${quoteId}`, data)
-  return response.data
+  return StorageEngine.updateQuote(quoteId, data)
 }
 
 export const updateQuoteStatusApi = async (
   quoteId: number,
   data: QuotationEstadoUpdate,
 ): Promise<Quotation> => {
-  const response = await axiosInstance.patch<Quotation>(`/quotes/${quoteId}/status`, data)
-  return response.data
+  return StorageEngine.updateQuoteStatus(quoteId, data)
 }
 
 export const getQuotesByClientApi = async (
@@ -44,15 +43,17 @@ export const getQuotesByClientApi = async (
   skip = 0,
   limit = 50,
 ): Promise<QuotationListResponse> => {
-  const response = await axiosInstance.get<QuotationListResponse>(
-    `/clients/${clientId}/quotes`,
-    { params: { skip, limit } }
-  )
-  return response.data
+  return StorageEngine.getQuotes(skip, limit, clientId)
 }
 
 export const deleteQuoteApi = async (quoteId: number): Promise<void> => {
-  await axiosInstance.delete(`/quotes/${quoteId}`)
+  StorageEngine.deleteQuote(quoteId)
 }
 
-export type { Quotation, QuotationCreate, QuotationUpdate, QuotationEstadoUpdate, QuotationListResponse }
+export type {
+  Quotation,
+  QuotationCreate,
+  QuotationUpdate,
+  QuotationEstadoUpdate,
+  QuotationListResponse,
+}

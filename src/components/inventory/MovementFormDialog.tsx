@@ -47,6 +47,8 @@ export const MovementFormDialog = ({
     }
   }, [open])
 
+  const selectedProduct = products.find((p) => p.id_producto === productId)
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setValidationError(null)
@@ -57,8 +59,22 @@ export const MovementFormDialog = ({
     }
 
     const qty = Number(quantity)
-    if (!qty || qty <= 0) {
-      setValidationError('La cantidad debe ser un número positivo')
+    if (movementType === 'ajuste') {
+      if (qty < 0 || isNaN(qty)) {
+        setValidationError('La cantidad del ajuste no puede ser negativa')
+        return
+      }
+    } else {
+      if (!qty || qty <= 0) {
+        setValidationError('La cantidad debe ser un número positivo mayor a 0')
+        return
+      }
+    }
+
+    if (movementType === 'salida' && selectedProduct && qty > selectedProduct.stock_actual) {
+      setValidationError(
+        `Stock insuficiente para "${selectedProduct.nombre}". Stock disponible: ${selectedProduct.stock_actual}, solicitado: ${qty}`,
+      )
       return
     }
 
@@ -94,7 +110,7 @@ export const MovementFormDialog = ({
                 <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Producto</IonLabel>
                 <IonSelect
                   value={productId}
-                  onIonChange={(e) => setProductId(e.detail.value)}
+                  onIonChange={(e) => setProductId(e.detail.value ? Number(e.detail.value) : undefined)}
                   interface="popover"
                   required
                 >
@@ -107,24 +123,39 @@ export const MovementFormDialog = ({
               </IonItem>
             </div>
 
+            {selectedProduct && (
+              <div style={{ padding: '4px 16px 12px 16px', fontSize: 13, color: '#64748b' }}>
+                Stock actual: <strong style={{ color: selectedProduct.low_stock ? '#dc2626' : '#16a34a' }}>{selectedProduct.stock_actual} {selectedProduct.unidad_medida}</strong> (Mínimo: {selectedProduct.stock_minimo})
+              </div>
+            )}
+
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Cantidad</IonLabel>
-                <IonInput type="number" step="1" min="1" value={quantity} onIonChange={(e) => setQuantity(e.detail.value || '')} required />
+                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>
+                  {movementType === 'ajuste' ? 'Nuevo Stock Total' : 'Cantidad'}
+                </IonLabel>
+                <IonInput
+                  type="number"
+                  step="1"
+                  min={movementType === 'ajuste' ? '0' : '1'}
+                  value={quantity}
+                  onIonChange={(e) => setQuantity(e.detail.value || '')}
+                  required
+                />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
                 <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Referencia</IonLabel>
-                <IonInput value={reference} onIonChange={(e) => setReference(e.detail.value || '')} placeholder="Factura, pedido, etc." />
+                <IonInput value={reference} onIonChange={(e) => setReference(e.detail.value || '')} placeholder="Factura, pedido, conteo físico..." />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
                 <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nota</IonLabel>
-                <IonInput value={note} onIonChange={(e) => setNote(e.detail.value || '')} />
+                <IonInput value={note} onIonChange={(e) => setNote(e.detail.value || '')} placeholder="Observaciones adicionales..." />
               </IonItem>
             </div>
           </IonList>

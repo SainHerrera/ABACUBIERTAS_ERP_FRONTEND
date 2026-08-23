@@ -1,5 +1,5 @@
 import { IonContent, IonMenu, IonList, IonItem, IonIcon, IonLabel, IonAvatar, IonText, IonButton } from '@ionic/react'
-import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, businessOutline, calculatorOutline, logOutOutline, flaskOutline } from 'ionicons/icons'
+import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, businessOutline, calculatorOutline, logOutOutline } from 'ionicons/icons'
 import { useLocation, useHistory } from 'react-router-dom'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
@@ -86,14 +86,6 @@ export const Sidebar = () => {
           >
             <IonIcon slot="start" icon={businessOutline} />
             <IonLabel>Proveedores</IonLabel>
-          </IonItem>
-          <IonItem
-            button
-            className={isSelected('/inventory/seed') ? 'selected' : ''}
-            onClick={() => navigate('/inventory/seed')}
-          >
-            <IonIcon slot="start" icon={flaskOutline} />
-            <IonLabel>Demo</IonLabel>
           </IonItem>
         </IonList>
 

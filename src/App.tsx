@@ -115,9 +115,39 @@ function App() {
             )}
             exact
           />
-          <Route path="/sales/customers" component={CustomersPage} exact />
-          <Route path="/sales/quotations" component={QuotationsPage} exact />
-          <Route path="/sales/orders" render={() => <IonText>Pedidos - en construcción</IonText>} exact /> 
+          <Route
+            path="/sales/customers"
+            render={() => (
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <CustomersPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            )}
+            exact
+          />
+          <Route
+            path="/sales/quotations"
+            render={() => (
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <QuotationsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            )}
+            exact
+          />
+          <Route
+            path="/sales/orders"
+            render={() => (
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <IonText>Pedidos - en construcción</IonText>
+                </DashboardLayout>
+              </ProtectedRoute>
+            )}
+            exact
+          /> 
           <Redirect exact from="/" to="/dashboard" />
           <Route component={NotFoundPage} />
         </IonRouterOutlet>

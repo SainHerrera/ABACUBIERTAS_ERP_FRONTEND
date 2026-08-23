@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useHistory, Redirect } from 'react-router-dom'
 import { IonList, IonItem, IonLabel, IonInput, IonButton, IonText, useIonToast } from '@ionic/react'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { useAppSelector } from '../../hooks/useAppSelector'
@@ -8,12 +8,22 @@ import { login, clearError } from '../../store/slices/authSlice'
 export const LoginForm = () => {
   const dispatch = useAppDispatch()
   const history = useHistory()
-  const { isLoading } = useAppSelector((state) => state.auth)
+  const { isLoading, isAuthenticated } = useAppSelector((state) => state.auth)
   const [present] = useIonToast()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
+
+  console.log('[LoginForm] render isAuthenticated=', isAuthenticated)
+
+  useEffect(() => {
+    console.log('[LoginForm] effect isAuthenticated=', isAuthenticated)
+    if (isAuthenticated) {
+      console.log('[LoginForm] redirecting via effect to /dashboard')
+      history.push('/dashboard')
+    }
+  }, [isAuthenticated, history])
 
   const showError = (msg: string) => {
     present({ message: msg, duration: 3000, color: 'danger', position: 'top' })
@@ -29,13 +39,22 @@ export const LoginForm = () => {
       return
     }
 
+    console.log('[LoginForm] submitting login')
     const result = await dispatch(login({ email, password }))
+    console.log('[LoginForm] login result', result)
 
     if (login.fulfilled.match(result)) {
-      history.replace('/dashboard')
+      console.log('[LoginForm] login fulfilled, redirecting to /dashboard')
+      history.push('/dashboard')
     } else {
+      console.log('[LoginForm] login rejected', result.payload)
       showError((result.payload as string) || 'Error al iniciar sesión')
     }
+  }
+
+  if (isAuthenticated) {
+    console.log('[LoginForm] render redirect to /dashboard')
+    return <Redirect to="/dashboard" />
   }
 
   return (

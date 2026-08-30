@@ -20,6 +20,7 @@ import {
   deleteProviderApi,
 } from '../api/providerApi'
 import { loginApi } from '../api/authApi'
+import { SEED_PASSWORDS } from '../services/localStorage/seedData'
 import { StorageEngine } from '../services/localStorage/storageEngine'
 
 describe('INTEGRATION TEST INVENTORY - Frontend Full Flow with LocalStorage', () => {
@@ -257,7 +258,7 @@ describe('INTEGRATION TEST INVENTORY - Frontend Full Flow with LocalStorage', ()
     it('should authenticate user and store token in localStorage', async () => {
       const tokenRes = await loginApi({
         email: 'admin@test.com',
-        password: 'Test123!',
+        password: SEED_PASSWORDS['admin@test.com'],
       })
 
       expect(tokenRes.access_token).toBeDefined()

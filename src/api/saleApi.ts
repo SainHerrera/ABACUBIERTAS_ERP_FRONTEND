@@ -29,6 +29,13 @@ export const cancelSaleApi = async (saleId: number): Promise<Sale> => {
   return StorageEngine.cancelSale(saleId)
 }
 
+export const confirmDispatchApi = async (
+  saleId: number,
+  observaciones?: string,
+): Promise<Sale> => {
+  return StorageEngine.confirmDispatch(saleId, observaciones)
+}
+
 export const convertQuoteToSaleApi = async (
   quoteId: number,
   observaciones?: string,

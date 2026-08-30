@@ -15,6 +15,8 @@ const roles: { value: UserRole; label: string }[] = [
   { value: 'admin', label: 'Administrador' },
   { value: 'ventas', label: 'Ventas' },
   { value: 'compras', label: 'Compras' },
+  { value: 'bodega', label: 'Bodega' },
+  { value: 'gerencia', label: 'Gerencia' },
 ]
 
 export const UserFormDialog = ({
@@ -95,30 +97,30 @@ export const UserFormDialog = ({
           <IonList style={{ background: 'transparent' }}>
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nombre completo</IonLabel>
-                <IonInput value={nombre} onIonChange={(e) => setNombre(e.detail.value || '')} required />
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Nombre completo</IonLabel>
+                <IonInput value={nombre} onIonInput={(e) => setNombre(e.detail.value || '')} onIonChange={(e) => setNombre(e.detail.value || '')} required />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Correo electrónico</IonLabel>
-                <IonInput type="email" value={email} onIonChange={(e) => setEmail(e.detail.value || '')} required />
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Correo electrónico</IonLabel>
+                <IonInput type="email" value={email} onIonInput={(e) => setEmail(e.detail.value || '')} onIonChange={(e) => setEmail(e.detail.value || '')} required />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
                   {isEditing ? 'Nueva contraseña (dejar vacío para mantener)' : 'Contraseña'}
                 </IonLabel>
-                <IonInput type="password" value={password} onIonChange={(e) => setPassword(e.detail.value || '')} required={!isEditing} />
+                <IonInput type="password" value={password} onIonInput={(e) => setPassword(e.detail.value || '')} onIonChange={(e) => setPassword(e.detail.value || '')} required={!isEditing} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Rol</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Rol</IonLabel>
                 <IonSelect value={rol} onIonChange={(e) => setRol(e.detail.value)} interface="popover">
                   {roles.map((r) => (
                     <IonSelectOption key={r.value} value={r.value}>{r.label}</IonSelectOption>
@@ -130,7 +132,7 @@ export const UserFormDialog = ({
             {isEditing && (
               <div className="ion-input-wrapper">
                 <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Estado</IonLabel>
+                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Estado</IonLabel>
                   <IonSelect value={activo ? 'activo' : 'inactivo'} onIonChange={(e) => setActivo(e.detail.value === 'activo')} interface="popover">
                     <IonSelectOption value="activo">Activo</IonSelectOption>
                     <IonSelectOption value="inactivo">Inactivo</IonSelectOption>

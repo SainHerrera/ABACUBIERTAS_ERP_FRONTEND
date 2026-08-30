@@ -62,7 +62,7 @@ export const MovementList = ({ movements }: MovementListProps) => {
           ))}
           {movements.length === 0 && (
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay movimientos registrados
               </td>
             </tr>

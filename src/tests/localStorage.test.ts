@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import { SEED_PASSWORDS } from '../services/localStorage/seedData'
+import { getUsersApi, getUserApi } from '../api/authApi'
+import type { User, UserRole } from '../types/auth'
 
 describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
   beforeEach(() => {
@@ -187,6 +190,7 @@ describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
         product_id: product.id_producto,
         quantity: 80,
         reference: 'CONTEO-FISICO-ANUAL',
+        note: 'Conteo físico anual de almacén',
       })
 
       expect(movement.tipo).toBe('ajuste')
@@ -271,7 +275,7 @@ describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
     it('should login admin and return valid mock JWT tokens', () => {
       const tokens = StorageEngine.login({
         email: 'admin@test.com',
-        password: 'Test123!',
+        password: SEED_PASSWORDS['admin@test.com'],
       })
 
       expect(tokens.access_token).toBeDefined()
@@ -280,6 +284,7 @@ describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
       const payload = JSON.parse(atob(tokens.access_token.split('.')[1]))
       expect(payload.sub).toBe('admin@test.com')
       expect(payload.rol).toBe('admin')
+      expect(payload.id).toBe(1)
     })
 
     it('should register a new user and prevent duplicates', () => {
@@ -300,6 +305,148 @@ describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
           password: 'Password123!',
         })
       }).toThrow('ya se encuentra registrado')
+    })
+
+    it('should list all users including active and inactive, and allow activating/deactivating', () => {
+      const users = StorageEngine.getUsers()
+      expect(users.length).toBeGreaterThan(0)
+
+      const user = users[1] // e.g. ventas
+      expect(user.activo).toBe(true)
+
+      // Deactivate user
+      const deactivated = StorageEngine.updateUser(user.id_usuario, { activo: false })
+      expect(deactivated.activo).toBe(false)
+
+      // Inactive user should still be in the list for admin
+      const allUsers = StorageEngine.getUsers()
+      const found = allUsers.find((u) => u.id_usuario === user.id_usuario)
+      expect(found).toBeDefined()
+      expect(found?.activo).toBe(false)
+
+      // Re-activate user
+      const reactivated = StorageEngine.updateUser(user.id_usuario, { activo: true })
+      expect(reactivated.activo).toBe(true)
+    })
+
+    it('should reject login for deactivated user', () => {
+      const users = StorageEngine.getUsers()
+      const user = users[1]
+      StorageEngine.updateUser(user.id_usuario, { activo: false })
+
+      expect(() => {
+        StorageEngine.login({
+          email: user.email,
+          password: SEED_PASSWORDS[user.email] || 'Ventas12345!',
+        })
+      }).toThrow('El usuario se encuentra desactivado')
+    })
+  })
+
+  describe('Admin creates users with assigned roles (localStorage)', () => {
+    const roles: UserRole[] = ['ventas', 'bodega', 'compras', 'gerencia']
+
+    it.each(roles)('persists a new "%s" user with rol in abacubiertas_users', (rol) => {
+      const nombre = `Responsable ${rol}`
+      const email = `nuevo.${rol}@abacubiertas.com`
+      const created = StorageEngine.register({
+        nombre,
+        email,
+        password: 'Temp23456!',
+        rol,
+      })
+
+      expect(created.id_usuario).toBeDefined()
+      expect(created.nombre).toBe(nombre)
+      expect(created.email).toBe(email)
+      expect(created.rol).toBe(rol)
+      expect(created.activo).toBe(true)
+
+      // localStorage persistence across reads
+      const stored = JSON.parse(
+        localStorage.getItem('abacubiertas_users') || '[]',
+      ) as User[]
+      const found = stored.find((u) => u.email === email)
+      expect(found).toBeDefined()
+      expect(found?.nombre).toBe(nombre)
+      expect(found?.email).toBe(email)
+      expect(found?.rol).toBe(rol)
+      expect(found?.activo).toBe(true)
+      expect(found?.password_hash).toBeDefined()
+      expect(found?.password_hash).not.toBe('Temp23456!')
+    })
+
+    it.each(roles)('allows "%s" user to log in with the temporary password', (rol) => {
+      const email = `login.${rol}@abacubiertas.com`
+      StorageEngine.register({
+        nombre: `Login ${rol}`,
+        email,
+        password: 'Temp23456!',
+        rol,
+      })
+
+      const tokens = StorageEngine.login({ email, password: 'Temp23456!' })
+      expect(tokens.access_token).toBeDefined()
+
+      const payload = JSON.parse(atob(tokens.access_token.split('.')[1]))
+      expect(payload.rol).toBe(rol)
+    })
+
+    it('rejects login with an incorrect password after creating the user', () => {
+      StorageEngine.register({
+        nombre: 'Vendedor Prueba',
+        email: 'vendedor.probado@abacubiertas.com',
+        password: 'Temp23456!',
+        rol: 'ventas',
+      })
+
+      expect(() => {
+        StorageEngine.login({
+          email: 'vendedor.probado@abacubiertas.com',
+          password: 'WrongPass123',
+        })
+      }).toThrow(/Credenciales incorrectas/)
+    })
+
+    it('rejects login for seed account with wrong password', () => {
+      expect(() => {
+        StorageEngine.login({
+          email: 'admin@test.com',
+          password: 'WrongPass123',
+        })
+      }).toThrow(/Credenciales incorrectas/)
+    })
+
+    it('newly created users are listed and retrievable via the user API', async () => {
+      const created = StorageEngine.register({
+        nombre: 'Usuaria Listado',
+        email: 'listado@abacubiertas.com',
+        password: 'Temp23456!',
+        rol: 'gerencia',
+      })
+
+      const listed = await getUsersApi(0, 100)
+      expect(listed.some((u) => u.id_usuario === created.id_usuario)).toBe(true)
+
+      const fetched = await getUserApi(created.id_usuario)
+      expect(fetched.email).toBe('listado@abacubiertas.com')
+      expect(fetched.rol).toBe('gerencia')
+    })
+
+    it('migrates seed accounts that lack a password hash', () => {
+      const users = JSON.parse(
+        localStorage.getItem('abacubiertas_users') || '[]',
+      ) as User[]
+      for (const u of users) delete u.password_hash
+      localStorage.setItem('abacubiertas_users', JSON.stringify(users))
+
+      StorageEngine.getUsers()
+
+      const migrated = JSON.parse(
+        localStorage.getItem('abacubiertas_users') || '[]',
+      ) as User[]
+      const admin = migrated.find((u) => u.email === 'admin@test.com')
+      expect(admin?.password_hash).toBeDefined()
     })
   })
 })

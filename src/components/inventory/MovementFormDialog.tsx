@@ -11,7 +11,7 @@ interface MovementFormDialogProps {
   movementType: MovementType
   products: Product[]
   onClose: () => void
-  onSave: (data: { product_id: number; quantity: number; reference?: string; note?: string }) => void
+  onSave: (data: { product_id: number; quantity: number; reference?: string; note?: string; fecha?: string }) => void
   isLoading: boolean
   error: string | null
 }
@@ -35,6 +35,7 @@ export const MovementFormDialog = ({
   const [quantity, setQuantity] = useState('')
   const [reference, setReference] = useState('')
   const [note, setNote] = useState('')
+  const [fecha, setFecha] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export const MovementFormDialog = ({
       setQuantity('')
       setReference('')
       setNote('')
+      setFecha('')
       setValidationError(null)
     }
   }, [open])
@@ -78,11 +80,17 @@ export const MovementFormDialog = ({
       return
     }
 
+    if (movementType === 'ajuste' && (!note || !note.trim())) {
+      setValidationError('El motivo del ajuste es obligatorio')
+      return
+    }
+
     onSave({
       product_id: productId,
       quantity: qty,
       reference: reference || undefined,
       note: note || undefined,
+      fecha: fecha ? new Date(fecha).toISOString() : undefined,
     })
   }
 
@@ -107,7 +115,7 @@ export const MovementFormDialog = ({
           <IonList style={{ background: 'transparent' }}>
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Producto</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Producto</IonLabel>
                 <IonSelect
                   value={productId}
                   onIonChange={(e) => setProductId(e.detail.value ? Number(e.detail.value) : undefined)}
@@ -124,14 +132,14 @@ export const MovementFormDialog = ({
             </div>
 
             {selectedProduct && (
-              <div style={{ padding: '4px 16px 12px 16px', fontSize: 13, color: '#64748b' }}>
+              <div style={{ padding: '4px 16px 12px 16px', fontSize: 13, color: 'var(--app-text-muted)' }}>
                 Stock actual: <strong style={{ color: selectedProduct.low_stock ? '#dc2626' : '#16a34a' }}>{selectedProduct.stock_actual} {selectedProduct.unidad_medida}</strong> (Mínimo: {selectedProduct.stock_minimo})
               </div>
             )}
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
                   {movementType === 'ajuste' ? 'Nuevo Stock Total' : 'Cantidad'}
                 </IonLabel>
                 <IonInput
@@ -147,15 +155,24 @@ export const MovementFormDialog = ({
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Referencia</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Fecha (opcional)</IonLabel>
+                <IonInput type="datetime-local" value={fecha} onIonChange={(e) => setFecha(e.detail.value || '')} />
+              </IonItem>
+            </div>
+
+            <div className="ion-input-wrapper">
+              <IonItem lines="none" style={{ '--background': 'transparent' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Referencia</IonLabel>
                 <IonInput value={reference} onIonChange={(e) => setReference(e.detail.value || '')} placeholder="Factura, pedido, conteo físico..." />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nota</IonLabel>
-                <IonInput value={note} onIonChange={(e) => setNote(e.detail.value || '')} placeholder="Observaciones adicionales..." />
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
+                  {movementType === 'ajuste' ? 'Motivo del ajuste *' : 'Nota'}
+                </IonLabel>
+                <IonInput value={note} onIonChange={(e) => setNote(e.detail.value || '')} placeholder={movementType === 'ajuste' ? 'Indique el motivo del ajuste (obligatorio)' : 'Observaciones adicionales...'} />
               </IonItem>
             </div>
           </IonList>

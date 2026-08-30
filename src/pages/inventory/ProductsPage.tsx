@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { IonText, IonButton, IonSearchbar, IonLoading, IonToast } from '@ionic/react'
+import { IonPage, IonText, IonButton, IonSearchbar, IonToast } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { ProductList } from '../../components/inventory/ProductList'
 import { ProductFormDialog } from '../../components/inventory/ProductFormDialog'
 import { getProductsApi, createProductApi, updateProductApi, deleteProductApi } from '../../api/productApi'
@@ -89,7 +90,8 @@ export const ProductsPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Productos</IonText>
@@ -130,7 +132,7 @@ export const ProductsPage = () => {
           error={error}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando productos..." />
+        {loading && !formOpen && <PageLoading message="Cargando productos..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -140,5 +142,6 @@ export const ProductsPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

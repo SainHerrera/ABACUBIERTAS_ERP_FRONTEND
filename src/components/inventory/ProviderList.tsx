@@ -51,7 +51,7 @@ export const ProviderList = ({ providers, onEdit }: ProviderListProps) => {
           ))}
           {providers.length === 0 && (
             <tr>
-              <td colSpan={8} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={8} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay proveedores registrados
               </td>
             </tr>

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'ventas' | 'compras';
+export type UserRole = 'admin' | 'ventas' | 'compras' | 'bodega' | 'gerencia';
 
 export interface User {
   id_usuario: number;
@@ -6,6 +6,7 @@ export interface User {
   nombre: string;
   rol: UserRole;
   activo: boolean;
+  password_hash?: string;
 }
 
 export interface LoginRequest {

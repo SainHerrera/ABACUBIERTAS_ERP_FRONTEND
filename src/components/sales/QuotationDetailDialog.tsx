@@ -33,19 +33,19 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
         {quotation && (
           <div style={{ padding: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Cliente</IonText>
                 <IonText style={{ fontWeight: 600 }}>{clientName(quotation.id_cliente)}</IonText>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Estado</IonText>
                 <IonText style={{ fontWeight: 600 }}>{quotation.estado}</IonText>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Emisión</IonText>
                 <IonText style={{ fontWeight: 600 }}>{formatDate(quotation.fecha_emision)}</IonText>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Vencimiento</IonText>
                 <IonText style={{ fontWeight: 600 }}>{formatDate(quotation.fecha_vencimiento)}</IonText>
               </div>
@@ -82,7 +82,7 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
               </table>
             </div>
 
-            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 16 }}>
+            <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>Subtotal</span>
                 <span style={{ fontWeight: 600 }}>{formatMoney(quotation.subtotal)}</span>

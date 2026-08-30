@@ -3,6 +3,31 @@ import type { Product } from '../../types/product'
 import type { Movement } from '../../types/movement'
 import type { Provider } from '../../types/provider'
 import type { Client, Quotation, Sale } from '../../types/sales'
+import type { SystemSettings } from '../../types/settings'
+import type { PurchaseOrder } from '../../types/purchaseOrder'
+import type { StockRequest } from '../../types/stockRequest'
+import type { ProviderQuotation } from '../../types/providerQuotation'
+import type { AuditLogEntry } from '../../types/auditLog'
+import { hashPassword } from '../../utils/password'
+
+export const SEED_SETTINGS: SystemSettings = {
+  stockMinimoDefault: 15,
+  margenUtilidadDefault: 30,
+  catalogoInicialCargado: true,
+  aprobacionOcHabilitada: false,
+  aprobacionOcMontoMinimo: 5000000,
+  updatedAt: undefined,
+}
+
+export const SEED_AUDIT_LOG: AuditLogEntry[] = []
+
+export const SEED_PASSWORDS: Record<string, string> = {
+  'admin@test.com': 'Admin12345!',
+  'ventas@test.com': 'Ventas12345!',
+  'compras@test.com': 'Compras12345!',
+  'bodega@test.com': 'Bodega12345!',
+  'gerencia@test.com': 'Gerencia12345!',
+}
 
 export const SEED_USERS: User[] = [
   {
@@ -12,6 +37,7 @@ export const SEED_USERS: User[] = [
     rol: 'admin',
     activo: true,
     creado_en: new Date().toISOString(),
+    password_hash: hashPassword(SEED_PASSWORDS['admin@test.com']),
   },
   {
     id_usuario: 2,
@@ -20,6 +46,7 @@ export const SEED_USERS: User[] = [
     rol: 'ventas',
     activo: true,
     creado_en: new Date().toISOString(),
+    password_hash: hashPassword(SEED_PASSWORDS['ventas@test.com']),
   },
   {
     id_usuario: 3,
@@ -28,6 +55,7 @@ export const SEED_USERS: User[] = [
     rol: 'compras',
     activo: true,
     creado_en: new Date().toISOString(),
+    password_hash: hashPassword(SEED_PASSWORDS['compras@test.com']),
   },
   {
     id_usuario: 4,
@@ -36,6 +64,7 @@ export const SEED_USERS: User[] = [
     rol: 'bodega',
     activo: true,
     creado_en: new Date().toISOString(),
+    password_hash: hashPassword(SEED_PASSWORDS['bodega@test.com']),
   },
   {
     id_usuario: 5,
@@ -44,6 +73,7 @@ export const SEED_USERS: User[] = [
     rol: 'gerencia',
     activo: true,
     creado_en: new Date().toISOString(),
+    password_hash: hashPassword(SEED_PASSWORDS['gerencia@test.com']),
   },
 ]
 
@@ -372,5 +402,143 @@ export const SEED_SALES: Sale[] = [
         subtotal: 1700000,
       },
     ],
+  },
+]
+
+export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
+  {
+    id_orden_compra: 1,
+    numero_oc: 'OC-0001',
+    id_proveedor: 2,
+    nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
+    fecha_emision: '2026-08-20T10:00:00Z',
+    estado: 'en_transito',
+    observaciones: 'Mercancía en tránsito, pendiente de recepción por Bodega',
+    detalles: [
+      {
+        id_detalle_oc: 1,
+        id_producto: 1,
+        descripcion: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
+        cantidad_ordenada: 60,
+        cantidad_recibida: 0,
+        precio_unitario: 82000,
+        tiempo_entrega_dias: 10,
+      },
+      {
+        id_detalle_oc: 2,
+        id_producto: 2,
+        descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
+        cantidad_ordenada: 30,
+        cantidad_recibida: 0,
+        precio_unitario: 60000,
+        tiempo_entrega_dias: 12,
+      },
+    ],
+  },
+  {
+    id_orden_compra: 2,
+    numero_oc: 'OC-0002',
+    id_proveedor: 2,
+    nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
+    fecha_emision: '2026-08-25T09:00:00Z',
+    estado: 'enviada',
+    observaciones: 'Compra de accesorios para remate de cubiertas',
+    detalles: [
+      {
+        id_detalle_oc: 3,
+        id_producto: 5,
+        descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
+        cantidad_ordenada: 50,
+        cantidad_recibida: 0,
+        precio_unitario: 32000,
+        tiempo_entrega_dias: 8,
+      },
+    ],
+  },
+]
+
+export const SEED_STOCK_REQUESTS: StockRequest[] = [
+  {
+    id_solicitud: 1,
+    numero_solicitud: 'SOL-0001',
+    id_producto: 2,
+    descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
+    cantidad_sugerida: 25,
+    stock_actual: 8,
+    stock_minimo: 15,
+    estado: 'pendiente',
+    fecha: '2026-08-26T09:00:00Z',
+    id_usuario: 4,
+    nombre_usuario: 'Encargado Bodega',
+    observaciones: 'Stock bajo, requiere reposición de perfiles',
+  },
+  {
+    id_solicitud: 2,
+    numero_solicitud: 'SOL-0002',
+    id_producto: 5,
+    descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
+    cantidad_sugerida: 40,
+    stock_actual: 2,
+    stock_minimo: 12,
+    estado: 'pendiente',
+    fecha: '2026-08-27T09:00:00Z',
+    id_usuario: 4,
+    nombre_usuario: 'Encargado Bodega',
+    observaciones: 'Bajo inventario de caballetes',
+  },
+]
+
+export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
+  {
+    id_cotizacion: 1,
+    numero_cotizacion: 'COT-0001',
+    id_solicitud: 1,
+    id_producto: 2,
+    id_proveedor: 1,
+    nombre_proveedor: 'Aceros del Caribe S.A.S.',
+    precio_unitario: 59000,
+    tiempo_entrega_dias: 10,
+    condiciones: 'Pago a 30 días, flete incluido',
+    fecha: '2026-08-26T10:00:00Z',
+    seleccionada: true,
+  },
+  {
+    id_cotizacion: 2,
+    numero_cotizacion: 'COT-0002',
+    id_solicitud: 1,
+    id_producto: 2,
+    id_proveedor: 2,
+    nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
+    precio_unitario: 62000,
+    tiempo_entrega_dias: 15,
+    condiciones: 'Pago contado, flete no incluido',
+    fecha: '2026-08-26T11:00:00Z',
+    seleccionada: false,
+  },
+  {
+    id_cotizacion: 3,
+    numero_cotizacion: 'COT-0003',
+    id_solicitud: 2,
+    id_producto: 5,
+    id_proveedor: 2,
+    nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
+    precio_unitario: 33000,
+    tiempo_entrega_dias: 7,
+    condiciones: 'Pago a 15 días',
+    fecha: '2026-08-27T10:00:00Z',
+    seleccionada: false,
+  },
+  {
+    id_cotizacion: 4,
+    numero_cotizacion: 'COT-0004',
+    id_solicitud: 2,
+    id_producto: 5,
+    id_proveedor: 1,
+    nombre_proveedor: 'Aceros del Caribe S.A.S.',
+    precio_unitario: 35000,
+    tiempo_entrega_dias: 9,
+    condiciones: 'Pago a 30 días',
+    fecha: '2026-08-27T11:00:00Z',
+    seleccionada: false,
   },
 ]

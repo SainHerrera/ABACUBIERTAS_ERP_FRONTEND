@@ -63,7 +63,7 @@ export const SaleList = ({ sales, clientName, onView, onCancel }: SaleListProps)
           ))}
           {sales.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={6} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay pedidos registrados
               </td>
             </tr>

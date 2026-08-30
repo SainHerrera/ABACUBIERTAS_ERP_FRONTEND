@@ -65,7 +65,7 @@ export const ProductList = ({ products, onEdit, onDelete, canEdit = true }: Prod
           ))}
           {products.length === 0 && (
             <tr>
-              <td colSpan={canEdit ? 8 : 7} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={canEdit ? 8 : 7} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay productos registrados
               </td>
             </tr>

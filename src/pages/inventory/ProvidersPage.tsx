@@ -1,12 +1,16 @@
 import { useEffect, useState, useCallback } from 'react'
-import { IonText, IonButton, IonSearchbar, IonLoading, IonToast } from '@ionic/react'
+import { IonPage, IonText, IonButton, IonSearchbar, IonToast } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { ProviderList } from '../../components/inventory/ProviderList'
 import { ProviderFormDialog } from '../../components/inventory/ProviderFormDialog'
 import { getProvidersApi, createProviderApi, updateProviderApi } from '../../api/providerApi'
+import { useAppSelector } from '../../hooks/useAppSelector'
+import { canManageInventory } from '../../utils/permissions'
 import type { Provider, ProviderCreate, ProviderUpdate } from '../../types/provider'
 
 export const ProvidersPage = () => {
-  const canEdit = true
+  const { user } = useAppSelector((state) => state.auth)
+  const canEdit = canManageInventory(user?.rol)
 
   const [providers, setProviders] = useState<Provider[]>([])
   const [search, setSearch] = useState('')
@@ -62,7 +66,8 @@ export const ProvidersPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Proveedores</IonText>
@@ -100,7 +105,7 @@ export const ProvidersPage = () => {
           error={error}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando proveedores..." />
+        {loading && !formOpen && <PageLoading message="Cargando proveedores..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -110,5 +115,6 @@ export const ProvidersPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

@@ -69,7 +69,7 @@ export const ClientList = ({ clients, onEdit, onDelete, canDelete }: ClientListP
           ))}
           {clients.length === 0 && (
             <tr>
-              <td colSpan={9} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={9} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay clientes registrados
               </td>
             </tr>

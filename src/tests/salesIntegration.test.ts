@@ -15,6 +15,7 @@ import {
   createSaleApi,
   cancelSaleApi,
   convertQuoteToSaleApi,
+  confirmDispatchApi,
 } from '../api/saleApi'
 import { getProductApi, createProductApi } from '../api/productApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
@@ -108,7 +109,7 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
   })
 
   describe('3. Orders & Stock Integration Flow (/sales/orders)', () => {
-    it('should create order and deduct stock, cancel order and restore stock', async () => {
+    it('should create order without deducting, confirm dispatch to deduct, and cancel dispatched to restore', async () => {
       // 1. Create a specific test product
       const product = await createProductApi({
         nombre: 'Teja Test Pedido Stock',
@@ -120,7 +121,7 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
 
       const client = (await getClientsApi(0, 1)).items[0]
 
-      // 2. Create Order for 20 units -> stock becomes 30
+      // 2. Create Order for 20 units -> stock remains 50 (no discounto until dispatch)
       const sale = await createSaleApi({
         id_cliente: client.id_cliente,
         observaciones: 'Pedido prueba stock',
@@ -141,28 +142,37 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
       expect(sale.numero_orden).toMatch(/^PED-/)
       expect(sale.estado).toBe('pendiente')
 
-      const prodAfterSale = await getProductApi(product.id_producto)
-      expect(prodAfterSale.stock_actual).toBe(30)
+      const prodAfterCreate = await getProductApi(product.id_producto)
+      expect(prodAfterCreate.stock_actual).toBe(50)
 
-      // 3. Trying to create order for 40 units should fail due to insufficient stock (only 30 available)
-      await expect(
-        createSaleApi({
-          id_cliente: client.id_cliente,
-          detalles: [
-            {
-              id_detalle_venta: 1,
-              id_producto: product.id_producto,
-              descripcion: product.nombre,
-              cantidad: 40,
-              precio_unitario: product.precio_unitario,
-              descuento: 0,
-              subtotal: 4000000,
-            },
-          ],
-        }),
-      ).rejects.toThrow(/Stock insuficiente/)
+      // 3. Confirm dispatch -> stock becomes 30
+      const dispatched = await confirmDispatchApi(sale.id_orden_venta)
+      expect(dispatched.estado).toBe('entregada')
 
-      // 4. Cancel the sale -> stock should be restored from 30 back to 50
+      const prodAfterDispatch = await getProductApi(product.id_producto)
+      expect(prodAfterDispatch.stock_actual).toBe(30)
+
+      // 4. Create another order for 40 units (stock stays 30) and confirm dispatch
+      //    should fail due to insufficient stock (only 30 available)
+      const bigSale = await createSaleApi({
+        id_cliente: client.id_cliente,
+        detalles: [
+          {
+            id_detalle_venta: 1,
+            id_producto: product.id_producto,
+            descripcion: product.nombre,
+            cantidad: 40,
+            precio_unitario: product.precio_unitario,
+            descuento: 0,
+            subtotal: 4000000,
+          },
+        ],
+      })
+      await expect(confirmDispatchApi(bigSale.id_orden_venta)).rejects.toThrow(
+        /Stock insuficiente/,
+      )
+
+      // 5. Cancel the dispatched sale -> stock restored from 30 back to 50
       const cancelledSale = await cancelSaleApi(sale.id_orden_venta)
       expect(cancelledSale.estado).toBe('cancelada')
 
@@ -170,7 +180,7 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
       expect(prodAfterCancel.stock_actual).toBe(50)
     })
 
-    it('should convert quotation to sale, deduct stock, and approve quotation', async () => {
+    it('should convert quotation to sale (no deduct) and confirm dispatch to deduct + approve quotation', async () => {
       const client = (await getClientsApi(0, 1)).items[0]
       const product = await createProductApi({
         nombre: 'Producto Convertir Cotizacion',
@@ -198,8 +208,14 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
       const sale = await convertQuoteToSaleApi(quote.id_cotizacion)
       expect(sale.id_orden_venta).toBeDefined()
       expect(sale.id_cotizacion).toBe(quote.id_cotizacion)
+      expect(sale.estado).toBe('pendiente')
 
-      // Stock should be deducted from 25 to 10
+      // Stock NOT deducted on conversion (only on dispatch confirm)
+      const prodBeforeDispatch = await getProductApi(product.id_producto)
+      expect(prodBeforeDispatch.stock_actual).toBe(25)
+
+      // Confirm dispatch -> stock deducted from 25 to 10
+      await confirmDispatchApi(sale.id_orden_venta)
       const prodCheck = await getProductApi(product.id_producto)
       expect(prodCheck.stock_actual).toBe(10)
 

@@ -100,7 +100,7 @@ export const QuotationList = ({
           ))}
           {quotations.length === 0 && (
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>
+              <td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--app-text-faint)' }}>
                 No hay cotizaciones registradas
               </td>
             </tr>

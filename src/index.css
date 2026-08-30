@@ -25,6 +25,40 @@
   --ion-card-background: #ffffff;
   --ion-toolbar-background: #ffffff;
   --ion-tab-bar-background: #ffffff;
+
+  --app-bg: #ffffff;
+  --app-surface: #f8fafc;
+  --app-surface-hover: #f1f5f9;
+  --app-border: #e2e8f0;
+  --app-text: #1e293b;
+  --app-text-secondary: #334155;
+  --app-text-muted: #64748b;
+  --app-text-faint: #94a3b8;
+  --app-sidebar-bg: #0f172a;
+  --app-sidebar-border: #1e293b;
+}
+
+html.ion-palette-dark {
+  color-scheme: dark;
+  --ion-background-color: #0f172a;
+  --ion-background-color-rgb: 15, 23, 42;
+  --ion-text-color: #e2e8f0;
+  --ion-text-color-rgb: 226, 232, 240;
+  --ion-item-background: #1e293b;
+  --ion-card-background: #1e293b;
+  --ion-toolbar-background: #0f172a;
+  --ion-tab-bar-background: #0f172a;
+
+  --app-bg: #0f172a;
+  --app-surface: #1e293b;
+  --app-surface-hover: #263449;
+  --app-border: #334155;
+  --app-text: #f1f5f9;
+  --app-text-secondary: #e2e8f0;
+  --app-text-muted: #94a3b8;
+  --app-text-faint: #64748b;
+  --app-sidebar-bg: #0b1222;
+  --app-sidebar-border: #263449;
 }
 
 .auth-page {
@@ -83,9 +117,9 @@
 }
 
 .ion-input-wrapper {
-  background: #f8fafc;
+  background: var(--app-surface);
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
   margin-bottom: 12px;
   --padding-start: 16px;
 }
@@ -96,13 +130,13 @@
 }
 
 .sidebar-menu {
-  --ion-background-color: #0f172a;
-  --ion-text-color: #94a3b8;
+  --ion-background-color: var(--app-sidebar-bg);
+  --ion-text-color: var(--app-text-faint);
   --ion-item-background: transparent;
 }
 
 .sidebar-menu ion-item {
-  --color: #94a3b8;
+  --color: var(--app-text-faint);
   --border-color: transparent;
   --border-radius: 8px;
   margin: 2px 8px;
@@ -129,7 +163,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #475569;
+  color: var(--app-text-muted);
   padding: 16px 16px 8px;
   margin: 0;
 }
@@ -137,7 +171,7 @@
 .table-container {
   overflow-x: auto;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
 }
 
 table {
@@ -146,23 +180,23 @@ table {
 }
 
 table th {
-  background: #f8fafc;
+  background: var(--app-surface);
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
   font-size: 13px;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--app-text-muted);
+  border-bottom: 1px solid var(--app-border);
 }
 
 table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--app-surface-hover);
   font-size: 14px;
 }
 
 table tr:hover td {
-  background: #f8fafc;
+  background: var(--app-surface);
 }
 
 table tr:last-child td {
@@ -197,9 +231,9 @@ table tr:last-child td {
 }
 
 .chip-default {
-  background: #f1f5f9;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--app-surface-hover);
+  color: var(--app-text-muted);
+  border: 1px solid var(--app-border);
 }
 
 .chip-warning {
@@ -214,9 +248,15 @@ table tr:last-child td {
   border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
+.chip-info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
 .metric-card {
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
   padding: 20px;
   display: flex;
   align-items: center;
@@ -247,13 +287,13 @@ table tr:last-child td {
 
 .metric-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--app-text-muted);
   margin: 0;
 }
 
 .info-label {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--app-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
@@ -287,7 +327,53 @@ table tr:last-child td {
 }
 
 .btn-icon:hover {
-  background: #f1f5f9;
+  background: var(--app-surface-hover);
+}
+
+@media print {
+  body.has-print-area * {
+    visibility: hidden;
+  }
+
+  body.has-print-area #print-area,
+  body.has-print-area #print-area * {
+    visibility: visible;
+  }
+
+  body.has-print-area #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color-scheme: light;
+    --ion-background-color: #ffffff;
+    --ion-text-color: #1e293b;
+    --ion-item-background: #ffffff;
+    --ion-card-background: #ffffff;
+    --app-bg: #ffffff;
+    --app-surface: #f8fafc;
+    --app-surface-hover: #f1f5f9;
+    --app-border: #e2e8f0;
+    --app-text: #1e293b;
+    --app-text-secondary: #334155;
+    --app-text-muted: #64748b;
+    --app-text-faint: #94a3b8;
+  }
+
+  body.has-print-area #print-area th {
+    background: #f8fafc !important;
+    color: #64748b !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #print-area thead {
+    display: table-header-group;
+  }
+
+  #print-area tr {
+    break-inside: avoid;
+  }
 }
 
 @media (max-width: 768px) {

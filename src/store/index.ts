@@ -6,6 +6,8 @@ import providerReducer from './slices/providerSlice';
 import clientReducer from './slices/clientSlice';
 import quotationReducer from './slices/quotationSlice';
 import saleReducer from './slices/saleSlice';
+import settingsReducer from './slices/settingsSlice';
+import auditLogReducer from './slices/auditLogSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     clients: clientReducer,
     quotes: quotationReducer,
     sales: saleReducer,
+    settings: settingsReducer,
+    auditLog: auditLogReducer,
   },
 });
 

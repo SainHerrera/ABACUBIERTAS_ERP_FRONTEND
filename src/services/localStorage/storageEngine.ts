@@ -30,6 +30,7 @@ import type {
   ClientUpdate,
   ClientListResponse,
   Quotation,
+  QuotationDetail,
   QuotationCreate,
   QuotationUpdate,
   QuotationEstadoUpdate,
@@ -39,6 +40,29 @@ import type {
   SaleUpdate,
   SaleListResponse,
 } from '../../types/sales'
+import type { SystemSettings, SystemSettingsUpdate } from '../../types/settings'
+import type {
+  PurchaseOrder,
+  PurchaseOrderCreate,
+  PurchaseOrderDetail,
+  PurchaseOrderListResponse,
+} from '../../types/purchaseOrder'
+import type {
+  StockRequest,
+  StockRequestCreate,
+  StockRequestListResponse,
+  StockRequestStatus,
+} from '../../types/stockRequest'
+import type {
+  ProviderQuotation,
+  ProviderQuotationCreate,
+  ProviderQuotationListResponse,
+} from '../../types/providerQuotation'
+import type {
+  AuditAction,
+  AuditLogEntry,
+  AuditLogListResponse,
+} from '../../types/auditLog'
 import {
   SEED_USERS,
   SEED_PROVIDERS,
@@ -47,7 +71,15 @@ import {
   SEED_CLIENTS,
   SEED_QUOTATIONS,
   SEED_SALES,
+  SEED_PASSWORDS,
+  SEED_SETTINGS,
+  SEED_AUDIT_LOG,
+  SEED_PURCHASE_ORDERS,
+  SEED_STOCK_REQUESTS,
+  SEED_PROVIDER_QUOTATIONS,
 } from './seedData'
+import { getCurrentUserFromToken } from '../../utils/jwt'
+import { hashPassword, verifyPassword } from '../../utils/password'
 
 const KEYS = {
   USERS: 'abacubiertas_users',
@@ -57,7 +89,12 @@ const KEYS = {
   CLIENTS: 'abacubiertas_clients',
   QUOTATIONS: 'abacubiertas_quotations',
   SALES: 'abacubiertas_sales',
+  SETTINGS: 'abacubiertas_settings',
+  AUDIT_LOG: 'abacubiertas_audit_log',
   INITIALIZED: 'abacubiertas_initialized',
+  POS: 'abacubiertas_pos',
+  STOCK_REQUESTS: 'abacubiertas_stock_requests',
+  PROVIDER_QUOTATIONS: 'abacubiertas_provider_quotations',
 }
 
 const safeJsonParse = <T>(value: string | null, fallback: T): T => {
@@ -83,6 +120,11 @@ export class StorageEngine {
       localStorage.setItem(KEYS.CLIENTS, JSON.stringify(SEED_CLIENTS))
       localStorage.setItem(KEYS.QUOTATIONS, JSON.stringify(SEED_QUOTATIONS))
       localStorage.setItem(KEYS.SALES, JSON.stringify(SEED_SALES))
+      StorageEngine.setSettingsRaw(SEED_SETTINGS)
+      localStorage.setItem(KEYS.AUDIT_LOG, JSON.stringify(SEED_AUDIT_LOG))
+      localStorage.setItem(KEYS.POS, JSON.stringify(SEED_PURCHASE_ORDERS))
+      localStorage.setItem(KEYS.STOCK_REQUESTS, JSON.stringify(SEED_STOCK_REQUESTS))
+      localStorage.setItem(KEYS.PROVIDER_QUOTATIONS, JSON.stringify(SEED_PROVIDER_QUOTATIONS))
       localStorage.setItem(KEYS.INITIALIZED, 'true')
     } else {
       // Ensure collections exist if previous init lacked them
@@ -94,6 +136,21 @@ export class StorageEngine {
       }
       if (!localStorage.getItem(KEYS.SALES)) {
         localStorage.setItem(KEYS.SALES, JSON.stringify(SEED_SALES))
+      }
+      if (!localStorage.getItem(KEYS.SETTINGS)) {
+        StorageEngine.setSettingsRaw(SEED_SETTINGS)
+      }
+      if (!localStorage.getItem(KEYS.AUDIT_LOG)) {
+        localStorage.setItem(KEYS.AUDIT_LOG, JSON.stringify(SEED_AUDIT_LOG))
+      }
+      if (!localStorage.getItem(KEYS.POS)) {
+        localStorage.setItem(KEYS.POS, JSON.stringify(SEED_PURCHASE_ORDERS))
+      }
+      if (!localStorage.getItem(KEYS.STOCK_REQUESTS)) {
+        localStorage.setItem(KEYS.STOCK_REQUESTS, JSON.stringify(SEED_STOCK_REQUESTS))
+      }
+      if (!localStorage.getItem(KEYS.PROVIDER_QUOTATIONS)) {
+        localStorage.setItem(KEYS.PROVIDER_QUOTATIONS, JSON.stringify(SEED_PROVIDER_QUOTATIONS))
       }
     }
   }
@@ -107,7 +164,23 @@ export class StorageEngine {
   // ----------------------------------------------------
   private static getUsersRaw(): User[] {
     StorageEngine.init()
-    return safeJsonParse<User[]>(localStorage.getItem(KEYS.USERS), SEED_USERS)
+    const users = safeJsonParse<User[]>(localStorage.getItem(KEYS.USERS), SEED_USERS)
+
+    // Migration: backfill default passwords for seed accounts created before
+    // password support was added.
+    let changed = false
+    for (const user of users) {
+      const seedPassword = SEED_PASSWORDS[user.email.toLowerCase()]
+      if (seedPassword && !user.password_hash) {
+        user.password_hash = hashPassword(seedPassword)
+        changed = true
+      }
+    }
+    if (changed) {
+      StorageEngine.setUsersRaw(users)
+    }
+
+    return users
   }
 
   private static setUsersRaw(users: User[]): void {
@@ -168,27 +241,34 @@ export class StorageEngine {
     localStorage.setItem(KEYS.SALES, JSON.stringify(sales))
   }
 
+  private static getSettingsRaw(): SystemSettings {
+    return safeJsonParse<SystemSettings>(localStorage.getItem(KEYS.SETTINGS), SEED_SETTINGS)
+  }
+
+  private static setSettingsRaw(settings: SystemSettings): void {
+    localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings))
+  }
+
+  private static getAuditLogRaw(): AuditLogEntry[] {
+    StorageEngine.init()
+    return safeJsonParse<AuditLogEntry[]>(
+      localStorage.getItem(KEYS.AUDIT_LOG),
+      SEED_AUDIT_LOG,
+    )
+  }
+
+  private static setAuditLogRaw(entries: AuditLogEntry[]): void {
+    localStorage.setItem(KEYS.AUDIT_LOG, JSON.stringify(entries))
+  }
+
   private static getCurrentUser(): User {
     const token = localStorage.getItem('accessToken')
     if (token) {
-      try {
-        const payloadStr = token.split('.')[1]
-        if (payloadStr) {
-          const payload = JSON.parse(atob(payloadStr))
-          return {
-            id_usuario: payload.id || 1,
-            email: payload.sub || 'admin@test.com',
-            nombre: payload.nombre || 'Administrador ERP',
-            rol: payload.rol || 'admin',
-            activo: true,
-            creado_en: new Date().toISOString(),
-          }
-        }
-      } catch {
-        // fallback to default admin
-      }
+      const user = getCurrentUserFromToken(token)
+      if (user) return user
     }
-    return SEED_USERS[0]
+    const users = StorageEngine.getUsersRaw()
+    return users[0] || SEED_USERS[0]
   }
 
   private static createMockToken(user: User): string {
@@ -196,14 +276,179 @@ export class StorageEngine {
     const payload = btoa(
       JSON.stringify({
         sub: user.email,
+        email: user.email,
         id: user.id_usuario,
+        id_usuario: user.id_usuario,
         rol: user.rol,
         nombre: user.nombre,
+        activo: user.activo,
         exp: Math.floor(Date.now() / 1000) + 3600 * 24 * 7,
       }),
     )
     const signature = btoa('mock_signature_for_local_storage')
     return `${header}.${payload}.${signature}`
+  }
+
+  // ----------------------------------------------------
+  // SETTINGS METHODS
+  // ----------------------------------------------------
+  public static getSettings(): SystemSettings {
+    StorageEngine.init()
+    return StorageEngine.getSettingsRaw()
+  }
+
+  public static updateSettings(data: SystemSettingsUpdate): SystemSettings {
+    StorageEngine.init()
+    const current = StorageEngine.getSettingsRaw()
+
+    if (data.stockMinimoDefault !== undefined) {
+      const value = Number(data.stockMinimoDefault)
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error('El stock mínimo por defecto no puede ser negativo')
+      }
+      current.stockMinimoDefault = value
+    }
+
+    if (data.margenUtilidadDefault !== undefined) {
+      const value = Number(data.margenUtilidadDefault)
+      if (!Number.isFinite(value) || value < 0 || value > 100) {
+        throw new Error('El margen de utilidad debe estar entre 0 y 100')
+      }
+      current.margenUtilidadDefault = value
+    }
+
+    if (data.aprobacionOcHabilitada !== undefined) {
+      current.aprobacionOcHabilitada = Boolean(data.aprobacionOcHabilitada)
+    }
+
+    if (data.aprobacionOcMontoMinimo !== undefined) {
+      const value = Number(data.aprobacionOcMontoMinimo)
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error('El monto mínimo de aprobación no puede ser negativo')
+      }
+      current.aprobacionOcMontoMinimo = value
+    }
+
+    current.updatedAt = new Date().toISOString()
+    StorageEngine.setSettingsRaw(current)
+    StorageEngine.recordAuditLog(
+      'settings_updated',
+      `Parámetros del sistema actualizados (stock mínimo: ${current.stockMinimoDefault}, margen de utilidad: ${current.margenUtilidadDefault}%)`,
+    )
+    return current
+  }
+
+  public static resetSettings(): SystemSettings {
+    StorageEngine.init()
+    StorageEngine.setSettingsRaw(SEED_SETTINGS)
+    StorageEngine.recordAuditLog(
+      'settings_reset',
+      'Parámetros del sistema restablecidos a valores por defecto',
+    )
+    return StorageEngine.getSettingsRaw()
+  }
+
+  public static loadInitialCatalog(): { products: number; providers: number } {
+    StorageEngine.init()
+    const products = StorageEngine.getProductsRaw()
+    const providers = StorageEngine.getProvidersRaw()
+    const settings = StorageEngine.getSettingsRaw()
+
+    const initialProducts = products.length > 0 ? products : [...SEED_PRODUCTS]
+    localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(initialProducts))
+
+    const initialProviders = providers.length > 0 ? providers : [...SEED_PROVIDERS]
+    localStorage.setItem(KEYS.PROVIDERS, JSON.stringify(initialProviders))
+
+    settings.catalogoInicialCargado = true
+    settings.updatedAt = new Date().toISOString()
+    StorageEngine.setSettingsRaw(settings)
+
+    StorageEngine.recordAuditLog(
+      'catalog_loaded',
+      `Catálogo inicial cargado (${initialProducts.length} productos, ${initialProviders.length} proveedores)`,
+    )
+
+    return { products: initialProducts.length, providers: initialProviders.length }
+  }
+
+  // ----------------------------------------------------
+  // AUDIT LOG METHODS
+  // ----------------------------------------------------
+  public static recordAuditLog(
+    accion: AuditAction,
+    detalle: string,
+    actor?: User,
+  ): AuditLogEntry {
+    const user = actor || StorageEngine.getCurrentUser()
+    const entries = StorageEngine.getAuditLogRaw()
+    const nextId =
+      entries.length > 0 ? Math.max(...entries.map((e) => e.id)) + 1 : 1
+
+    const entry: AuditLogEntry = {
+      id: nextId,
+      fecha: new Date().toISOString(),
+      id_usuario: user.id_usuario,
+      nombre_usuario: user.nombre,
+      email_usuario: user.email,
+      rol_usuario: user.rol,
+      accion,
+      detalle,
+    }
+
+    entries.unshift(entry)
+    StorageEngine.setAuditLogRaw(entries)
+    return entry
+  }
+
+  public static getAuditLog(
+    skip = 0,
+    limit = 50,
+    filters?: { usuario?: string; accion?: string },
+  ): AuditLogListResponse {
+    let list = StorageEngine.getAuditLogRaw()
+
+    if (filters?.usuario && filters.usuario.trim()) {
+      const term = filters.usuario.trim().toLowerCase()
+      list = list.filter(
+        (e) =>
+          e.nombre_usuario.toLowerCase().includes(term) ||
+          e.email_usuario.toLowerCase().includes(term),
+      )
+    }
+
+    if (filters?.accion && filters.accion.trim()) {
+      const accion = filters.accion.trim().toLowerCase()
+      list = list.filter((e) => e.accion.toLowerCase().includes(accion))
+    }
+
+    const total = list.length
+    const items = list.slice(skip, skip + limit)
+    return { items, total, skip, limit }
+  }
+
+  public static clearAuditLog(): void {
+    StorageEngine.init()
+    StorageEngine.setAuditLogRaw([])
+  }
+
+  private static applyDefaultMargin(detalles: QuotationDetail[]): QuotationDetail[] {
+    const margin = StorageEngine.getSettings().margenUtilidadDefault
+    const products = StorageEngine.getProductsRaw()
+    return detalles.map((d) => {
+      const hasExplicitPrice = Number(d.precio_unitario) > 0
+      let precio = Number(d.precio_unitario) || 0
+      let subtotal = Number(d.subtotal) || 0
+
+      if (!hasExplicitPrice) {
+        const product = products.find((p) => p.id_producto === d.id_producto)
+        const basePrice = Number(product?.precio_unitario ?? 0)
+        precio = Math.round(basePrice * (1 + margin / 100))
+        subtotal = precio * d.cantidad - (Number(d.descuento) || 0)
+      }
+
+      return { ...d, precio_unitario: precio, subtotal }
+    })
   }
 
   // ----------------------------------------------------
@@ -443,7 +688,7 @@ export class StorageEngine {
       referencia: data.reference?.trim() || undefined,
       id_usuario: currentUser.id_usuario,
       nombre_usuario: currentUser.nombre,
-      fecha: new Date().toISOString(),
+      fecha: data.fecha || new Date().toISOString(),
       nota: data.note?.trim() || undefined,
     }
 
@@ -495,7 +740,7 @@ export class StorageEngine {
       referencia: data.reference?.trim() || undefined,
       id_usuario: currentUser.id_usuario,
       nombre_usuario: currentUser.nombre,
-      fecha: new Date().toISOString(),
+      fecha: data.fecha || new Date().toISOString(),
       nota: data.note?.trim() || undefined,
     }
 
@@ -508,6 +753,10 @@ export class StorageEngine {
   public static createAdjustment(data: MovementAdjustmentCreate): Movement {
     if (data.quantity === undefined || data.quantity < 0) {
       throw new Error('La cantidad del ajuste no puede ser negativa')
+    }
+
+    if (!data.note || !data.note.trim()) {
+      throw new Error('El motivo del ajuste es obligatorio')
     }
 
     const products = StorageEngine.getProductsRaw()
@@ -540,7 +789,7 @@ export class StorageEngine {
       referencia: data.reference?.trim() || `Ajuste (anterior: ${previousStock})`,
       id_usuario: currentUser.id_usuario,
       nombre_usuario: currentUser.nombre,
-      fecha: new Date().toISOString(),
+      fecha: data.fecha || new Date().toISOString(),
       nota: data.note?.trim() || undefined,
     }
 
@@ -873,8 +1122,9 @@ export class StorageEngine {
     const nextId =
       quotations.length > 0 ? Math.max(...quotations.map((q) => q.id_cotizacion)) + 1 : 1
     const currentUser = StorageEngine.getCurrentUser()
+    const detalles = StorageEngine.applyDefaultMargin(data.detalles || [])
 
-    const subtotal = (data.detalles || []).reduce(
+    const subtotal = (detalles || []).reduce(
       (sum, d) => sum + (d.subtotal || d.cantidad * d.precio_unitario - (d.descuento || 0)),
       0,
     )
@@ -896,7 +1146,7 @@ export class StorageEngine {
       descuento,
       total,
       observaciones: data.observaciones?.trim() || undefined,
-      detalles: data.detalles || [],
+      detalles,
     }
 
     quotations.unshift(newQuote)
@@ -917,7 +1167,7 @@ export class StorageEngine {
     if (data.fecha_vencimiento !== undefined) current.fecha_vencimiento = data.fecha_vencimiento
     if (data.observaciones !== undefined) current.observaciones = data.observaciones?.trim() || undefined
     if (data.descuento !== undefined) current.descuento = Number(data.descuento)
-    if (data.detalles !== undefined) current.detalles = data.detalles
+    if (data.detalles !== undefined) current.detalles = StorageEngine.applyDefaultMargin(data.detalles)
 
     const subtotal = (current.detalles || []).reduce(
       (sum, d) => sum + (d.subtotal || d.cantidad * d.precio_unitario - (d.descuento || 0)),
@@ -992,10 +1242,64 @@ export class StorageEngine {
   }
 
   public static createSale(data: SaleCreate): Sale {
+    // El stock NO se descuenta al crear el pedido. Se descuenta cuando Bodega
+    // confirma el despacho físico (confirmDispatch).
     const products = StorageEngine.getProductsRaw()
+    for (const detail of data.detalles) {
+      const prod = products.find((p) => p.id_producto === detail.id_producto && p.activo !== false)
+      if (!prod) {
+        throw new Error(`Producto con ID ${detail.id_producto} no encontrado`)
+      }
+    }
+
+    const currentUser = StorageEngine.getCurrentUser()
+    const sales = StorageEngine.getSalesRaw()
+    const nextSaleId =
+      sales.length > 0 ? Math.max(...sales.map((s) => s.id_orden_venta)) + 1 : 1
+    const orderNumber = `PED-${String(nextSaleId).padStart(4, '0')}`
+
+    const total = data.detalles.reduce(
+      (sum, d) => sum + (d.subtotal || d.cantidad * d.precio_unitario - (d.descuento || 0)),
+      0,
+    )
+
+    const newSale: Sale = {
+      id_orden_venta: nextSaleId,
+      numero_orden: orderNumber,
+      id_cliente: data.id_cliente,
+      id_cotizacion: data.id_cotizacion,
+      id_usuario: currentUser.id_usuario,
+      fecha_venta: new Date().toISOString(),
+      estado: 'pendiente',
+      total,
+      observaciones: data.observaciones?.trim() || undefined,
+      detalles: data.detalles,
+    }
+
+    sales.unshift(newSale)
+    StorageEngine.setSalesRaw(sales)
+
+    return newSale
+  }
+
+  public static confirmDispatch(saleId: number, observaciones?: string): Sale {
+    const sales = StorageEngine.getSalesRaw()
+    const index = sales.findIndex((s) => s.id_orden_venta === saleId)
+    if (index === -1) {
+      throw new Error(`Pedido con ID ${saleId} no encontrado`)
+    }
+
+    const sale = sales[index]
+    if (sale.estado === 'entregada') {
+      return sale
+    }
+
+    const products = StorageEngine.getProductsRaw()
+    const movements = StorageEngine.getMovementsRaw()
+    const currentUser = StorageEngine.getCurrentUser()
 
     // 1. Verify sufficient stock for all items
-    for (const detail of data.detalles) {
+    for (const detail of sale.detalles) {
       const prod = products.find((p) => p.id_producto === detail.id_producto && p.activo !== false)
       if (!prod) {
         throw new Error(`Producto con ID ${detail.id_producto} no encontrado`)
@@ -1008,14 +1312,7 @@ export class StorageEngine {
     }
 
     // 2. Deduct stock and register output movements
-    const currentUser = StorageEngine.getCurrentUser()
-    const movements = StorageEngine.getMovementsRaw()
-    const sales = StorageEngine.getSalesRaw()
-    const nextSaleId =
-      sales.length > 0 ? Math.max(...sales.map((s) => s.id_orden_venta)) + 1 : 1
-    const orderNumber = `PED-${String(nextSaleId).padStart(4, '0')}`
-
-    for (const detail of data.detalles) {
+    for (const detail of sale.detalles) {
       const prodIndex = products.findIndex((p) => p.id_producto === detail.id_producto)
       if (prodIndex !== -1) {
         const prod = products[prodIndex]
@@ -1032,11 +1329,11 @@ export class StorageEngine {
           nombre_producto: prod.nombre,
           tipo: 'salida',
           cantidad: detail.cantidad,
-          referencia: orderNumber,
+          referencia: sale.numero_orden,
           id_usuario: currentUser.id_usuario,
           nombre_usuario: currentUser.nombre,
           fecha: new Date().toISOString(),
-          nota: `Despacho automático por pedido ${orderNumber}`,
+          nota: `Despacho confirmado del pedido ${sale.numero_orden}`,
         })
       }
     }
@@ -1044,27 +1341,18 @@ export class StorageEngine {
     StorageEngine.setProductsRaw(products)
     StorageEngine.setMovementsRaw(movements)
 
-    const total = data.detalles.reduce(
-      (sum, d) => sum + (d.subtotal || d.cantidad * d.precio_unitario - (d.descuento || 0)),
-      0,
-    )
-
-    const newSale: Sale = {
-      id_orden_venta: nextSaleId,
-      numero_orden: orderNumber,
-      id_cliente: data.id_cliente,
-      id_usuario: currentUser.id_usuario,
-      fecha_venta: new Date().toISOString(),
-      estado: 'pendiente',
-      total,
-      observaciones: data.observaciones?.trim() || undefined,
-      detalles: data.detalles,
-    }
-
-    sales.unshift(newSale)
+    sale.estado = 'entregada'
+    if (observaciones !== undefined) sale.observaciones = observaciones.trim() || sale.observaciones
+    sales[index] = sale
     StorageEngine.setSalesRaw(sales)
 
-    return newSale
+    StorageEngine.recordAuditLog(
+      'sale_dispatched',
+      `Bodega confirmó el despacho del pedido ${sale.numero_orden}`,
+      currentUser,
+    )
+
+    return sale
   }
 
   public static updateSale(saleId: number, data: SaleUpdate): Sale {
@@ -1096,39 +1384,45 @@ export class StorageEngine {
       return sale
     }
 
-    // Restore stock and create entry movements
-    const products = StorageEngine.getProductsRaw()
-    const movements = StorageEngine.getMovementsRaw()
-    const currentUser = StorageEngine.getCurrentUser()
+    // Solo se restaura stock si el pedido ya fue despachado (entregada) y por lo
+    // tanto el stock ya fue descontado al confirmar el despacho.
+    const wasDispatched = sale.estado === 'entregada'
 
-    for (const detail of sale.detalles) {
-      const prodIndex = products.findIndex((p) => p.id_producto === detail.id_producto)
-      if (prodIndex !== -1) {
-        const prod = products[prodIndex]
-        prod.stock_actual += detail.cantidad
-        prod.low_stock = prod.stock_actual <= prod.stock_minimo
-        prod.status = prod.low_stock ? 'low' : 'normal'
-        products[prodIndex] = prod
+    if (wasDispatched) {
+      // Restore stock and create entry movements
+      const products = StorageEngine.getProductsRaw()
+      const movements = StorageEngine.getMovementsRaw()
+      const currentUser = StorageEngine.getCurrentUser()
 
-        const nextMovId =
-          movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
-        movements.unshift({
-          id_movimiento: nextMovId,
-          id_producto: prod.id_producto,
-          nombre_producto: prod.nombre,
-          tipo: 'entrada',
-          cantidad: detail.cantidad,
-          referencia: `REVERSIÓN ${sale.numero_orden}`,
-          id_usuario: currentUser.id_usuario,
-          nombre_usuario: currentUser.nombre,
-          fecha: new Date().toISOString(),
-          nota: `Restauración de stock por cancelación de pedido ${sale.numero_orden}`,
-        })
+      for (const detail of sale.detalles) {
+        const prodIndex = products.findIndex((p) => p.id_producto === detail.id_producto)
+        if (prodIndex !== -1) {
+          const prod = products[prodIndex]
+          prod.stock_actual += detail.cantidad
+          prod.low_stock = prod.stock_actual <= prod.stock_minimo
+          prod.status = prod.low_stock ? 'low' : 'normal'
+          products[prodIndex] = prod
+
+          const nextMovId =
+            movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
+          movements.unshift({
+            id_movimiento: nextMovId,
+            id_producto: prod.id_producto,
+            nombre_producto: prod.nombre,
+            tipo: 'entrada',
+            cantidad: detail.cantidad,
+            referencia: `REVERSIÓN ${sale.numero_orden}`,
+            id_usuario: currentUser.id_usuario,
+            nombre_usuario: currentUser.nombre,
+            fecha: new Date().toISOString(),
+            nota: `Restauración de stock por cancelación del despacho ${sale.numero_orden}`,
+          })
+        }
       }
-    }
 
-    StorageEngine.setProductsRaw(products)
-    StorageEngine.setMovementsRaw(movements)
+      StorageEngine.setProductsRaw(products)
+      StorageEngine.setMovementsRaw(movements)
+    }
 
     sale.estado = 'cancelada'
     sales[index] = sale
@@ -1176,32 +1470,32 @@ export class StorageEngine {
   public static login(data: LoginRequest): TokenResponse {
     const users = StorageEngine.getUsersRaw()
     const email = data.email.trim().toLowerCase()
-    let user = users.find((u) => u.email.toLowerCase() === email && u.activo !== false)
+    let user = users.find((u) => u.email.toLowerCase() === email)
 
     if (!user) {
-      // If user logging in is one of default test accounts, create it
+      // If user logging in is one of default seed accounts, initialize it
       const seedMatch = SEED_USERS.find((u) => u.email.toLowerCase() === email)
       if (seedMatch) {
         user = seedMatch
         users.push(user)
         StorageEngine.setUsersRaw(users)
       } else {
-        // Fallback create admin if logging in with test credentials
-        user = {
-          id_usuario: users.length + 1,
-          email: data.email,
-          nombre: data.email.split('@')[0],
-          rol: 'admin',
-          activo: true,
-          creado_en: new Date().toISOString(),
-        }
-        users.push(user)
-        StorageEngine.setUsersRaw(users)
+        throw new Error('Credenciales incorrectas. Usuario no encontrado.')
       }
+    }
+
+    if (user.activo === false) {
+      throw new Error('El usuario se encuentra desactivado. Contacte al administrador.')
+    }
+
+    if (!user.password_hash || !verifyPassword(data.password, user.password_hash)) {
+      throw new Error('Credenciales incorrectas. Verifique su correo y contraseña.')
     }
 
     const accessToken = StorageEngine.createMockToken(user)
     const refreshToken = `mock_refresh_${user.id_usuario}_${Date.now()}`
+
+    StorageEngine.recordAuditLog('login', `Inicio de sesión de ${user.nombre}`, user)
 
     return {
       access_token: accessToken,
@@ -1214,9 +1508,13 @@ export class StorageEngine {
     const users = StorageEngine.getUsersRaw()
     const email = data.email.trim().toLowerCase()
 
-    const exists = users.some((u) => u.email.toLowerCase() === email && u.activo !== false)
+    const exists = users.some((u) => u.email.toLowerCase() === email)
     if (exists) {
       throw new Error(`El correo ${data.email} ya se encuentra registrado`)
+    }
+
+    if (!data.password || data.password.length < 8) {
+      throw new Error('La contraseña debe tener al menos 8 caracteres')
     }
 
     const nextId =
@@ -1229,10 +1527,18 @@ export class StorageEngine {
       rol: data.rol || 'admin',
       activo: true,
       creado_en: new Date().toISOString(),
+      password_hash: hashPassword(data.password),
     }
 
     users.push(newUser)
     StorageEngine.setUsersRaw(users)
+
+    const actor = StorageEngine.getCurrentUser()
+    StorageEngine.recordAuditLog(
+      'user_created',
+      `Se creó el usuario ${newUser.nombre} (${newUser.email}, rol ${newUser.rol})`,
+      actor,
+    )
 
     return newUser
   }
@@ -1251,13 +1557,13 @@ export class StorageEngine {
   }
 
   public static getUsers(skip = 0, limit = 100): User[] {
-    const users = StorageEngine.getUsersRaw().filter((u) => u.activo !== false)
+    const users = StorageEngine.getUsersRaw()
     return users.slice(skip, skip + limit)
   }
 
   public static getUser(userId: number): User {
     const users = StorageEngine.getUsersRaw()
-    const user = users.find((u) => u.id_usuario === userId && u.activo !== false)
+    const user = users.find((u) => u.id_usuario === userId)
     if (!user) {
       throw new Error(`Usuario con ID ${userId} no encontrado`)
     }
@@ -1266,18 +1572,68 @@ export class StorageEngine {
 
   public static updateUser(userId: number, data: UserUpdateRequest): User {
     const users = StorageEngine.getUsersRaw()
-    const index = users.findIndex((u) => u.id_usuario === userId && u.activo !== false)
+    const index = users.findIndex((u) => u.id_usuario === userId)
     if (index === -1) {
       throw new Error(`Usuario con ID ${userId} no encontrado`)
     }
 
     const current = users[index]
-    if (data.nombre !== undefined) current.nombre = data.nombre.trim()
-    if (data.rol !== undefined) current.rol = data.rol
-    if (data.activo !== undefined) current.activo = data.activo
+
+    const previousRol = current.rol
+    const previousActivo = current.activo
+
+    if (data.email && data.email.trim()) {
+      const trimmedEmail = data.email.trim().toLowerCase()
+      const duplicate = users.some(
+        (u) => u.id_usuario !== userId && u.email.toLowerCase() === trimmedEmail,
+      )
+      if (duplicate) {
+        throw new Error(`El correo ${data.email} ya está en uso por otro usuario`)
+      }
+      current.email = data.email.trim()
+    }
+
+    if (data.nombre !== undefined && data.nombre.trim()) {
+      current.nombre = data.nombre.trim()
+    }
+    if (data.rol !== undefined) {
+      current.rol = data.rol
+    }
+    if (data.activo !== undefined) {
+      current.activo = data.activo
+    }
+    if (data.password) {
+      if (data.password.length < 8) {
+        throw new Error('La contraseña debe tener al menos 8 caracteres')
+      }
+      current.password_hash = hashPassword(data.password)
+    }
 
     users[index] = current
     StorageEngine.setUsersRaw(users)
+
+    const actor = StorageEngine.getCurrentUser()
+    if (data.activo !== undefined && data.activo !== previousActivo) {
+      StorageEngine.recordAuditLog(
+        data.activo ? 'user_activated' : 'user_deactivated',
+        data.activo
+          ? `Se activó el usuario ${current.nombre} (${current.email})`
+          : `Se desactivó el usuario ${current.nombre} (${current.email})`,
+        actor,
+      )
+    } else if (data.rol !== undefined && data.rol !== previousRol) {
+      StorageEngine.recordAuditLog(
+        'role_changed',
+        `Cambio de rol de ${current.nombre}: ${previousRol} → ${current.rol}`,
+        actor,
+      )
+    } else {
+      StorageEngine.recordAuditLog(
+        'user_updated',
+        `Se actualizó el usuario ${current.nombre} (${current.email})`,
+        actor,
+      )
+    }
 
     return current
   }
@@ -1291,5 +1647,774 @@ export class StorageEngine {
 
     users[index].activo = false
     StorageEngine.setUsersRaw(users)
+
+    const actor = StorageEngine.getCurrentUser()
+    const target = users[index]
+    StorageEngine.recordAuditLog(
+      'user_deactivated',
+      `Se desactivó el usuario ${target.nombre} (${target.email})`,
+      actor,
+    )
+  }
+
+  // ----------------------------------------------------
+  // PURCHASE ORDERS (Órdenes de Compra)
+  // ----------------------------------------------------
+  public static getPurchaseOrdersRaw(): PurchaseOrder[] {
+    const raw = localStorage.getItem(KEYS.POS)
+    if (!raw) {
+      return []
+    }
+    try {
+      return JSON.parse(raw) as PurchaseOrder[]
+    } catch {
+      return []
+    }
+  }
+
+  public static setPurchaseOrdersRaw(orders: PurchaseOrder[]): void {
+    localStorage.setItem(KEYS.POS, JSON.stringify(orders))
+  }
+
+  public static getPurchaseOrders(
+    skip = 0,
+    limit = 50,
+    estado?: string,
+  ): PurchaseOrderListResponse {
+    let items = StorageEngine.getPurchaseOrdersRaw()
+    if (estado) {
+      items = items.filter((o) => o.estado === estado)
+    }
+    const total = items.length
+    const sliced = items.slice(skip, skip + limit)
+    return { items: sliced, total, skip, limit }
+  }
+
+  public static getPurchaseOrder(poId: number): PurchaseOrder {
+    const order = StorageEngine.getPurchaseOrdersRaw().find((o) => o.id_orden_compra === poId)
+    if (!order) {
+      throw new Error(`Orden de compra con ID ${poId} no encontrada`)
+    }
+    return order
+  }
+
+  public static createPurchaseOrder(data: PurchaseOrderCreate): PurchaseOrder {
+    const products = StorageEngine.getProductsRaw()
+    const providers = StorageEngine.getProvidersRaw()
+    const provider = providers.find((p) => p.id_proveedor === data.id_proveedor)
+
+    for (const d of data.detalles) {
+      const prod = products.find((p) => p.id_producto === d.id_producto && p.activo !== false)
+      if (!prod) {
+        throw new Error(`Producto con ID ${d.id_producto} no encontrado`)
+      }
+      if (!d.cantidad_ordenada || d.cantidad_ordenada <= 0) {
+        throw new Error(`La cantidad ordenada del producto "${d.descripcion}" debe ser mayor a 0`)
+      }
+      if (!d.precio_unitario || d.precio_unitario <= 0) {
+        throw new Error(`El precio unitario del producto "${d.descripcion}" debe ser mayor a 0`)
+      }
+    }
+
+    // Validación de la cotización elegida (flujo Compras): la OC se genera sobre una
+    // solicitud de abastecimiento con su cotización "seleccionada".
+    let numero_solicitud: string | undefined
+    let selectedQuotation: ProviderQuotation | undefined
+    if (data.id_cotizacion) {
+      const quotations = StorageEngine.getProviderQuotationsRaw()
+      selectedQuotation = quotations.find((q) => q.id_cotizacion === data.id_cotizacion)
+      if (!selectedQuotation) {
+        throw new Error(`Cotización con ID ${data.id_cotizacion} no encontrada`)
+      }
+      // La cotización debe estar seleccionada y pertenecer a una solicitud con 2+ cotizaciones
+      if (!selectedQuotation.seleccionada) {
+        throw new Error('La cotización no está marcada como seleccionada')
+      }
+      const requestQuotes = quotations.filter(
+        (q) => q.id_solicitud === selectedQuotation!.id_solicitud,
+      )
+      if (requestQuotes.length < 2) {
+        throw new Error('Se requieren al menos dos cotizaciones para generar la orden de compra')
+      }
+      const request = StorageEngine.getStockRequestsRaw().find(
+        (r) => r.id_solicitud === selectedQuotation!.id_solicitud,
+      )
+      numero_solicitud = request?.numero_solicitud
+    }
+
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const nextId =
+      orders.length > 0 ? Math.max(...orders.map((o) => o.id_orden_compra)) + 1 : 1
+    const numero_oc = `OC-${String(nextId).padStart(4, '0')}`
+
+    const currentUser = StorageEngine.getCurrentUser()
+
+    const detalles: PurchaseOrderDetail[] = data.detalles.map((d, idx) => {
+      const prod = products.find((p) => p.id_producto === d.id_producto)!
+      return {
+        id_detalle_oc: idx + 1,
+        id_producto: d.id_producto,
+        descripcion: d.descripcion || prod.nombre,
+        cantidad_ordenada: d.cantidad_ordenada,
+        cantidad_recibida: 0,
+        precio_unitario: d.precio_unitario,
+        tiempo_entrega_dias: d.tiempo_entrega_dias,
+      }
+    })
+
+    const totalOc = data.detalles.reduce(
+      (sum, d) => sum + d.cantidad_ordenada * d.precio_unitario,
+      0,
+    )
+    const settings = StorageEngine.getSettings()
+    const requiereAprobacion =
+      settings.aprobacionOcHabilitada &&
+      totalOc >= settings.aprobacionOcMontoMinimo
+
+    const newOrder: PurchaseOrder = {
+      id_orden_compra: nextId,
+      numero_oc,
+      id_proveedor: data.id_proveedor,
+      nombre_proveedor: provider?.nombre_empresa || undefined,
+      fecha_emision: data.fecha_emision || new Date().toISOString(),
+      estado: requiereAprobacion ? 'pendiente_aprobacion' : 'enviada',
+      observaciones: data.observaciones?.trim() || undefined,
+      id_solicitud: selectedQuotation?.id_solicitud ?? data.id_solicitud,
+      numero_solicitud,
+      id_cotizacion: selectedQuotation?.id_cotizacion ?? data.id_cotizacion,
+      detalles,
+    }
+
+    orders.unshift(newOrder)
+    StorageEngine.setPurchaseOrdersRaw(orders)
+
+    StorageEngine.recordAuditLog(
+      requiereAprobacion ? 'purchase_order_pending_approval' : 'purchase_order_created',
+      requiereAprobacion
+        ? `La orden de compra ${numero_oc} supera el umbral de aprobación ($${totalOc.toLocaleString('es-CO')}) y queda pendiente de aprobación`
+        : `Se creó la orden de compra ${numero_oc}`,
+      currentUser,
+    )
+
+    return newOrder
+  }
+
+  public static markPoTransit(poId: number): PurchaseOrder {
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    if (index === -1) {
+      throw new Error(`Orden de compra con ID ${poId} no encontrada`)
+    }
+    const order = orders[index]
+    if (order.estado !== 'enviada') {
+      throw new Error(`La orden de compra ${order.numero_oc} debe estar en estado "enviada" para marcar en tránsito`)
+    }
+    order.estado = 'en_transito'
+    orders[index] = order
+    StorageEngine.setPurchaseOrdersRaw(orders)
+
+    StorageEngine.recordAuditLog(
+      'purchase_order_in_transit',
+      `La orden de compra ${order.numero_oc} está en tránsito`,
+      StorageEngine.getCurrentUser(),
+    )
+    return order
+  }
+
+  public static approvePurchaseOrder(
+    poId: number,
+    aprobar: boolean,
+  ): PurchaseOrder {
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    if (index === -1) {
+      throw new Error(`Orden de compra con ID ${poId} no encontrada`)
+    }
+    const order = orders[index]
+    if (order.estado !== 'pendiente_aprobacion') {
+      throw new Error(
+        `La orden de compra ${order.numero_oc} no está pendiente de aprobación`,
+      )
+    }
+
+    if (aprobar) {
+      order.estado = 'enviada'
+      orders[index] = order
+      StorageEngine.setPurchaseOrdersRaw(orders)
+      StorageEngine.recordAuditLog(
+        'purchase_order_approved',
+        `La orden de compra ${order.numero_oc} fue aprobada`,
+        StorageEngine.getCurrentUser(),
+      )
+    } else {
+      order.estado = 'rechazada'
+      orders[index] = order
+      StorageEngine.setPurchaseOrdersRaw(orders)
+      StorageEngine.recordAuditLog(
+        'purchase_order_rejected',
+        `La orden de compra ${order.numero_oc} fue rechazada`,
+        StorageEngine.getCurrentUser(),
+      )
+    }
+
+    return order
+  }
+
+  public static getPurchaseOrdersPendingApproval(): PurchaseOrder[] {
+    return StorageEngine.getPurchaseOrdersRaw().filter(
+      (o) => o.estado === 'pendiente_aprobacion',
+    )
+  }
+
+  public static receiveAgainstPo(
+    poId: number,
+    data: { product_id: number; quantity: number; fecha?: string; note?: string },
+  ): PurchaseOrder {
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    if (index === -1) {
+      throw new Error(`Orden de compra con ID ${poId} no encontrada`)
+    }
+
+    const order = orders[index]
+    if (order.estado !== 'en_transito') {
+      throw new Error(`La orden de compra ${order.numero_oc} debe estar en tránsito para registrar la entrada`)
+    }
+
+    if (!data.quantity || data.quantity <= 0) {
+      throw new Error('La cantidad a recibir debe ser mayor a 0')
+    }
+
+    const detail = order.detalles.find((d) => d.id_producto === data.product_id)
+    if (!detail) {
+      throw new Error(`El producto con ID ${data.product_id} no pertenece a la orden ${order.numero_oc}`)
+    }
+
+    const nuevoRecibido = detail.cantidad_recibida + data.quantity
+    if (nuevoRecibido > detail.cantidad_ordenada) {
+      throw new Error(
+        `No se puede recibir más de lo ordenado para "${detail.descripcion}". Ordenado: ${detail.cantidad_ordenada}, recibido: ${detail.cantidad_recibida}, solicitado: ${data.quantity}`,
+      )
+    }
+
+    // Registrar la entrada de inventario (stock + movimiento) con fecha manual
+    const currentUser = StorageEngine.getCurrentUser()
+    StorageEngine.createEntry({
+      product_id: data.product_id,
+      quantity: data.quantity,
+      reference: order.numero_oc,
+      note: data.note?.trim() || `Recepción de mercancía de la orden ${order.numero_oc}`,
+      fecha: data.fecha,
+    })
+
+    detail.cantidad_recibida = nuevoRecibido
+    const allReceived = order.detalles.every((d) => d.cantidad_recibida >= d.cantidad_ordenada)
+    if (allReceived) {
+      order.estado = 'recibida'
+    }
+
+    orders[index] = order
+    StorageEngine.setPurchaseOrdersRaw(orders)
+
+    StorageEngine.recordAuditLog(
+      'purchase_order_received',
+      `Se recibió mercancía (${data.quantity}) en la orden ${order.numero_oc}`,
+      currentUser,
+    )
+
+    return order
+  }
+
+  // ----------------------------------------------------
+  // STOCK REQUESTS (Solicitudes de abastecimiento)
+  // ----------------------------------------------------
+  public static getStockRequestsRaw(): StockRequest[] {
+    const raw = localStorage.getItem(KEYS.STOCK_REQUESTS)
+    if (!raw) return []
+    try {
+      return JSON.parse(raw) as StockRequest[]
+    } catch {
+      return []
+    }
+  }
+
+  public static setStockRequestsRaw(requests: StockRequest[]): void {
+    localStorage.setItem(KEYS.STOCK_REQUESTS, JSON.stringify(requests))
+  }
+
+  public static getStockRequests(
+    skip = 0,
+    limit = 50,
+    estado?: string,
+  ): StockRequestListResponse {
+    let items = StorageEngine.getStockRequestsRaw()
+    if (estado) {
+      const estados = estado.split(',').map((s) => s.trim())
+      items = items.filter((r) => estados.includes(r.estado))
+    }
+    const total = items.length
+    const sliced = items.slice(skip, skip + limit)
+    return { items: sliced, total, skip, limit }
+  }
+
+  public static getStockRequest(requestId: number): StockRequest {
+    const request = StorageEngine.getStockRequestsRaw().find((r) => r.id_solicitud === requestId)
+    if (!request) {
+      throw new Error(`Solicitud de abastecimiento con ID ${requestId} no encontrada`)
+    }
+    return request
+  }
+
+  public static createStockRequest(data: StockRequestCreate): StockRequest {
+    if (!data.cantidad_sugerida || data.cantidad_sugerida <= 0) {
+      throw new Error('La cantidad sugerida debe ser mayor a 0')
+    }
+
+    const products = StorageEngine.getProductsRaw()
+    const product = products.find(
+      (p) => p.id_producto === data.id_producto && p.activo !== false,
+    )
+    if (!product) {
+      throw new Error(`Producto con ID ${data.id_producto} no encontrado`)
+    }
+    if (!product.low_stock) {
+      throw new Error(`El producto "${product.nombre}" no está en stock bajo`)
+    }
+
+    const requests = StorageEngine.getStockRequestsRaw()
+    const nextId =
+      requests.length > 0 ? Math.max(...requests.map((r) => r.id_solicitud)) + 1 : 1
+    const numero_solicitud = `SOL-${String(nextId).padStart(4, '0')}`
+    const currentUser = StorageEngine.getCurrentUser()
+
+    const newRequest: StockRequest = {
+      id_solicitud: nextId,
+      numero_solicitud,
+      id_producto: product.id_producto,
+      descripcion: product.nombre,
+      cantidad_sugerida: data.cantidad_sugerida,
+      stock_actual: product.stock_actual,
+      stock_minimo: product.stock_minimo,
+      estado: 'pendiente',
+      fecha: new Date().toISOString(),
+      id_usuario: currentUser.id_usuario,
+      nombre_usuario: currentUser.nombre,
+      observaciones: data.observaciones?.trim() || undefined,
+    }
+
+    requests.unshift(newRequest)
+    StorageEngine.setStockRequestsRaw(requests)
+
+    StorageEngine.recordAuditLog(
+      'stock_request_created',
+      `Bodega generó la solicitud de abastecimiento ${numero_solicitud} para "${product.nombre}"`,
+      currentUser,
+    )
+
+    return newRequest
+  }
+
+  public static updateStockRequestStatus(
+    requestId: number,
+    estado: StockRequestStatus,
+    observaciones?: string,
+  ): StockRequest {
+    const requests = StorageEngine.getStockRequestsRaw()
+    const index = requests.findIndex((r) => r.id_solicitud === requestId)
+    if (index === -1) {
+      throw new Error(`Solicitud de abastecimiento con ID ${requestId} no encontrada`)
+    }
+
+    const current = requests[index]
+    current.estado = estado
+    if (observaciones !== undefined) {
+      current.observaciones = observaciones.trim() || current.observaciones
+    }
+    requests[index] = current
+    StorageEngine.setStockRequestsRaw(requests)
+
+    StorageEngine.recordAuditLog(
+      'stock_request_updated',
+      `La solicitud ${current.numero_solicitud} cambió a estado "${estado}"`,
+      StorageEngine.getCurrentUser(),
+    )
+
+    return current
+  }
+
+  // ----------------------------------------------------
+  // PROVIDER QUOTATIONS (Cotizaciones de proveedores)
+  // ----------------------------------------------------
+  public static getProviderQuotationsRaw(): ProviderQuotation[] {
+    const raw = localStorage.getItem(KEYS.PROVIDER_QUOTATIONS)
+    if (!raw) return []
+    try {
+      return JSON.parse(raw) as ProviderQuotation[]
+    } catch {
+      return []
+    }
+  }
+
+  public static setProviderQuotationsRaw(quotations: ProviderQuotation[]): void {
+    localStorage.setItem(KEYS.PROVIDER_QUOTATIONS, JSON.stringify(quotations))
+  }
+
+  public static getProviderQuotations(
+    skip = 0,
+    limit = 50,
+    id_solicitud?: number,
+  ): ProviderQuotationListResponse {
+    let items = StorageEngine.getProviderQuotationsRaw()
+    if (id_solicitud !== undefined) {
+      items = items.filter((q) => q.id_solicitud === id_solicitud)
+    }
+    const total = items.length
+    const sliced = items.slice(skip, skip + limit)
+    return { items: sliced, total, skip, limit }
+  }
+
+  public static getProviderQuotation(quotationId: number): ProviderQuotation {
+    const quotation = StorageEngine.getProviderQuotationsRaw().find(
+      (q) => q.id_cotizacion === quotationId,
+    )
+    if (!quotation) {
+      throw new Error(`Cotización con ID ${quotationId} no encontrada`)
+    }
+    return quotation
+  }
+
+  public static createProviderQuotation(data: ProviderQuotationCreate): ProviderQuotation {
+    const requests = StorageEngine.getStockRequestsRaw()
+    const request = requests.find((r) => r.id_solicitud === data.id_solicitud)
+    if (!request) {
+      throw new Error(`Solicitud de abastecimiento con ID ${data.id_solicitud} no encontrada`)
+    }
+
+    const products = StorageEngine.getProductsRaw()
+    const product = products.find(
+      (p) => p.id_producto === data.id_producto && p.activo !== false,
+    )
+    if (!product) {
+      throw new Error(`Producto con ID ${data.id_producto} no encontrado`)
+    }
+    if (product.id_producto !== request.id_producto) {
+      throw new Error('El producto de la cotización no corresponde a la solicitud')
+    }
+
+    const providers = StorageEngine.getProvidersRaw()
+    const provider = providers.find((p) => p.id_proveedor === data.id_proveedor)
+    if (!provider) {
+      throw new Error(`Proveedor con ID ${data.id_proveedor} no encontrado`)
+    }
+
+    if (!data.precio_unitario || data.precio_unitario <= 0) {
+      throw new Error('El precio unitario debe ser mayor a 0')
+    }
+    if (!data.tiempo_entrega_dias || data.tiempo_entrega_dias <= 0) {
+      throw new Error('El tiempo de entrega debe ser mayor a 0')
+    }
+
+    const quotations = StorageEngine.getProviderQuotationsRaw()
+    const nextId =
+      quotations.length > 0 ? Math.max(...quotations.map((q) => q.id_cotizacion)) + 1 : 1
+    const numero_cotizacion = `COT-${String(nextId).padStart(4, '0')}`
+    const currentUser = StorageEngine.getCurrentUser()
+
+    const newQuotation: ProviderQuotation = {
+      id_cotizacion: nextId,
+      numero_cotizacion,
+      id_solicitud: request.id_solicitud,
+      id_producto: request.id_producto,
+      id_proveedor: provider.id_proveedor,
+      nombre_proveedor: provider.nombre_empresa,
+      precio_unitario: data.precio_unitario,
+      tiempo_entrega_dias: data.tiempo_entrega_dias,
+      condiciones: data.condiciones?.trim() || undefined,
+      fecha: new Date().toISOString(),
+      seleccionada: false,
+    }
+
+    quotations.unshift(newQuotation)
+    StorageEngine.setProviderQuotationsRaw(quotations)
+
+    StorageEngine.recordAuditLog(
+      'provider_quotation_created',
+      `Se registró la cotización ${numero_cotizacion} de "${provider.nombre_empresa}" para la solicitud ${request.numero_solicitud}`,
+      currentUser,
+    )
+
+    return newQuotation
+  }
+
+  public static selectProviderQuotation(quotationId: number): ProviderQuotation {
+    const quotations = StorageEngine.getProviderQuotationsRaw()
+    const target = quotations.find((q) => q.id_cotizacion === quotationId)
+    if (!target) {
+      throw new Error(`Cotización con ID ${quotationId} no encontrada`)
+    }
+
+    const requestQuotes = quotations.filter((q) => q.id_solicitud === target.id_solicitud)
+    if (requestQuotes.length < 2) {
+      throw new Error('Se requieren al menos dos cotizaciones para elegir el mejor proveedor')
+    }
+
+    if (quotations.some((q) => q.id_solicitud === target.id_solicitud && q.seleccionada)) {
+      throw new Error('Esta solicitud ya tiene una cotización seleccionada')
+    }
+
+    let updated: ProviderQuotation | undefined
+    const next = quotations.map((q) => {
+      if (q.id_cotizacion === quotationId) {
+        q.seleccionada = true
+        updated = q
+      }
+      return q
+    })
+    StorageEngine.setProviderQuotationsRaw(next)
+
+    StorageEngine.recordAuditLog(
+      'provider_quotation_selected',
+      `Se seleccionó la cotización ${target.numero_cotizacion} de "${target.nombre_proveedor}" para la solicitud ${target.id_solicitud}`,
+      StorageEngine.getCurrentUser(),
+    )
+
+    return updated!
+  }
+
+  // ----------------------------------------------------
+  // REPORTS (Reporte de gasto por proveedor y tiempos de entrega)
+  // ----------------------------------------------------
+  public static getProviderExpenseReport(): Array<{
+    id_proveedor: number
+    nombre_proveedor: string
+    gasto_total: number
+    numero_oc: number
+  }> {
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const byProvider = new Map<number, { nombre_proveedor: string; gasto_total: number; numero_oc: number }>()
+
+    for (const order of orders) {
+      let gasto = 0
+      for (const d of order.detalles) {
+        gasto += d.cantidad_recibida * d.precio_unitario
+      }
+      const existing = byProvider.get(order.id_proveedor)
+      if (existing) {
+        existing.gasto_total += gasto
+        existing.numero_oc += 1
+      } else {
+        byProvider.set(order.id_proveedor, {
+          nombre_proveedor: order.nombre_proveedor || `Proveedor ${order.id_proveedor}`,
+          gasto_total: gasto,
+          numero_oc: gasto > 0 ? 1 : 0,
+        })
+      }
+    }
+
+    return Array.from(byProvider.entries())
+      .map(([id_proveedor, value]) => ({
+        id_proveedor,
+        nombre_proveedor: value.nombre_proveedor,
+        gasto_total: value.gasto_total,
+        numero_oc: value.numero_oc,
+      }))
+      .sort((a, b) => b.gasto_total - a.gasto_total)
+  }
+
+  public static getProviderDeliveryReport(): Array<{
+    id_proveedor: number
+    nombre_proveedor: string
+    tiempo_promedio_dias: number
+    cotizaciones: number
+  }> {
+    const quotations = StorageEngine.getProviderQuotationsRaw()
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+    const byProvider = new Map<number, { nombre_proveedor: string; total_dias: number; count: number }>()
+
+    for (const q of quotations) {
+      const existing = byProvider.get(q.id_proveedor)
+      if (existing) {
+        existing.total_dias += q.tiempo_entrega_dias
+        existing.count += 1
+      } else {
+        byProvider.set(q.id_proveedor, {
+          nombre_proveedor: q.nombre_proveedor || `Proveedor ${q.id_proveedor}`,
+          total_dias: q.tiempo_entrega_dias,
+          count: 1,
+        })
+      }
+    }
+
+    // Sumar tiempos de las órdenes de compra (fuente complementaria)
+    for (const order of orders) {
+      const dias = order.detalles.reduce(
+        (acc, d) => acc + (d.tiempo_entrega_dias || 0),
+        0,
+      )
+      const numDetalles = order.detalles.length || 1
+      if (dias > 0) {
+        const existing = byProvider.get(order.id_proveedor)
+        const prom = dias / numDetalles
+        if (existing) {
+          existing.total_dias += prom
+          existing.count += 1
+        } else {
+          byProvider.set(order.id_proveedor, {
+            nombre_proveedor: order.nombre_proveedor || `Proveedor ${order.id_proveedor}`,
+            total_dias: prom,
+            count: 1,
+          })
+        }
+      }
+    }
+
+    return Array.from(byProvider.entries())
+      .map(([id_proveedor, value]) => ({
+        id_proveedor,
+        nombre_proveedor: value.nombre_proveedor,
+        tiempo_promedio_dias: value.count > 0 ? value.total_dias / value.count : 0,
+        cotizaciones: value.count,
+      }))
+      .sort((a, b) => a.tiempo_promedio_dias - b.tiempo_promedio_dias)
+  }
+
+  // ----------------------------------------------------
+  // DASHBOARD KPIs
+  // ----------------------------------------------------
+  public static getDashboardKpis(): {
+    ventasDelMes: number
+    totalVentas: number
+    cotizacionesPendientes: number
+    stockCritico: number
+    comprasPendientes: number
+    aprobacionesPendientes: number
+  } {
+    const sales = StorageEngine.getSalesRaw()
+    const quotations = StorageEngine.getQuotationsRaw()
+    const products = StorageEngine.getProductsRaw()
+    const orders = StorageEngine.getPurchaseOrdersRaw()
+
+    const now = new Date()
+    const month = now.getMonth()
+    const year = now.getFullYear()
+
+    const ventasDelMes = sales
+      .filter((s) => {
+        const d = new Date(s.fecha_venta)
+        return d.getMonth() === month && d.getFullYear() === year && s.estado !== 'cancelada'
+      })
+      .reduce((sum, s) => sum + s.total, 0)
+
+    const totalVentas = sales
+      .filter((s) => s.estado !== 'cancelada')
+      .reduce((sum, s) => sum + s.total, 0)
+
+    const cotizacionesPendientes = quotations.filter(
+      (q) => q.estado === 'enviada',
+    ).length
+
+    const stockCritico = products.filter((p) => p.low_stock === true).length
+
+    const comprasPendientes = orders.filter(
+      (o) =>
+        o.estado === 'enviada' ||
+        o.estado === 'en_transito' ||
+        o.estado === 'pendiente_aprobacion',
+    ).length
+
+    const aprobacionesPendientes = orders.filter(
+      (o) => o.estado === 'pendiente_aprobacion',
+    ).length
+
+    return {
+      ventasDelMes,
+      totalVentas,
+      cotizacionesPendientes,
+      stockCritico,
+      comprasPendientes,
+      aprobacionesPendientes,
+    }
+  }
+
+  public static getSalesBySellerReport(): Array<{
+    id_usuario: number
+    vendedor: string
+    total: number
+    ventas: number
+  }> {
+    const sales = StorageEngine.getSalesRaw()
+    const users = StorageEngine.getUsersRaw()
+    const bySeller = new Map<number, { total: number; ventas: number }>()
+
+    for (const sale of sales) {
+      if (sale.estado === 'cancelada') continue
+      const existing = bySeller.get(sale.id_usuario)
+      if (existing) {
+        existing.total += sale.total
+        existing.ventas += 1
+      } else {
+        bySeller.set(sale.id_usuario, { total: sale.total, ventas: 1 })
+      }
+    }
+
+    return Array.from(bySeller.entries())
+      .map(([id_usuario, value]) => {
+        const user = users.find((u) => u.id_usuario === id_usuario)
+        return {
+          id_usuario,
+          vendedor: user ? user.nombre : `Usuario ${id_usuario}`,
+          total: value.total,
+          ventas: value.ventas,
+        }
+      })
+      .sort((a, b) => b.total - a.total)
+  }
+
+  public static getSalesMonthlyTrend(): Array<{
+    mes: string
+    total: number
+  }> {
+    const sales = StorageEngine.getSalesRaw()
+    const byMonth = new Map<string, number>()
+
+    for (const sale of sales) {
+      if (sale.estado === 'cancelada') continue
+      const d = new Date(sale.fecha_venta)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      byMonth.set(key, (byMonth.get(key) || 0) + sale.total)
+    }
+
+    return Array.from(byMonth.entries())
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([mes, total]) => ({ mes, total }))
+  }
+
+  public static getInventoryValuationReport(): {
+    valorTotal: number
+    porProducto: Array<{
+      id_producto: number
+      nombre: string
+      stock_actual: number
+      precio_unitario: number
+      valor: number
+    }>
+  } {
+    const products = StorageEngine.getProductsRaw()
+    const porProducto = products
+      .map((p) => {
+        const valor = p.stock_actual * p.precio_unitario
+        return {
+          id_producto: p.id_producto,
+          nombre: p.nombre,
+          stock_actual: p.stock_actual,
+          precio_unitario: p.precio_unitario,
+          valor,
+        }
+      })
+      .sort((a, b) => b.valor - a.valor)
+
+    const valorTotal = porProducto.reduce((sum, p) => sum + p.valor, 0)
+
+    return { valorTotal, porProducto }
   }
 }

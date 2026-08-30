@@ -5,17 +5,7 @@ interface UserCardProps {
   user: User
 }
 
-const roleLabels: Record<string, string> = {
-  admin: 'Administrador',
-  ventas: 'Ventas',
-  compras: 'Compras',
-}
-
-const roleChipClass: Record<string, string> = {
-  admin: 'chip chip-primary',
-  ventas: 'chip chip-default',
-  compras: 'chip chip-secondary',
-}
+import { roleLabels, roleChipClass } from './roleConfig'
 
 export const UserCard = ({ user }: UserCardProps) => {
   return (

@@ -10,6 +10,8 @@ const roles: { value: UserRole; label: string }[] = [
   { value: 'admin', label: 'Administrador' },
   { value: 'ventas', label: 'Ventas' },
   { value: 'compras', label: 'Compras' },
+  { value: 'bodega', label: 'Bodega' },
+  { value: 'gerencia', label: 'Gerencia' },
 ]
 
 export const RegisterForm = () => {
@@ -64,7 +66,7 @@ export const RegisterForm = () => {
       <IonList style={{ background: 'transparent' }}>
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nombre completo</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Nombre completo</IonLabel>
             <IonInput
               value={nombre}
               onIonChange={(e) => setNombre(e.detail.value || '')}
@@ -76,7 +78,7 @@ export const RegisterForm = () => {
 
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Correo electrónico</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Correo electrónico</IonLabel>
             <IonInput
               type="email"
               value={email}
@@ -89,7 +91,7 @@ export const RegisterForm = () => {
 
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Contraseña</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Contraseña</IonLabel>
             <IonInput
               type="password"
               value={password}
@@ -102,7 +104,7 @@ export const RegisterForm = () => {
 
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Rol</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Rol</IonLabel>
             <IonSelect value={rol} onIonChange={(e) => setRol(e.detail.value)} interface="popover">
               {roles.map((r) => (
                 <IonSelectOption key={r.value} value={r.value}>{r.label}</IonSelectOption>

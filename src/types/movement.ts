@@ -18,6 +18,7 @@ export interface MovementEntryCreate {
   quantity: number
   reference?: string
   note?: string
+  fecha?: string
 }
 
 export interface MovementOutputCreate {
@@ -25,6 +26,7 @@ export interface MovementOutputCreate {
   quantity: number
   reference?: string
   note?: string
+  fecha?: string
 }
 
 export interface MovementAdjustmentCreate {
@@ -32,6 +34,7 @@ export interface MovementAdjustmentCreate {
   quantity: number
   reference?: string
   note?: string
+  fecha?: string
 }
 
 export interface MovementListResponse {

@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
-  IonText, IonButton, IonLoading, IonToast, IonSelect, IonSelectOption,
+  IonPage, IonText, IonButton, IonToast, IonSelect, IonSelectOption,
 } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { QuotationList } from '../../components/sales/QuotationList'
 import { QuotationFormDialog } from '../../components/sales/QuotationFormDialog'
 import { QuotationDetailDialog } from '../../components/sales/QuotationDetailDialog'
@@ -135,7 +136,8 @@ export const QuotationsPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Cotizaciones</IonText>
@@ -149,7 +151,7 @@ export const QuotationsPage = () => {
             value={estadoFilter}
             placeholder="Todos los estados"
             interface="popover"
-            style={{ background: '#f8fafc', borderRadius: 8 }}
+            style={{ background: 'var(--app-surface)', borderRadius: 8 }}
             onIonChange={(e) => setEstadoFilter(e.detail.value || undefined)}
           >
             <IonSelectOption value="">Todos los estados</IonSelectOption>
@@ -195,7 +197,7 @@ export const QuotationsPage = () => {
           onClose={() => setDetailQuotation(null)}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando cotizaciones..." />
+        {loading && !formOpen && <PageLoading message="Cargando cotizaciones..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -205,5 +207,6 @@ export const QuotationsPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

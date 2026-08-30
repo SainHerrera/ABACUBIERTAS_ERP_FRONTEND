@@ -130,7 +130,7 @@ export const ClientFormDialog = ({
           <IonList style={{ background: 'transparent' }}>
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Tipo de cliente</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Tipo de cliente</IonLabel>
                 <IonSelect value={tipoCliente} onIonChange={(e) => setTipoCliente(e.detail.value)} interface="popover">
                   <IonSelectOption value="persona_natural">Persona natural</IonSelectOption>
                   <IonSelectOption value="empresa">Empresa</IonSelectOption>
@@ -140,49 +140,49 @@ export const ClientFormDialog = ({
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nombre / Razón social</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Nombre / Razón social</IonLabel>
                 <IonInput value={nombreRazonSocial} onIonChange={(e) => setNombreRazonSocial(e.detail.value || '')} required />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>NIT / CC</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>NIT / CC</IonLabel>
                 <IonInput value={nitCc} onIonChange={(e) => setNitCc(e.detail.value || '')} required />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nombre de contacto</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Nombre de contacto</IonLabel>
                 <IonInput value={nombreContacto} onIonChange={(e) => setNombreContacto(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Teléfono</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Teléfono</IonLabel>
                 <IonInput type="tel" value={telefono} onIonChange={(e) => setTelefono(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Email</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Email</IonLabel>
                 <IonInput type="email" value={email} onIonChange={(e) => setEmail(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Dirección</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Dirección</IonLabel>
                 <IonInput value={direccion} onIonChange={(e) => setDireccion(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Ciudad</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Ciudad</IonLabel>
                 <IonInput value={ciudad} onIonChange={(e) => setCiudad(e.detail.value || '')} />
               </IonItem>
             </div>
@@ -190,7 +190,7 @@ export const ClientFormDialog = ({
             {isEditing && (
               <div className="ion-input-wrapper">
                 <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Estado</IonLabel>
+                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Estado</IonLabel>
                   <IonSelect value={estado} onIonChange={(e) => setEstado(e.detail.value)} interface="popover">
                     <IonSelectOption value="activo">Activo</IonSelectOption>
                     <IonSelectOption value="inactivo">Inactivo</IonSelectOption>
@@ -204,7 +204,7 @@ export const ClientFormDialog = ({
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Observaciones</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Observaciones</IonLabel>
                 <IonInput value={observaciones} onIonChange={(e) => setObservaciones(e.detail.value || '')} />
               </IonItem>
             </div>

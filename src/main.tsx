@@ -6,6 +6,7 @@ import { store } from './store'
 import { getCurrentUserFromToken } from './utils/jwt'
 import { setCredentials } from './store/slices/authSlice'
 import { StorageEngine } from './services/localStorage/storageEngine'
+import { initTheme } from './hooks/useTheme'
 import App from './App'
 
 /* Core CSS required for Ionic components to work properly */
@@ -29,6 +30,9 @@ import './index.css'
 setupIonicReact({
   mode: 'md',
 })
+
+// Apply persisted theme before render to avoid flash
+initTheme()
 
 // Initialize localStorage engine with seed data if needed
 StorageEngine.init()

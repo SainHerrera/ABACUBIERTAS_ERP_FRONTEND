@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { IonText, IonButton, IonLoading, IonToast, IonSelect, IonSelectOption, IonItem, IonLabel } from '@ionic/react'
+import { IonPage, IonText, IonButton, IonToast, IonSelect, IonSelectOption, IonItem, IonLabel } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { MovementList } from '../../components/inventory/MovementList'
 import { MovementFormDialog } from '../../components/inventory/MovementFormDialog'
 import { getMovementsApi, createEntryApi, createOutputApi, createAdjustmentApi } from '../../api/movementApi'
@@ -52,7 +53,7 @@ export const MovementsPage = () => {
     setFormOpen(true)
   }
 
-  const handleSave = async (data: { product_id: number; quantity: number; reference?: string; note?: string }) => {
+  const handleSave = async (data: { product_id: number; quantity: number; reference?: string; note?: string; fecha?: string }) => {
     setSaving(true)
     setError(null)
     try {
@@ -77,7 +78,8 @@ export const MovementsPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Movimientos de Inventario</IonText>
@@ -102,8 +104,8 @@ export const MovementsPage = () => {
           </IonText>
         )}
 
-        <IonItem lines="none" style={{ '--background': '#f8fafc', borderRadius: 8, marginBottom: 16, maxWidth: 420 }}>
-          <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Filtrar por producto</IonLabel>
+        <IonItem lines="none" style={{ '--background': 'var(--app-surface)', borderRadius: 8, marginBottom: 16, maxWidth: 420 }}>
+          <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Filtrar por producto</IonLabel>
           <IonSelect
             value={productFilter}
             placeholder="Todos los productos"
@@ -129,7 +131,7 @@ export const MovementsPage = () => {
           error={error}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando movimientos..." />
+        {loading && !formOpen && <PageLoading message="Cargando movimientos..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -139,5 +141,6 @@ export const MovementsPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

@@ -104,21 +104,21 @@ export const ProductFormDialog = ({
           <IonList style={{ background: 'transparent' }}>
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Nombre del producto</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Nombre del producto</IonLabel>
                 <IonInput value={nombre} onIonChange={(e) => setNombre(e.detail.value || '')} required />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Descripción</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Descripción</IonLabel>
                 <IonInput value={descripcion} onIonChange={(e) => setDescripcion(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Unidad de medida</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Unidad de medida</IonLabel>
                 <IonSelect value={unidadMedida} onIonChange={(e) => setUnidadMedida(e.detail.value)} interface="popover">
                   <IonSelectOption value="unidad">Unidad</IonSelectOption>
                   <IonSelectOption value="kg">Kilogramo</IonSelectOption>
@@ -135,21 +135,21 @@ export const ProductFormDialog = ({
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Precio unitario</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario</IonLabel>
                 <IonInput type="number" step="0.01" value={precioUnitario} onIonChange={(e) => setPrecioUnitario(e.detail.value || '')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Stock mínimo</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Stock mínimo</IonLabel>
                 <IonInput type="number" step="1" value={stockMinimo} onIonChange={(e) => setStockMinimo(e.detail.value || '0')} />
               </IonItem>
             </div>
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Proveedor</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Proveedor</IonLabel>
                 <IonSelect
                   value={idProveedor}
                   onIonChange={(e) => setIdProveedor(e.detail.value)}

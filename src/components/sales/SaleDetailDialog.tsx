@@ -44,20 +44,20 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
         {sale && (
           <div style={{ padding: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Cliente</IonText>
                 <IonText style={{ fontWeight: 600 }}>{clientName(sale.id_cliente)}</IonText>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Fecha de venta</IonText>
                 <IonText style={{ fontWeight: 600 }}>{formatDate(sale.fecha_venta)}</IonText>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+              <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Estado actual</IonText>
                 <IonText style={{ fontWeight: 600 }}>{sale.estado}</IonText>
               </div>
               {sale.id_cotizacion && (
-                <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12 }}>
+                <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                   <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Cotización origen</IonText>
                   <IonText style={{ fontWeight: 600 }}>COT-{sale.id_cotizacion}</IonText>
                 </div>
@@ -98,8 +98,8 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
 
             {sale.estado !== 'cancelada' ? (
               <>
-                <IonItem lines="none" style={{ '--background': '#f8fafc', borderRadius: 8, marginBottom: 12 }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Cambiar estado</IonLabel>
+                <IonItem lines="none" style={{ '--background': 'var(--app-surface)', borderRadius: 8, marginBottom: 12 }}>
+                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cambiar estado</IonLabel>
                   <IonSelect
                     value={estado}
                     interface="popover"
@@ -112,7 +112,7 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
                 </IonItem>
 
                 <IonItem lines="none" style={{ '--background': 'transparent', marginBottom: 12 }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Observaciones</IonLabel>
+                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Observaciones</IonLabel>
                   <IonInput value={observaciones} onIonChange={(e) => setObservaciones(e.detail.value || '')} />
                 </IonItem>
 

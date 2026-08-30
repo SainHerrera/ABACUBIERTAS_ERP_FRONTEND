@@ -121,8 +121,8 @@ export const SaleFormDialog = ({
 
           <IonList style={{ background: 'transparent' }}>
             <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': '#f8fafc', borderRadius: 8 }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Cliente</IonLabel>
+              <IonItem lines="none" style={{ '--background': 'var(--app-surface)', borderRadius: 8 }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cliente</IonLabel>
                 <IonSelect
                   value={idCliente}
                   placeholder="Selecciona un cliente"
@@ -139,9 +139,9 @@ export const SaleFormDialog = ({
             <div style={{ fontSize: 16, fontWeight: 700, margin: '16px 0 8px' }}>Productos</div>
 
             {rows.map((row) => (
-              <div key={row.key} style={{ background: '#f8fafc', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+              <div key={row.key} style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12, marginBottom: 12 }}>
                 <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Producto</IonLabel>
+                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Producto</IonLabel>
                   <IonSelect
                     value={row.id_producto}
                     placeholder="Selecciona un producto"
@@ -157,11 +157,11 @@ export const SaleFormDialog = ({
                 </IonItem>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
                   <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Cantidad</IonLabel>
+                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cantidad</IonLabel>
                     <IonInput type="number" min={1} value={row.cantidad} onIonChange={(e) => updateRow(row.key, { cantidad: Number(e.detail.value) || 0 })} />
                   </IonItem>
                   <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Precio unitario</IonLabel>
+                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario</IonLabel>
                     <IonInput type="number" min={0} value={row.precio_unitario} onIonChange={(e) => updateRow(row.key, { precio_unitario: Number(e.detail.value) || 0 })} />
                   </IonItem>
                 </div>
@@ -177,13 +177,13 @@ export const SaleFormDialog = ({
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Observaciones</IonLabel>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Observaciones</IonLabel>
                 <IonInput value={observaciones} onIonChange={(e) => setObservaciones(e.detail.value || '')} />
               </IonItem>
             </div>
           </IonList>
 
-          <div style={{ background: '#f8fafc', borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 16, marginTop: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <span>Subtotal</span>
               <span style={{ fontWeight: 600 }}>{formatMoney(subtotal)}</span>

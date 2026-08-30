@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
-  IonText, IonButton, IonLoading, IonToast, IonSelect, IonSelectOption,
+  IonPage, IonText, IonButton, IonToast, IonSelect, IonSelectOption,
 } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { SaleList } from '../../components/sales/SaleList'
 import { SaleDetailDialog } from '../../components/sales/SaleDetailDialog'
 import { SaleFormDialog } from '../../components/sales/SaleFormDialog'
@@ -111,7 +112,8 @@ export const OrdersPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Pedidos</IonText>
@@ -125,7 +127,7 @@ export const OrdersPage = () => {
             value={estadoFilter}
             placeholder="Todos los estados"
             interface="popover"
-            style={{ background: '#f8fafc', borderRadius: 8 }}
+            style={{ background: 'var(--app-surface)', borderRadius: 8 }}
             onIonChange={(e) => setEstadoFilter(e.detail.value || undefined)}
           >
             <IonSelectOption value="">Todos los estados</IonSelectOption>
@@ -137,7 +139,7 @@ export const OrdersPage = () => {
             value={clienteFilter}
             placeholder="Todos los clientes"
             interface="popover"
-            style={{ background: '#f8fafc', borderRadius: 8 }}
+            style={{ background: 'var(--app-surface)', borderRadius: 8 }}
             onIonChange={(e) => setClienteFilter(e.detail.value ? Number(e.detail.value) : undefined)}
           >
             <IonSelectOption value="">Todos los clientes</IonSelectOption>
@@ -178,7 +180,7 @@ export const OrdersPage = () => {
           isLoading={loading}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando pedidos..." />
+        {loading && !formOpen && <PageLoading message="Cargando pedidos..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -188,5 +190,6 @@ export const OrdersPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

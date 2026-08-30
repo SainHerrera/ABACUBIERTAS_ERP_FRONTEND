@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
-import { IonText, IonButton, IonLoading, IonToast, IonCard, IonCardContent } from '@ionic/react'
+import { IonPage, IonText, IonButton, IonToast, IonCard, IonCardContent } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { ProductFormDialog } from '../../components/inventory/ProductFormDialog'
 import { MovementList } from '../../components/inventory/MovementList'
 import { getProductApi, updateProductApi } from '../../api/productApi'
@@ -83,7 +84,8 @@ export const ProductDetailPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonButton fill="outline" onClick={() => history.push('/inventory/products')}>
@@ -155,7 +157,7 @@ export const ProductDetailPage = () => {
           </>
         )}
 
-        <IonLoading isOpen={loading} message="Cargando producto..." />
+        {loading && <PageLoading message="Cargando producto..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -165,5 +167,6 @@ export const ProductDetailPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

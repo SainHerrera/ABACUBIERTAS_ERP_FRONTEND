@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { IonText, IonButton, IonSearchbar, IonLoading, IonToast, IonSelect, IonSelectOption } from '@ionic/react'
+import { IonPage, IonText, IonButton, IonSearchbar, IonToast, IonSelect, IonSelectOption } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { ClientList } from '../../components/sales/ClientList'
 import { ClientFormDialog } from '../../components/sales/ClientFormDialog'
 import { getClientsApi, createClientApi, updateClientApi, deleteClientApi } from '../../api/clientApi'
@@ -86,7 +87,8 @@ export const CustomersPage = () => {
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Clientes</IonText>
@@ -106,7 +108,7 @@ export const CustomersPage = () => {
             value={estadoFilter}
             placeholder="Todos los estados"
             interface="popover"
-            style={{ background: '#f8fafc', borderRadius: 8 }}
+            style={{ background: 'var(--app-surface)', borderRadius: 8 }}
             onIonChange={(e) => setEstadoFilter(e.detail.value || undefined)}
           >
             <IonSelectOption value="">Todos los estados</IonSelectOption>
@@ -138,7 +140,7 @@ export const CustomersPage = () => {
           error={error}
         />
 
-        <IonLoading isOpen={loading && !formOpen} message="Cargando clientes..." />
+        {loading && !formOpen && <PageLoading message="Cargando clientes..." />}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -148,5 +150,6 @@ export const CustomersPage = () => {
         />
       </div>
     </div>
+    </IonPage>
   )
 }

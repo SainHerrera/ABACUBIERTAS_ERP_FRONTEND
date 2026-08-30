@@ -4,10 +4,12 @@ import { IonList, IonItem, IonLabel, IonInput, IonButton, IonText, useIonToast }
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { login, clearError } from '../../store/slices/authSlice'
+import { store } from '../../store'
 
 export const LoginForm = () => {
   const dispatch = useAppDispatch()
   const { isLoading } = useAppSelector((state) => state.auth)
+
   const [present] = useIonToast()
 
   const [email, setEmail] = useState('')
@@ -31,7 +33,9 @@ export const LoginForm = () => {
     const result = await dispatch(login({ email, password }))
 
     if (login.fulfilled.match(result)) {
-      window.location.replace('/dashboard')
+      const rol = store.getState().auth.user?.rol
+      const landing = rol === 'compras' ? '/compras' : '/dashboard'
+      window.location.replace(landing)
     } else {
       showError((result.payload as string) || 'Error al iniciar sesión')
     }
@@ -48,10 +52,11 @@ export const LoginForm = () => {
       <IonList style={{ background: 'transparent' }}>
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Correo electrónico</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Correo electrónico</IonLabel>
             <IonInput
               type="email"
               value={email}
+              onIonInput={(e) => setEmail(e.detail.value || '')}
               onIonChange={(e) => setEmail(e.detail.value || '')}
               placeholder="correo@ejemplo.com"
               required
@@ -61,10 +66,11 @@ export const LoginForm = () => {
 
         <div className="ion-input-wrapper">
           <IonItem lines="none" style={{ '--background': 'transparent' }}>
-            <IonLabel position="stacked" style={{ fontSize: 12, color: '#64748b' }}>Contraseña</IonLabel>
+            <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Contraseña</IonLabel>
             <IonInput
               type="password"
               value={password}
+              onIonInput={(e) => setPassword(e.detail.value || '')}
               onIonChange={(e) => setPassword(e.detail.value || '')}
               placeholder="••••••••"
               required

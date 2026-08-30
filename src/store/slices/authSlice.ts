@@ -16,12 +16,16 @@ import {
   deleteUserApi,
 } from '../../api/authApi';
 import { getCurrentUserFromToken } from '../../utils/jwt';
+import { StorageEngine } from '../../services/localStorage/storageEngine';
+
+const token = localStorage.getItem('accessToken');
+const initialUser = token ? getCurrentUserFromToken(token) : null;
 
 const initialState: AuthState = {
-  user: null,
-  accessToken: localStorage.getItem('accessToken'),
+  user: initialUser,
+  accessToken: token,
   refreshToken: localStorage.getItem('refreshToken'),
-  isAuthenticated: !!localStorage.getItem('accessToken'),
+  isAuthenticated: !!token && !!initialUser,
   isLoading: false,
   error: null,
 };
@@ -128,6 +132,13 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     logout(state) {
+      if (state.user) {
+        StorageEngine.recordAuditLog(
+          'logout',
+          `Cierre de sesión de ${state.user.nombre}`,
+          state.user,
+        );
+      }
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
@@ -169,6 +180,11 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         state.error = (action.payload as string) || 'Error al registrar';
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        if (state.user && state.user.id_usuario === action.payload.id_usuario) {
+          state.user = action.payload;
+        }
       })
       .addCase(refreshTokenThunk.fulfilled, (state, action) => {
         state.accessToken = action.payload.access_token;

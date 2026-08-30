@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { IonText, IonCard, IonCardContent, IonLoading, IonButton } from '@ionic/react'
+import { IonPage, IonText, IonCard, IonCardContent, IonButton } from '@ionic/react'
+import { PageLoading } from '../../components/shared/PageLoading'
 import { useHistory } from 'react-router-dom'
 import { getProductsApi } from '../../api/productApi'
 import { getProvidersApi } from '../../api/providerApi'
@@ -64,7 +65,8 @@ export const InventoryDashboardPage = () => {
   const navigate = (path: string) => history.push(path)
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <IonPage>
+      <div style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Panel de Inventario</IonText>
@@ -72,6 +74,7 @@ export const InventoryDashboardPage = () => {
             <IonButton onClick={() => navigate('/inventory/products')}>Productos</IonButton>
             <IonButton onClick={() => navigate('/inventory/movements')}>Movimientos</IonButton>
             <IonButton onClick={() => navigate('/inventory/providers')}>Proveedores</IonButton>
+            <IonButton onClick={() => navigate('/inventory/alerts')} color="warning">Alertas de Stock</IonButton>
           </div>
         </div>
 
@@ -119,11 +122,16 @@ export const InventoryDashboardPage = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {lowStockProducts.map((p) => (
-                    <div key={p.id_producto} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#fef2f2', borderRadius: 8 }}>
+                    <div key={p.id_producto} onClick={() => navigate(`/inventory/products/${p.id_producto}`)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(220, 38, 38, 0.12)', borderRadius: 8, cursor: 'pointer' }}>
                       <IonText>{p.nombre}</IonText>
                       <IonText style={{ fontWeight: 600, color: '#dc2626' }}>{p.stock_actual} / {p.stock_minimo}</IonText>
                     </div>
                   ))}
+                  {lowStockProducts.length > 0 && (
+                    <IonButton size="small" fill="outline" onClick={() => navigate('/inventory/alerts')} style={{ marginTop: 8 }}>
+                      Ver todas y generar solicitud
+                    </IonButton>
+                  )}
                 </div>
               )}
             </IonCardContent>
@@ -137,7 +145,7 @@ export const InventoryDashboardPage = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {recentMovements.map((m) => (
-                    <div key={m.id_movimiento} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#f8fafc', borderRadius: 8 }}>
+                    <div key={m.id_movimiento} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--app-surface)', borderRadius: 8 }}>
                       <div>
                         <IonText style={{ fontWeight: 600 }}>{m.nombre_producto || `Producto ${m.id_producto}`}</IonText>
                         <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>{m.tipo} · {m.referencia || 'Sin referencia'}</IonText>
@@ -151,8 +159,9 @@ export const InventoryDashboardPage = () => {
           </IonCard>
         </div>
 
-        <IonLoading isOpen={loading} message="Cargando panel..." />
+        {loading && <PageLoading message="Cargando panel..." />}
       </div>
     </div>
+    </IonPage>
   )
 }

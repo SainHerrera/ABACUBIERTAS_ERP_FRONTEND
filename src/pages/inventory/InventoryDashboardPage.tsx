@@ -70,12 +70,6 @@ export const InventoryDashboardPage = () => {
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Panel de Inventario</IonText>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <IonButton onClick={() => navigate('/inventory/products')}>Productos</IonButton>
-            <IonButton onClick={() => navigate('/inventory/movements')}>Movimientos</IonButton>
-            <IonButton onClick={() => navigate('/inventory/providers')}>Proveedores</IonButton>
-            <IonButton onClick={() => navigate('/inventory/alerts')} color="warning">Alertas de Stock</IonButton>
-          </div>
         </div>
 
         {error && (

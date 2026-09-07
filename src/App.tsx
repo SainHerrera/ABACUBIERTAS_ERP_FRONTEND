@@ -117,6 +117,7 @@ function App() {
           />
           <Route
             path="/inventory"
+            key="inventory-dashboard"
             render={() => (
               <ProtectedRoute>
                 <DashboardLayout>

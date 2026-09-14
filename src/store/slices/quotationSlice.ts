@@ -21,7 +21,7 @@ const initialState: QuotationState = {
 export const fetchQuotes = createAsyncThunk(
   'quotes/fetch',
   async (
-    params: { skip?: number; limit?: number; id_cliente?: number; estado?: string },
+    params: { skip?: number; limit?: number; id_cliente?: string; estado?: string },
     { rejectWithValue },
   ) => {
     try {
@@ -78,7 +78,7 @@ export const updateQuoteStatus = createAsyncThunk(
 
 export const fetchQuotesByClient = createAsyncThunk(
   'quotes/fetchByClient',
-  async (clientId: number, { rejectWithValue }) => {
+  async (clientId: string, { rejectWithValue }) => {
     try {
       return await getQuotesByClientApi(clientId)
     } catch (error: unknown) {

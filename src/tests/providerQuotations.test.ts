@@ -7,6 +7,11 @@ import {
 } from '../api/providerQuotationApi'
 import { getAuditLogApi } from '../api/auditLogApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import {
+  SEED_PRODUCT_CABALLETE,
+  SEED_PROVIDER_ACEROS,
+  SEED_PROVIDER_FIJACIONES,
+} from '../services/localStorage/seedData'
 
 const KEYS = {
   PROVIDER_QUOTATIONS: 'abacubiertas_provider_quotations',
@@ -42,14 +47,14 @@ describe('PROVIDER QUOTATIONS (Compras) - LocalStorage', () => {
     it('should create a new quotation with COT number and persist it', async () => {
       const created = await createProviderQuotationApi({
         id_solicitud: 2,
-        id_producto: 5,
-        id_proveedor: 3,
+        id_producto: SEED_PRODUCT_CABALLETE,
+        id_proveedor: SEED_PROVIDER_FIJACIONES,
         precio_unitario: 31000,
         tiempo_entrega_dias: 6,
         condiciones: 'Pago contado',
       })
       expect(created.numero_cotizacion).toBe('COT-0005')
-      expect(created.id_proveedor).toBe(3)
+      expect(created.id_proveedor).toBe(SEED_PROVIDER_FIJACIONES)
       expect(created.precio_unitario).toBe(31000)
       expect(created.seleccionada).toBe(false)
 
@@ -61,8 +66,8 @@ describe('PROVIDER QUOTATIONS (Compras) - LocalStorage', () => {
       await expect(
         createProviderQuotationApi({
           id_solicitud: 1,
-          id_producto: 5,
-          id_proveedor: 1,
+          id_producto: SEED_PRODUCT_CABALLETE,
+          id_proveedor: SEED_PROVIDER_ACEROS,
           precio_unitario: 60000,
           tiempo_entrega_dias: 10,
         }),
@@ -73,8 +78,8 @@ describe('PROVIDER QUOTATIONS (Compras) - LocalStorage', () => {
       await expect(
         createProviderQuotationApi({
           id_solicitud: 2,
-          id_producto: 5,
-          id_proveedor: 1,
+          id_producto: SEED_PRODUCT_CABALLETE,
+          id_proveedor: SEED_PROVIDER_ACEROS,
           precio_unitario: 0,
           tiempo_entrega_dias: 7,
         }),
@@ -83,8 +88,8 @@ describe('PROVIDER QUOTATIONS (Compras) - LocalStorage', () => {
       await expect(
         createProviderQuotationApi({
           id_solicitud: 2,
-          id_producto: 5,
-          id_proveedor: 1,
+          id_producto: SEED_PRODUCT_CABALLETE,
+          id_proveedor: SEED_PROVIDER_ACEROS,
           precio_unitario: 30000,
           tiempo_entrega_dias: 0,
         }),
@@ -94,8 +99,8 @@ describe('PROVIDER QUOTATIONS (Compras) - LocalStorage', () => {
     it('should audit log the creation', async () => {
       await createProviderQuotationApi({
         id_solicitud: 2,
-        id_producto: 5,
-        id_proveedor: 3,
+        id_producto: SEED_PRODUCT_CABALLETE,
+        id_proveedor: SEED_PROVIDER_FIJACIONES,
         precio_unitario: 31000,
         tiempo_entrega_dias: 6,
       })

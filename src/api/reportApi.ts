@@ -26,7 +26,7 @@ export const getSalesMonthlyTrendApi = async (): Promise<
 export const getInventoryValuationReportApi = async (): Promise<{
   valorTotal: number
   porProducto: Array<{
-    id_producto: number
+    id_producto: string
     nombre: string
     stock_actual: number
     precio_unitario: number

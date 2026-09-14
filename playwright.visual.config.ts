@@ -15,6 +15,9 @@ export default defineConfig({
     video: 'retain-on-failure',
     headless: false,
     viewport: { width: 1440, height: 900 },
+    launchOptions: {
+      slowMo: 450,
+    },
   },
   projects: [
     {

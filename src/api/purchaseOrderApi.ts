@@ -23,7 +23,7 @@ export const createPurchaseOrderApi = async (data: PurchaseOrderCreate): Promise
 
 export const receiveAgainstPoApi = async (
   poId: number,
-  data: { product_id: number; quantity: number; fecha?: string; note?: string },
+  data: { product_id: string; quantity: number; fecha?: string; note?: string },
 ): Promise<PurchaseOrder> => {
   return StorageEngine.receiveAgainstPo(poId, data)
 }
@@ -44,14 +44,14 @@ export const getPurchaseOrdersPendingApprovalApi = async (): Promise<PurchaseOrd
 }
 
 export const getProviderExpenseReportApi = async (): Promise<
-  Array<{ id_proveedor: number; nombre_proveedor: string; gasto_total: number; numero_oc: number }>
+  Array<{ id_proveedor: string; nombre_proveedor: string; gasto_total: number; numero_oc: number }>
 > => {
   return StorageEngine.getProviderExpenseReport()
 }
 
 export const getProviderDeliveryReportApi = async (): Promise<
   Array<{
-    id_proveedor: number
+    id_proveedor: string
     nombre_proveedor: string
     tiempo_promedio_dias: number
     cotizaciones: number

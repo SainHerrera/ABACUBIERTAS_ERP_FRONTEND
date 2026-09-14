@@ -4,7 +4,7 @@ import { StorageEngine } from '../services/localStorage/storageEngine'
 export const getSalesApi = async (
   skip = 0,
   limit = 50,
-  id_cliente?: number,
+  id_cliente?: string,
   estado?: string,
 ): Promise<SaleListResponse> => {
   return StorageEngine.getSales(skip, limit, id_cliente, estado)

@@ -13,6 +13,7 @@ test.describe('Paquete Admin/Gerencia - Dashboard de KPI y Centro de Reportes (E
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

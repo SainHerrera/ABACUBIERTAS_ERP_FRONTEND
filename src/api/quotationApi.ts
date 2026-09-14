@@ -10,7 +10,7 @@ import { StorageEngine } from '../services/localStorage/storageEngine'
 export const getQuotesApi = async (
   skip = 0,
   limit = 50,
-  id_cliente?: number,
+  id_cliente?: string,
   estado?: string,
 ): Promise<QuotationListResponse> => {
   return StorageEngine.getQuotes(skip, limit, id_cliente, estado)
@@ -39,7 +39,7 @@ export const updateQuoteStatusApi = async (
 }
 
 export const getQuotesByClientApi = async (
-  clientId: number,
+  clientId: string,
   skip = 0,
   limit = 50,
 ): Promise<QuotationListResponse> => {

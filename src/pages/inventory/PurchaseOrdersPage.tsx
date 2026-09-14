@@ -12,7 +12,7 @@ import { purchaseOrderStatusStyle } from '../../utils/purchaseOrderStatus'
 
 interface PendingReceive {
   po: PurchaseOrder
-  productId: number
+  productId: string
 }
 
 export const PurchaseOrdersPage = () => {
@@ -52,7 +52,7 @@ export const PurchaseOrdersPage = () => {
     loadData()
   }, [loadData])
 
-  const handleReceive = async (data: { product_id: number; quantity: number; fecha?: string; note?: string }) => {
+  const handleReceive = async (data: { product_id: string; quantity: number; fecha?: string; note?: string }) => {
     if (!receiveTarget) return
     setSaving(true)
     setError(null)
@@ -71,7 +71,7 @@ export const PurchaseOrdersPage = () => {
     }
   }
 
-  const openReceive = (po: PurchaseOrder, productId: number) => {
+  const openReceive = (po: PurchaseOrder, productId: string) => {
     setReceiveTarget({ po, productId })
   }
 

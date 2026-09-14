@@ -10,6 +10,7 @@ import {
 import { selectProviderQuotationApi } from '../api/providerQuotationApi'
 import { updateSettingsApi } from '../api/settingsApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import { SEED_PRODUCT_CABALLETE } from '../services/localStorage/seedData'
 import type { PurchaseOrderCreate } from '../types/purchaseOrder'
 
 const buildOc = async (cantidad: number, precio: number) => {
@@ -20,7 +21,7 @@ const buildOc = async (cantidad: number, precio: number) => {
     id_cotizacion: selected.id_cotizacion,
     detalles: [
       {
-        id_producto: 5,
+        id_producto: SEED_PRODUCT_CABALLETE,
         descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
         cantidad_ordenada: cantidad,
         precio_unitario: precio,
@@ -144,7 +145,7 @@ describe('PURCHASE ORDER APPROVAL (Gerencia/Admin) - LocalStorage', () => {
     it('no debe permitir recibir una OC pendiente de aprobación', async () => {
       const oc = await buildOc(40, 35000)
       await expect(
-        receiveAgainstPoApi(oc.id_orden_compra, { product_id: 5, quantity: 10 }),
+        receiveAgainstPoApi(oc.id_orden_compra, { product_id: SEED_PRODUCT_CABALLETE, quantity: 10 }),
       ).rejects.toThrow(/en tránsito para registrar la entrada/i)
     })
   })

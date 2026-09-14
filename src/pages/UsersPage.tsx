@@ -12,7 +12,7 @@ import {
 } from '@ionic/react'
 import { addOutline, peopleOutline } from 'ionicons/icons'
 import { useAppDispatch } from '../hooks/useAppDispatch'
-import { fetchUsers, updateUser } from '../store/slices/authSlice'
+import { fetchUsers, updateUser, deleteUser } from '../store/slices/authSlice'
 import { createUserApi } from '../api/authApi'
 import { UserList } from '../components/users/UserList'
 import { UserFormDialog } from '../components/users/UserFormDialog'
@@ -32,13 +32,20 @@ export const UsersPage = () => {
   const loadUsers = useCallback(
     async (showLoader = true) => {
       if (showLoader) setLoading(true)
-      const result = await dispatch(fetchUsers({ skip: 0, limit: 100 }))
+      const result = await dispatch(
+        fetchUsers({
+          skip: 0,
+          limit: 100,
+          rol: roleFilter || undefined,
+          status: statusFilter || undefined,
+        }),
+      )
       if (fetchUsers.fulfilled.match(result)) {
         setUsers(result.payload)
       }
       setLoading(false)
     },
-    [dispatch],
+    [dispatch, roleFilter, statusFilter],
   )
 
   useEffect(() => {
@@ -57,18 +64,8 @@ export const UsersPage = () => {
       )
     }
 
-    if (roleFilter) {
-      result = result.filter((u) => u.rol === roleFilter)
-    }
-
-    if (statusFilter === 'activo') {
-      result = result.filter((u) => u.activo)
-    } else if (statusFilter === 'inactivo') {
-      result = result.filter((u) => !u.activo)
-    }
-
     return result
-  }, [users, search, roleFilter, statusFilter])
+  }, [users, search])
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -83,14 +80,17 @@ export const UsersPage = () => {
   }
 
   const handleDeactivate = async (user: User) => {
-    const newStatus = !user.activo
-    const result = await dispatch(
-      updateUser({ userId: user.id_usuario, data: { activo: newStatus } }),
-    )
+    const userId = user.id ?? user.id_usuario
+    const result = user.activo
+      ? await dispatch(deleteUser(userId))
+      : await dispatch(updateUser({ userId, data: { activo: true } }))
+    const success = user.activo
+      ? deleteUser.fulfilled.match(result)
+      : updateUser.fulfilled.match(result)
 
-    if (updateUser.fulfilled.match(result)) {
+    if (success) {
       present({
-        message: `Usuario ${newStatus ? 'activado' : 'desactivado'} correctamente`,
+        message: `Usuario ${user.activo ? 'desactivado' : 'activado'} correctamente`,
         duration: 3000,
         color: 'success',
         position: 'top',
@@ -106,7 +106,7 @@ export const UsersPage = () => {
     }
   }
 
-  const handleSave = async (userId: number | null, data: UserUpdateRequest) => {
+  const handleSave = async (userId: string | number | null, data: UserUpdateRequest) => {
     setDialogLoading(true)
     setDialogError(null)
 

@@ -21,7 +21,7 @@ const initialState: SaleState = {
 export const fetchSales = createAsyncThunk(
   'sales/fetch',
   async (
-    params: { skip?: number; limit?: number; id_cliente?: number; estado?: string },
+    params: { skip?: number; limit?: number; id_cliente?: string; estado?: string },
     { rejectWithValue },
   ) => {
     try {

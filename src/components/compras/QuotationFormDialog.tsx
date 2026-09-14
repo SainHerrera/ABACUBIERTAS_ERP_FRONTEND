@@ -13,8 +13,8 @@ interface QuotationFormDialogProps {
   onClose: () => void
   onSave: (data: {
     id_solicitud: number
-    id_producto: number
-    id_proveedor: number
+    id_producto: string
+    id_proveedor: string
     precio_unitario: number
     tiempo_entrega_dias: number
     condiciones?: string
@@ -32,7 +32,7 @@ export const QuotationFormDialog = ({
   isLoading,
   error,
 }: QuotationFormDialogProps) => {
-  const [id_proveedor, setIdProveedor] = useState<number | undefined>(undefined)
+  const [id_proveedor, setIdProveedor] = useState<string | undefined>(undefined)
   const [precio, setPrecio] = useState('')
   const [tiempo, setTiempo] = useState('')
   const [condiciones, setCondiciones] = useState('')

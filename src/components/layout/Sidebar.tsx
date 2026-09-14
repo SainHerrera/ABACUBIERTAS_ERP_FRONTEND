@@ -3,7 +3,7 @@ import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, busines
 import { useLocation, useHistory } from 'react-router-dom'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
-import { logout } from '../../store/slices/authSlice'
+import { logoutUser } from '../../store/slices/authSlice'
 import { useTheme } from '../../hooks/useTheme'
 import { canAccessSales, canManagePurchasing } from '../../utils/permissions'
 
@@ -19,7 +19,7 @@ export const Sidebar = () => {
   }
 
   const handleLogout = () => {
-    dispatch(logout())
+    dispatch(logoutUser())
   }
 
   const isSelected = (path: string) => location.pathname === path

@@ -19,7 +19,7 @@ export const ProductDetailPage = () => {
   const { user } = useAppSelector((state) => state.auth)
   const canEdit = canManageInventory(user?.rol)
 
-  const productId = Number(id)
+  const productId = id
 
   const [product, setProduct] = useState<Product | null>(null)
   const [providers, setProviders] = useState<Provider[]>([])
@@ -32,7 +32,7 @@ export const ProductDetailPage = () => {
   const [toastMessage, setToastMessage] = useState('')
 
   const loadData = useCallback(async () => {
-    if (Number.isNaN(productId)) return
+    if (!productId) return
     setLoading(true)
     setError(null)
     try {
@@ -57,7 +57,7 @@ export const ProductDetailPage = () => {
     loadData()
   }, [loadData])
 
-  const handleSave = async (_productId: number | null, data: ProductUpdate) => {
+  const handleSave = async (_productId: string | null, data: ProductUpdate) => {
     setSaving(true)
     setError(null)
     try {
@@ -75,7 +75,7 @@ export const ProductDetailPage = () => {
     }
   }
 
-  if (Number.isNaN(productId)) {
+  if (!productId) {
     return (
       <div style={{ padding: 24 }}>
         <IonText color="danger">ID de producto inválido</IonText>

@@ -1,5 +1,5 @@
 export interface Client {
-  id_cliente: number
+  id_cliente: string
   tipo_cliente: 'empresa' | 'persona_natural'
   nombre_razon_social: string
   nit_cc: string
@@ -48,10 +48,31 @@ export interface ClientListResponse {
   limit: number
 }
 
+export interface ApiClient {
+  id_cliente: string
+  tipo_cliente: 'empresa' | 'persona_natural'
+  nombre_razon_social: string
+  nit_cc: string
+  nombre_contacto?: string
+  telefono?: string
+  email?: string
+  direccion?: string
+  ciudad?: string
+  observaciones?: string
+  estado: 'activo' | 'inactivo' | 'prospecto' | 'frecuente' | 'corporativo'
+  activo: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ApiClientListResponse extends ClientListResponse {
+  items: ApiClient[]
+}
+
 export interface Quotation {
   id_cotizacion: number
   numero_consecutivo: string
-  id_cliente: number
+  id_cliente: string
   id_usuario: number
   fecha_emision: string
   fecha_vencimiento?: string
@@ -66,7 +87,7 @@ export interface Quotation {
 
 export interface QuotationDetail {
   id_detalle: number
-  id_producto: number
+  id_producto: string
   descripcion: string
   cantidad: number
   precio_unitario: number
@@ -75,7 +96,7 @@ export interface QuotationDetail {
 }
 
 export interface QuotationCreate {
-  id_cliente: number
+  id_cliente: string
   detalles: QuotationDetail[]
   fecha_vencimiento?: string
   descuento: number
@@ -83,7 +104,7 @@ export interface QuotationCreate {
 }
 
 export interface QuotationUpdate {
-  id_cliente?: number
+  id_cliente?: string
   detalles?: QuotationDetail[]
   fecha_vencimiento?: string
   descuento?: number
@@ -104,7 +125,7 @@ export interface QuotationListResponse {
 export interface Sale {
   id_orden_venta: number
   numero_orden: string
-  id_cliente: number
+  id_cliente: string
   id_cotizacion?: number
   id_usuario: number
   fecha_venta: string
@@ -116,7 +137,7 @@ export interface Sale {
 
 export interface SaleDetail {
   id_detalle_venta: number
-  id_producto: number
+  id_producto: string
   descripcion: string
   cantidad: number
   precio_unitario: number
@@ -125,13 +146,13 @@ export interface SaleDetail {
 }
 
 export interface SaleCreate {
-  id_cliente: number
+  id_cliente: string
   detalles: SaleDetail[]
   observaciones?: string
 }
 
 export interface SaleUpdate {
-  id_cliente?: number
+  id_cliente?: string
   estado?: 'pendiente' | 'en_proceso' | 'entregada' | 'cancelada'
   observaciones?: string
   detalles?: SaleDetail[]

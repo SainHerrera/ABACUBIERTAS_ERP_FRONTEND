@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { setupIonicReact } from '@ionic/react'
 import { store } from './store'
-import { getCurrentUserFromToken } from './utils/jwt'
-import { setCredentials } from './store/slices/authSlice'
+import { restoreSession } from './store/slices/authSlice'
 import { StorageEngine } from './services/localStorage/storageEngine'
 import { initTheme } from './hooks/useTheme'
 import App from './App'
@@ -40,17 +39,18 @@ StorageEngine.init()
 const accessToken = localStorage.getItem('accessToken')
 const refreshToken = localStorage.getItem('refreshToken')
 
-if (accessToken && refreshToken) {
-  const user = getCurrentUserFromToken(accessToken)
-  if (user) {
-    store.dispatch(setCredentials({ user, accessToken, refreshToken }))
+async function bootstrap() {
+  if (accessToken && refreshToken) {
+    await store.dispatch(restoreSession())
   }
+
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </StrictMode>,
+  )
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </StrictMode>,
-)
+bootstrap()

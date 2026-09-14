@@ -4,6 +4,7 @@ import { SEED_SETTINGS } from '../services/localStorage/seedData'
 import { getSettingsApi, updateSettingsApi, resetSettingsApi, loadInitialCatalogApi } from '../api/settingsApi'
 import { createQuoteApi, updateQuoteApi } from '../api/quotationApi'
 import { getClientsApi } from '../api/clientApi'
+import { SEED_PRODUCT_CUBIERTA } from '../services/localStorage/seedData'
 import type { SystemSettings } from '../types/settings'
 
 describe('Settings - Parámetros Generales del Sistema (LocalStorage)', () => {
@@ -121,7 +122,7 @@ describe('Settings - Parámetros Generales del Sistema (LocalStorage)', () => {
           detalles: [
             {
               id_detalle: 1,
-              id_producto: 1,
+              id_producto: SEED_PRODUCT_CUBIERTA,
               descripcion: 'Producto sin precio explícito',
               cantidad: 2,
               precio_unitario: 0,
@@ -146,7 +147,7 @@ describe('Settings - Parámetros Generales del Sistema (LocalStorage)', () => {
         detalles: [
           {
             id_detalle: 1,
-            id_producto: 1,
+            id_producto: SEED_PRODUCT_CUBIERTA,
             descripcion: 'Precio fijo del usuario',
             cantidad: 3,
             precio_unitario: 200000,
@@ -170,7 +171,7 @@ describe('Settings - Parámetros Generales del Sistema (LocalStorage)', () => {
         detalles: [
           {
             id_detalle: 1,
-            id_producto: 1,
+            id_producto: SEED_PRODUCT_CUBIERTA,
             descripcion: 'Sin precio',
             cantidad: 1,
             precio_unitario: 0,
@@ -185,7 +186,7 @@ describe('Settings - Parámetros Generales del Sistema (LocalStorage)', () => {
         detalles: [
           {
             id_detalle: 1,
-            id_producto: 1,
+            id_producto: SEED_PRODUCT_CUBIERTA,
             descripcion: 'Sin precio',
             cantidad: 4,
             precio_unitario: 0,

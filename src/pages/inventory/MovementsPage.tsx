@@ -16,7 +16,7 @@ export const MovementsPage = () => {
 
   const [movements, setMovements] = useState<Movement[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const [productFilter, setProductFilter] = useState<number | undefined>(undefined)
+  const [productFilter, setProductFilter] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +53,7 @@ export const MovementsPage = () => {
     setFormOpen(true)
   }
 
-  const handleSave = async (data: { product_id: number; quantity: number; reference?: string; note?: string; fecha?: string }) => {
+  const handleSave = async (data: { product_id: string; quantity: number; reference?: string; note?: string; fecha?: string }) => {
     setSaving(true)
     setError(null)
     try {
@@ -110,7 +110,7 @@ export const MovementsPage = () => {
             value={productFilter}
             placeholder="Todos los productos"
             interface="popover"
-            onIonChange={(e) => setProductFilter(e.detail.value ? Number(e.detail.value) : undefined)}
+            onIonChange={(e) => setProductFilter(e.detail.value || undefined)}
           >
             <IonSelectOption value={undefined}>Todos los productos</IonSelectOption>
             {products.map((p) => (

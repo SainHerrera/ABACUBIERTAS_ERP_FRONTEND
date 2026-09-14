@@ -9,7 +9,8 @@ import { SaleFormDialog } from '../../components/sales/SaleFormDialog'
 import { getSalesApi, createSaleApi, cancelSaleApi, updateSaleApi } from '../../api/saleApi'
 import { getClientsApi } from '../../api/clientApi'
 import { getProductsApi } from '../../api/productApi'
-import type { Client, Product, Sale, SaleCreate, SaleUpdate } from '../../types/sales'
+import type { Client, Sale, SaleCreate, SaleUpdate } from '../../types/sales'
+import type { Product } from '../../types/product'
 
 const ESTADO_FILTER_OPTIONS = ['pendiente', 'en_proceso', 'entregada', 'cancelada'] as const
 
@@ -18,7 +19,7 @@ export const OrdersPage = () => {
   const [clients, setClients] = useState<Client[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [estadoFilter, setEstadoFilter] = useState<string | undefined>(undefined)
-  const [clienteFilter, setClienteFilter] = useState<number | undefined>(undefined)
+  const [clienteFilter, setClienteFilter] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +54,7 @@ export const OrdersPage = () => {
   }, [loadData])
 
   const clientName = useCallback(
-    (idCliente: number) => clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
+    (idCliente: string) => clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
     [clients],
   )
 
@@ -140,7 +141,7 @@ export const OrdersPage = () => {
             placeholder="Todos los clientes"
             interface="popover"
             style={{ background: 'var(--app-surface)', borderRadius: 8 }}
-            onIonChange={(e) => setClienteFilter(e.detail.value ? Number(e.detail.value) : undefined)}
+            onIonChange={(e) => setClienteFilter(e.detail.value ? String(e.detail.value) : undefined)}
           >
             <IonSelectOption value="">Todos los clientes</IonSelectOption>
             {clients.map((c) => (

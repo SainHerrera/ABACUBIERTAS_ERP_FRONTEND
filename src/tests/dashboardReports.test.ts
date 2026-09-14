@@ -8,6 +8,7 @@ import {
 } from '../api/reportApi'
 import { createSaleApi } from '../api/saleApi'
 import { getClientsApi } from '../api/clientApi'
+import { SEED_PRODUCT_CUBIERTA } from '../services/localStorage/seedData'
 
 describe('DASHBOARD & REPORTS (Gerencia/Admin) - LocalStorage', () => {
   beforeEach(() => {
@@ -21,7 +22,7 @@ describe('DASHBOARD & REPORTS (Gerencia/Admin) - LocalStorage', () => {
 
       // Cotización COT-0001 en "enviada" -> 1
       expect(kpis.cotizacionesPendientes).toBe(1)
-      // Productos low_stock en seed: ids 2, 3 y 5 -> 3
+      // Productos low_stock en seed: Perfil C, Tornillo y Caballete -> 3
       expect(kpis.stockCritico).toBe(3)
       // OC seed: OC-0001 en tránsito + OC-0002 enviada -> 2
       expect(kpis.comprasPendientes).toBe(2)
@@ -42,7 +43,7 @@ describe('DASHBOARD & REPORTS (Gerencia/Admin) - LocalStorage', () => {
         detalles: [
           {
             id_detalle_venta: 1,
-            id_producto: 1,
+            id_producto: SEED_PRODUCT_CUBIERTA,
             descripcion: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
             cantidad: 2,
             precio_unitario: 85000,

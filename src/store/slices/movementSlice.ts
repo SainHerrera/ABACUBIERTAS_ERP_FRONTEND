@@ -11,6 +11,7 @@ import {
   createOutputApi,
   createAdjustmentApi,
 } from '../../api/movementApi'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 interface MovementState {
   items: Movement[]
@@ -32,7 +33,7 @@ export const fetchMovements = createAsyncThunk(
     params: {
       skip?: number
       limit?: number
-      product_id?: number
+      product_id?: string
       date_from?: string
       date_to?: string
     },
@@ -47,7 +48,7 @@ export const fetchMovements = createAsyncThunk(
         params.date_to,
       )
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar movimientos')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar movimientos'))
     }
   },
 )
@@ -58,7 +59,7 @@ export const createEntry = createAsyncThunk(
     try {
       return await createEntryApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al registrar entrada')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al registrar entrada'))
     }
   },
 )
@@ -69,7 +70,7 @@ export const createOutput = createAsyncThunk(
     try {
       return await createOutputApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al registrar salida')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al registrar salida'))
     }
   },
 )
@@ -80,7 +81,7 @@ export const createAdjustment = createAsyncThunk(
     try {
       return await createAdjustmentApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al registrar ajuste')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al registrar ajuste'))
     }
   },
 )

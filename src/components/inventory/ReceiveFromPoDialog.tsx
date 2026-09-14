@@ -9,10 +9,10 @@ import type { PurchaseOrder } from '../../types/purchaseOrder'
 interface ReceiveFromPoDialogProps {
   open: boolean
   po: PurchaseOrder
-  productId: number
+  productId: string
   products: Product[]
   onClose: () => void
-  onSave: (data: { product_id: number; quantity: number; fecha?: string; note?: string }) => void
+  onSave: (data: { product_id: string; quantity: number; fecha?: string; note?: string }) => void
   isLoading: boolean
   error: string | null
 }

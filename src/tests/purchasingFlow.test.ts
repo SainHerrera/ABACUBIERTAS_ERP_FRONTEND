@@ -10,6 +10,11 @@ import {
 import { selectProviderQuotationApi } from '../api/providerQuotationApi'
 import { getProductApi } from '../api/productApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import {
+  SEED_PRODUCT_CABALLETE,
+  SEED_PROVIDER_ACEROS,
+  SEED_PROVIDER_PLASTICOS,
+} from '../services/localStorage/seedData'
 
 describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
   beforeEach(() => {
@@ -19,7 +24,7 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
 
   describe('1. Generación de orden de compra desde cotización seleccionada', () => {
     it('should create an OC in "enviada" copying quotation price and delivery, linking request', async () => {
-      // SOL-0002 (producto 5) tiene COT-0003 y COT-0004, ninguna seleccionada.
+      // SOL-0002 (producto Caballete) tiene COT-0003 y COT-0004, ninguna seleccionada.
       const selected = await selectProviderQuotationApi(4)
       expect(selected.seleccionada).toBe(true)
 
@@ -30,7 +35,7 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
         observaciones: 'Compra por solicitud SOL-0002',
         detalles: [
           {
-            id_producto: 5,
+            id_producto: SEED_PRODUCT_CABALLETE,
             descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
             cantidad_ordenada: 40,
             precio_unitario: selected.precio_unitario,
@@ -53,11 +58,11 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
     it('should reject creating an OC from a non-selected quotation', async () => {
       await expect(
         createPurchaseOrderApi({
-          id_proveedor: 2,
+          id_proveedor: SEED_PROVIDER_PLASTICOS,
           id_solicitud: 2,
           id_cotizacion: 3,
           detalles: [
-            { id_producto: 5, descripcion: 'x', cantidad_ordenada: 10, precio_unitario: 100 },
+            { id_producto: SEED_PRODUCT_CABALLETE, descripcion: 'x', cantidad_ordenada: 10, precio_unitario: 100 },
           ],
         }),
       ).rejects.toThrow(/no está marcada como seleccionada/i)
@@ -73,7 +78,7 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
         id_cotizacion: selected.id_cotizacion,
         detalles: [
           {
-            id_producto: 5,
+            id_producto: SEED_PRODUCT_CABALLETE,
             descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
             cantidad_ordenada: 40,
             precio_unitario: selected.precio_unitario,
@@ -85,21 +90,21 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
 
       // Compras no puede registrar la entrada estando "enviada"
       await expect(
-        receiveAgainstPoApi(oc.id_orden_compra, { product_id: 5, quantity: 10 }),
+        receiveAgainstPoApi(oc.id_orden_compra, { product_id: SEED_PRODUCT_CABALLETE, quantity: 10 }),
       ).rejects.toThrow(/en tránsito para registrar la entrada/i)
 
       const inTransit = await markPoTransitApi(oc.id_orden_compra)
       expect(inTransit.estado).toBe('en_transito')
 
       // Bodega registra la entrada total -> OC recibida
-      const prodBefore = await getProductApi(5)
+      const prodBefore = await getProductApi(SEED_PRODUCT_CABALLETE)
       const received = await receiveAgainstPoApi(oc.id_orden_compra, {
-        product_id: 5,
+        product_id: SEED_PRODUCT_CABALLETE,
         quantity: 40,
         note: 'Mercancía recibida en bodega',
       })
       expect(received.estado).toBe('recibida')
-      const prodAfter = await getProductApi(5)
+      const prodAfter = await getProductApi(SEED_PRODUCT_CABALLETE)
       expect(prodAfter.stock_actual).toBe(prodBefore.stock_actual + 40)
     })
 
@@ -118,7 +123,7 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
         id_cotizacion: selected.id_cotizacion,
         detalles: [
           {
-            id_producto: 5,
+            id_producto: SEED_PRODUCT_CABALLETE,
             descripcion: 'x',
             cantidad_ordenada: 20,
             precio_unitario: selected.precio_unitario,
@@ -127,10 +132,10 @@ describe('PURCHASING FLOW (Compras) - LocalStorage', () => {
         ],
       })
       await markPoTransitApi(oc.id_orden_compra)
-      await receiveAgainstPoApi(oc.id_orden_compra, { product_id: 5, quantity: 20 })
+      await receiveAgainstPoApi(oc.id_orden_compra, { product_id: SEED_PRODUCT_CABALLETE, quantity: 20 })
 
       const report = await getProviderExpenseReportApi()
-      const prov1 = report.find((r) => r.id_proveedor === 1)
+      const prov1 = report.find((r) => r.id_proveedor === SEED_PROVIDER_ACEROS)
       expect(prov1).toBeDefined()
       expect(prov1!.gasto_total).toBe(20 * 35000)
       expect(prov1!.numero_oc).toBeGreaterThanOrEqual(1)

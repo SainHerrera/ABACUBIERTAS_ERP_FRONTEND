@@ -8,6 +8,7 @@ import { getClientsApi } from '../api/clientApi'
 import { createProductApi, getProductApi } from '../api/productApi'
 import { createEntryApi, createAdjustmentApi, getMovementsApi } from '../api/movementApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import { SEED_PRODUCT_CUBIERTA, SEED_PRODUCT_PERFIL } from '../services/localStorage/seedData'
 
 describe('INVENTORY FLOWS - Purchase Orders, Dispatch & Adjustment (LocalStorage)', () => {
   beforeEach(() => {
@@ -17,65 +18,65 @@ describe('INVENTORY FLOWS - Purchase Orders, Dispatch & Adjustment (LocalStorage
 
   describe('1. Purchase Orders - receive merchandise against an approved PO', () => {
     it('should seed an in-transit PO, receive partially and fully, updating stock and movements', async () => {
-      // 1. Seeded in-transit PO for product 1 (Cubierta UPVC, stock 45) ordering 60
+      // 1. Seeded in-transit PO for product Cubierta UPVC (seed, stock 45) ordering 60
       const po = await getPurchaseOrderApi(1)
       expect(po.numero_oc).toBe('OC-0001')
       expect(po.estado).toBe('en_transito')
 
-      const detail = po.detalles.find((d) => d.id_producto === 1)!
+      const detail = po.detalles.find((d) => d.id_producto === SEED_PRODUCT_CUBIERTA)!
       expect(detail.cantidad_ordenada).toBe(60)
       expect(detail.cantidad_recibida).toBe(0)
 
       // 2. Partial receive of 20 units -> stock 45 -> 65
       const fecha = '2026-08-28T10:00:00.000Z'
       const afterPartial = await receiveAgainstPoApi(1, {
-        product_id: 1,
+        product_id: SEED_PRODUCT_CUBIERTA,
         quantity: 20,
         fecha,
         note: 'Primera remesa recibida',
       })
       expect(afterPartial.estado).toBe('en_transito')
 
-      const prodAfterPartial = await getProductApi(1)
+      const prodAfterPartial = await getProductApi(SEED_PRODUCT_CUBIERTA)
       expect(prodAfterPartial.stock_actual).toBe(65)
 
       // 3. Receive an amount that exceeds the pending (40 more) -> error
       await expect(
-        receiveAgainstPoApi(1, { product_id: 1, quantity: 41 }),
+        receiveAgainstPoApi(1, { product_id: SEED_PRODUCT_CUBIERTA, quantity: 41 }),
       ).rejects.toThrow(/no se puede recibir más de lo ordenado/i)
 
-      // 4. Receive the remaining 40 units of product 1 -> stock 105 (PO still en_transito
+      // 4. Receive the remaining 40 units of product Cubierta -> stock 105 (PO still en_transito
       //    because product 2 is still pending)
       const afterFull1 = await receiveAgainstPoApi(1, {
-        product_id: 1,
+        product_id: SEED_PRODUCT_CUBIERTA,
         quantity: 40,
         note: 'Segunda remesa recibida',
       })
       expect(afterFull1.estado).toBe('en_transito')
 
-      const prodAfterFull = await getProductApi(1)
+      const prodAfterFull = await getProductApi(SEED_PRODUCT_CUBIERTA)
       expect(prodAfterFull.stock_actual).toBe(105)
 
-      // 5. Complete product 2 (30 ordered) -> PO becomes received; stock 8 -> 38
+      // 5. Complete product Perfil C (30 ordered) -> PO becomes received; stock 8 -> 38
       const afterProduct2 = await receiveAgainstPoApi(1, {
-        product_id: 2,
+        product_id: SEED_PRODUCT_PERFIL,
         quantity: 30,
         note: 'Recepción completa del perfil C',
       })
       expect(afterProduct2.estado).toBe('recibida')
 
-      const prod2 = await getProductApi(2)
+      const prod2 = await getProductApi(SEED_PRODUCT_PERFIL)
       expect(prod2.stock_actual).toBe(38)
 
       // 6. cantidad_recibida persisted in abacubiertas_pos
-      const raw: Array<{ id_orden_compra: number; detalles: Array<{ id_producto: number; cantidad_recibida: number }> }> =
+      const raw: Array<{ id_orden_compra: number; detalles: Array<{ id_producto: string; cantidad_recibida: number }> }> =
         JSON.parse(localStorage.getItem('abacubiertas_pos') || '[]')
       const persisted = raw.find((o) => o.id_orden_compra === 1)!
-      expect(persisted.detalles.find((d) => d.id_producto === 1)!.cantidad_recibida).toBe(60)
-      expect(persisted.detalles.find((d) => d.id_producto === 2)!.cantidad_recibida).toBe(30)
+      expect(persisted.detalles.find((d) => d.id_producto === SEED_PRODUCT_CUBIERTA)!.cantidad_recibida).toBe(60)
+      expect(persisted.detalles.find((d) => d.id_producto === SEED_PRODUCT_PERFIL)!.cantidad_recibida).toBe(30)
 
       // 7. Entry movement registered with the manual fecha
-      const movements = await getMovementsApi(0, 1000, 1)
+      const movements = await getMovementsApi(0, 1000, SEED_PRODUCT_CUBIERTA)
       const entry = movements.items.find(
         (m) => m.tipo === 'entrada' && m.referencia === 'OC-0001' && m.cantidad === 20,
       )

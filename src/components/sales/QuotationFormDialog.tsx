@@ -3,12 +3,13 @@ import {
   IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonList, IonItem, IonLabel, IonInput, IonText, IonSelect, IonSelectOption,
 } from '@ionic/react'
-import type { Client, Product, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
+import type { Client, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
+import type { Product } from '../../types/product'
 import { formatMoney, lineSubtotal, computeTotals } from '../../utils/totals'
 
 interface DetailRow {
   key: number
-  id_producto: number | null
+  id_producto: string | null
   descripcion: string
   cantidad: number
   precio_unitario: number
@@ -39,7 +40,7 @@ export const QuotationFormDialog = ({
   error,
 }: QuotationFormDialogProps) => {
   const isEditing = !!quotation
-  const [idCliente, setIdCliente] = useState<number | null>(null)
+  const [idCliente, setIdCliente] = useState<string | null>(null)
   const [fechaVencimiento, setFechaVencimiento] = useState('')
   const [descuentoGlobal, setDescuentoGlobal] = useState(0)
   const [observaciones, setObservaciones] = useState('')
@@ -76,7 +77,7 @@ export const QuotationFormDialog = ({
     setRows((prev) => prev.map((row) => (row.key === key ? { ...row, ...patch } : row)))
   }
 
-  const handleProductChange = (key: number, productId: number) => {
+  const handleProductChange = (key: number, productId: string) => {
     const product = products.find((p) => p.id_producto === productId)
     updateRow(key, { id_producto: productId, descripcion: product?.nombre || '', precio_unitario: Number(product?.precio_unitario ?? 0) })
   }
@@ -107,13 +108,20 @@ export const QuotationFormDialog = ({
       return
     }
 
-    const detalles = validRows.map((row) => ({
-      id_producto: row.id_producto!,
-      descripcion: row.descripcion || undefined,
-      cantidad: Math.max(1, Math.round(Number(row.cantidad))),
-      precio_unitario: Number(row.precio_unitario) || 0,
-      descuento: Number(row.descuento) || 0,
-    }))
+    const detalles = validRows.map((row, index) => {
+      const cantidad = Math.max(1, Math.round(Number(row.cantidad)))
+      const precio_unitario = Number(row.precio_unitario) || 0
+      const descuento = Number(row.descuento) || 0
+      return {
+        id_detalle: index + 1,
+        id_producto: row.id_producto!,
+        descripcion: row.descripcion || '',
+        cantidad,
+        precio_unitario,
+        descuento,
+        subtotal: cantidad * precio_unitario - descuento,
+      }
+    })
 
     if (isEditing) {
       onSave(quotation!.id_cotizacion, {
@@ -122,7 +130,7 @@ export const QuotationFormDialog = ({
         descuento: Number(descuentoGlobal) || 0,
         observaciones: observaciones || undefined,
         detalles,
-      } as QuotationUpdate)
+      })
     } else {
       onSave(null, {
         id_cliente: idCliente,
@@ -130,7 +138,7 @@ export const QuotationFormDialog = ({
         descuento: Number(descuentoGlobal) || 0,
         observaciones: observaciones || undefined,
         detalles,
-      } as QuotationCreate)
+      })
     }
   }
 
@@ -160,7 +168,7 @@ export const QuotationFormDialog = ({
                   value={idCliente}
                   placeholder="Selecciona un cliente"
                   interface="popover"
-                  onIonChange={(e) => setIdCliente(e.detail.value ? Number(e.detail.value) : null)}
+                  onIonChange={(e) => setIdCliente(e.detail.value || null)}
                 >
                   {clients.map((c) => (
                     <IonSelectOption key={c.id_cliente} value={c.id_cliente}>{c.nombre_razon_social}</IonSelectOption>
@@ -186,7 +194,7 @@ export const QuotationFormDialog = ({
                     value={row.id_producto}
                     placeholder="Selecciona un producto"
                     interface="popover"
-                    onIonChange={(e) => handleProductChange(row.key, Number(e.detail.value))}
+                    onIonChange={(e) => handleProductChange(row.key, e.detail.value)}
                   >
                     {products.map((p) => (
                       <IonSelectOption key={p.id_producto} value={p.id_producto}>{p.nombre}</IonSelectOption>

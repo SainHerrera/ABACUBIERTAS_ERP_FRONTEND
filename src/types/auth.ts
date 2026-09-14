@@ -1,6 +1,7 @@
 export type UserRole = 'admin' | 'ventas' | 'compras' | 'bodega' | 'gerencia';
 
 export interface User {
+  id?: string;
   id_usuario: number;
   email: string;
   nombre: string;
@@ -33,6 +34,16 @@ export interface TokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
+}
+
+export interface ApiUser {
+  id: string;
+  name: string;
+  email: string;
+  rol: UserRole;
+  status: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AuthState {

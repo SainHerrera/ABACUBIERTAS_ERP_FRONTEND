@@ -5,6 +5,7 @@ test.describe('Paquete Rol Bodega - Alertas de Stock y Solicitud de Abastecimien
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

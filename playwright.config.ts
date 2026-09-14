@@ -12,6 +12,9 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    extraHTTPHeaders: {
+      'Accept': 'application/json',
+    },
   },
   projects: [
     {
@@ -19,10 +22,6 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 60000,
-  },
+  // El frontend se levanta con npm run dev en el puerto 5173
+  // El backend está en localhost:8000 y los tests hacen calls API directos
 })

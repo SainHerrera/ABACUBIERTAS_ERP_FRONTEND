@@ -9,7 +9,7 @@ interface StockRequestDialogProps {
   open: boolean
   product: Product | null
   onClose: () => void
-  onSave: (data: { id_producto: number; cantidad_sugerida: number; observaciones?: string }) => void
+  onSave: (data: { id_producto: string; cantidad_sugerida: number; observaciones?: string }) => void
   isLoading: boolean
   error: string | null
 }

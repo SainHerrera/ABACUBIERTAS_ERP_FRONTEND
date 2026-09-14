@@ -11,7 +11,7 @@ interface ProductFormDialogProps {
   product: Product | null
   providers: Provider[]
   onClose: () => void
-  onSave: (productId: number | null, data: ProductCreate | ProductUpdate) => void
+  onSave: (productId: string | null, data: ProductCreate | ProductUpdate) => void
   isLoading: boolean
   error: string | null
 }
@@ -31,7 +31,7 @@ export const ProductFormDialog = ({
   const [unidadMedida, setUnidadMedida] = useState('unidad')
   const [precioUnitario, setPrecioUnitario] = useState('')
   const [stockMinimo, setStockMinimo] = useState('0')
-  const [idProveedor, setIdProveedor] = useState<number | undefined>(undefined)
+  const [idProveedor, setIdProveedor] = useState<string | undefined>(undefined)
   const [validationError, setValidationError] = useState<string | null>(null)
 
   useEffect(() => {

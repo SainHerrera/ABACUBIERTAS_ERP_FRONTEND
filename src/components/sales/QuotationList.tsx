@@ -3,7 +3,7 @@ import type { Quotation } from '../../types/sales'
 
 interface QuotationListProps {
   quotations: Quotation[]
-  clientName: (idCliente: number) => string
+  clientName: (idCliente: string) => string
   onView: (quotation: Quotation) => void
   onEdit: (quotation: Quotation) => void
   onStatusChange: (quotation: Quotation, estado: Quotation['estado']) => void

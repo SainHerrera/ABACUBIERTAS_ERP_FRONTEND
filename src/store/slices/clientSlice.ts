@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { Client, ClientCreate, ClientUpdate } from '../../types/sales'
 import { getClientsApi, getClientApi, createClientApi, updateClientApi, deleteClientApi } from '../../api/clientApi'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 interface ClientState {
   items: Client[]
@@ -27,18 +28,18 @@ export const fetchClients = createAsyncThunk(
     try {
       return await getClientsApi(params.skip, params.limit, params.search, params.estado, params.tipo)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar clientes')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar clientes'))
     }
   },
 )
 
 export const fetchClient = createAsyncThunk(
   'clients/fetchOne',
-  async (clientId: number, { rejectWithValue }) => {
+  async (clientId: string, { rejectWithValue }) => {
     try {
       return await getClientApi(clientId)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar cliente')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar cliente'))
     }
   },
 )
@@ -49,30 +50,30 @@ export const createClient = createAsyncThunk(
     try {
       return await createClientApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al crear cliente')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al crear cliente'))
     }
   },
 )
 
 export const updateClient = createAsyncThunk(
   'clients/update',
-  async ({ clientId, data }: { clientId: number; data: ClientUpdate }, { rejectWithValue }) => {
+  async ({ clientId, data }: { clientId: string; data: ClientUpdate }, { rejectWithValue }) => {
     try {
       return await updateClientApi(clientId, data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al actualizar cliente')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al actualizar cliente'))
     }
   },
 )
 
 export const deleteClient = createAsyncThunk(
   'clients/delete',
-  async (clientId: number, { rejectWithValue }) => {
+  async (clientId: string, { rejectWithValue }) => {
     try {
       await deleteClientApi(clientId)
       return clientId
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al eliminar cliente')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al eliminar cliente'))
     }
   },
 )

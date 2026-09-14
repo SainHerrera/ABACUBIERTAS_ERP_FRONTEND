@@ -5,6 +5,7 @@ import {
   updateClientApi,
   deleteClientApi,
 } from '../api/clientApi'
+import { SEED_PRODUCT_CUBIERTA } from '../services/localStorage/seedData'
 import {
   getQuoteApi,
   createQuoteApi,
@@ -80,7 +81,7 @@ describe('SALES, QUOTATIONS & CLIENTS - Full Integration Flow with LocalStorage'
         detalles: [
           {
             id_detalle: 1,
-            id_producto: 1,
+            id_producto: SEED_PRODUCT_CUBIERTA,
             descripcion: 'Cubierta UPVC',
             cantidad: 10,
             precio_unitario: 85000,

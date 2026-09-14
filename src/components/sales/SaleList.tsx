@@ -3,7 +3,7 @@ import type { Sale } from '../../types/sales'
 
 interface SaleListProps {
   sales: Sale[]
-  clientName: (idCliente: number) => string
+  clientName: (idCliente: string) => string
   onView: (sale: Sale) => void
   onCancel: (sale: Sale) => void
 }

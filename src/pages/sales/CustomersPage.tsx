@@ -44,7 +44,7 @@ export const CustomersPage = () => {
     loadClients()
   }, [loadClients])
 
-  const handleSave = async (clientId: number | null, data: ClientCreate | ClientUpdate) => {
+  const handleSave = async (clientId: string | null, data: ClientCreate | ClientUpdate) => {
     setSaving(true)
     setError(null)
     try {

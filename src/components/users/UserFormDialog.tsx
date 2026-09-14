@@ -6,7 +6,7 @@ interface UserFormDialogProps {
   open: boolean
   user: User | null
   onClose: () => void
-  onSave: (userId: number | null, data: UserUpdateRequest) => void
+  onSave: (userId: string | number | null, data: UserUpdateRequest) => void
   isLoading: boolean
   error: string | null
 }
@@ -73,7 +73,7 @@ export const UserFormDialog = ({
 
     const data: UserUpdateRequest = { nombre, email, rol, activo }
     if (password) data.password = password
-    onSave(user?.id_usuario ?? null, data)
+    onSave(user?.id ?? user?.id_usuario ?? null, data)
   }
 
   return (

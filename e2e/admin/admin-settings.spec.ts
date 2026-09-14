@@ -5,6 +5,7 @@ test.describe('Paquete Rol Administrador - Parámetros Generales del Sistema (E2
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

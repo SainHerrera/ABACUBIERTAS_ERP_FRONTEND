@@ -13,6 +13,7 @@ test.describe('Creación de usuarios y login con contraseña temporal (E2E)', ()
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

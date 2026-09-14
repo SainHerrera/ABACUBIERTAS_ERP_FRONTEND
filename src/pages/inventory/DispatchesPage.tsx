@@ -6,7 +6,8 @@ import { getClientsApi } from '../../api/clientApi'
 import { getProductsApi } from '../../api/productApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { canManageInventory } from '../../utils/permissions'
-import type { Client, Product, Sale } from '../../types/sales'
+import type { Client, Sale } from '../../types/sales'
+import type { Product } from '../../types/product'
 
 export const DispatchesPage = () => {
   const { user } = useAppSelector((state) => state.auth)
@@ -47,13 +48,13 @@ export const DispatchesPage = () => {
   }, [loadData])
 
   const clientName = useCallback(
-    (idCliente: number) =>
+    (idCliente: string) =>
       clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
     [clients],
   )
 
   const productName = useCallback(
-    (idProducto: number) => products.find((p) => p.id_producto === idProducto)?.nombre || `Producto ${idProducto}`,
+    (idProducto: string) => products.find((p) => p.id_producto === idProducto)?.nombre || `Producto ${idProducto}`,
     [products],
   )
 

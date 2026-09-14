@@ -5,6 +5,7 @@ test.describe('Paquete Rol Administrador - Gestión de Usuarios (E2E)', () => {
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })
@@ -183,12 +184,63 @@ test.describe('Paquete Rol Administrador - Gestión de Usuarios (E2E)', () => {
       expect(found.rol).toBe(value)
       expect(found.activo).toBe(true)
 
-      // Wait for the success toast to appear and dismiss, so Ionic restores
+// Wait for the success toast to appear and dismiss, so Ionic restores
       // the router-outlet aria state before starting the next iteration.
       const toast = page.locator('ion-toast')
       await expect(toast.first()).toBeAttached({ timeout: 10000 })
       await expect(toast).toHaveCount(0, { timeout: 10000 })
     }
+  })
+
+  test('7. Filtra usuarios por rol desde el selector', async ({ page }) => {
+    await page.goto('/login')
+    await page.locator('input[type="email"]').fill('admin@test.com')
+    await page.locator('input[type="password"]').fill('Admin12345!')
+    await page.getByRole('button', { name: 'Iniciar Sesión' }).click()
+
+    await page.goto('/users')
+    await expect(page.getByText('Administración de Usuarios')).toBeVisible()
+
+    // Select role filter "Ventas"
+    await page.locator('ion-select', { hasText: 'Todos los roles' }).click()
+    await page
+      .locator('ion-select-popover ion-radio')
+      .filter({ hasText: 'Ventas' })
+      .click()
+
+    // Only ventas role rows remain
+    const table = page.locator('table.data-table')
+    await expect(table.getByText('ventas@test.com')).toBeVisible()
+    await expect(table.getByText('compras@test.com')).not.toBeVisible()
+    await expect(table.getByText('admin@test.com')).not.toBeVisible()
+  })
+
+  test('8. Filtra usuarios por estado inactivo', async ({ page }) => {
+    await page.goto('/login')
+    await page.locator('input[type="email"]').fill('admin@test.com')
+    await page.locator('input[type="password"]').fill('Admin12345!')
+    await page.getByRole('button', { name: 'Iniciar Sesión' }).click()
+
+    await page.goto('/users')
+    await expect(page.getByText('Administración de Usuarios')).toBeVisible()
+
+    // Deactivate the ventas user (soft delete) so there's an inactive user
+    const ventasRow = page.locator('tr:has-text("ventas@test.com")')
+    await ventasRow.locator('button[title*="Desactivar"]').click()
+    await expect(page.locator('ion-toast').first()).toBeAttached({ timeout: 10000 })
+    await expect(page.locator('ion-toast')).toHaveCount(0, { timeout: 10000 })
+
+    // Select status filter "Inactivos"
+    await page.locator('ion-select', { hasText: 'Todos los estados' }).click()
+    await page
+      .locator('ion-select-popover ion-radio')
+      .filter({ hasText: 'Inactivos' })
+      .click()
+
+    // Only inactive users are shown
+    const table = page.locator('table.data-table')
+    await expect(table.getByText('ventas@test.com')).toBeVisible()
+    await expect(table.getByText('admin@test.com')).not.toBeVisible()
   })
 })
 

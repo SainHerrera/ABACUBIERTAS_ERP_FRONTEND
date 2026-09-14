@@ -7,7 +7,7 @@ export type PurchaseOrderStatus =
 
 export interface PurchaseOrderDetail {
   id_detalle_oc: number
-  id_producto: number
+  id_producto: string
   descripcion: string
   cantidad_ordenada: number
   cantidad_recibida: number
@@ -18,7 +18,7 @@ export interface PurchaseOrderDetail {
 export interface PurchaseOrder {
   id_orden_compra: number
   numero_oc: string
-  id_proveedor: number
+  id_proveedor: string
   nombre_proveedor?: string
   fecha_emision: string
   estado: PurchaseOrderStatus
@@ -30,13 +30,13 @@ export interface PurchaseOrder {
 }
 
 export interface PurchaseOrderCreate {
-  id_proveedor: number
+  id_proveedor: string
   fecha_emision?: string
   observaciones?: string
   id_solicitud?: number
   id_cotizacion?: number
   detalles: {
-    id_producto: number
+    id_producto: string
     descripcion: string
     cantidad_ordenada: number
     precio_unitario: number

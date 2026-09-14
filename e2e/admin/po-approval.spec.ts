@@ -5,6 +5,7 @@ test.describe('Paquete Admin/Gerencia - Aprobación de Órdenes de Compra grande
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

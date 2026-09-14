@@ -4,7 +4,7 @@ import type { Product } from '../../types/product'
 interface ProductListProps {
   products: Product[]
   onEdit: (product: Product) => void
-  onDelete: (productId: number) => void
+  onDelete: (productId: string) => void
   canEdit?: boolean
 }
 

@@ -10,7 +10,7 @@ interface ProviderFormDialogProps {
   open: boolean
   provider: Provider | null
   onClose: () => void
-  onSave: (providerId: number | null, data: ProviderCreate | ProviderUpdate) => void
+  onSave: (providerId: string | null, data: ProviderCreate | ProviderUpdate) => void
   isLoading: boolean
   error: string | null
 }

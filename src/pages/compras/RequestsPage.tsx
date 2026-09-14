@@ -84,8 +84,8 @@ export const RequestsPage = () => {
 
   const handleSaveQuotation = async (data: {
     id_solicitud: number
-    id_producto: number
-    id_proveedor: number
+    id_producto: string
+    id_proveedor: string
     precio_unitario: number
     tiempo_entrega_dias: number
     condiciones?: string

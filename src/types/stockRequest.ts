@@ -3,7 +3,7 @@ export type StockRequestStatus = 'pendiente' | 'aprobada' | 'atendida' | 'rechaz
 export interface StockRequest {
   id_solicitud: number
   numero_solicitud: string
-  id_producto: number
+  id_producto: string
   descripcion: string
   cantidad_sugerida: number
   stock_actual: number
@@ -16,7 +16,7 @@ export interface StockRequest {
 }
 
 export interface StockRequestCreate {
-  id_producto: number
+  id_producto: string
   cantidad_sugerida: number
   observaciones?: string
 }

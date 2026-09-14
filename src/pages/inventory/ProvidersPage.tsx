@@ -41,7 +41,7 @@ export const ProvidersPage = () => {
     loadProviders()
   }, [loadProviders])
 
-  const handleSave = async (providerId: number | null, data: ProviderCreate | ProviderUpdate) => {
+  const handleSave = async (providerId: string | null, data: ProviderCreate | ProviderUpdate) => {
     setSaving(true)
     setError(null)
     try {

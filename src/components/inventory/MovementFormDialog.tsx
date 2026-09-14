@@ -11,7 +11,7 @@ interface MovementFormDialogProps {
   movementType: MovementType
   products: Product[]
   onClose: () => void
-  onSave: (data: { product_id: number; quantity: number; reference?: string; note?: string; fecha?: string }) => void
+  onSave: (data: { product_id: string; quantity: number; reference?: string; note?: string; fecha?: string }) => void
   isLoading: boolean
   error: string | null
 }
@@ -31,7 +31,7 @@ export const MovementFormDialog = ({
   isLoading,
   error,
 }: MovementFormDialogProps) => {
-  const [productId, setProductId] = useState<number | undefined>(undefined)
+  const [productId, setProductId] = useState<string | undefined>(undefined)
   const [quantity, setQuantity] = useState('')
   const [reference, setReference] = useState('')
   const [note, setNote] = useState('')
@@ -118,7 +118,7 @@ export const MovementFormDialog = ({
                 <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Producto</IonLabel>
                 <IonSelect
                   value={productId}
-                  onIonChange={(e) => setProductId(e.detail.value ? Number(e.detail.value) : undefined)}
+                  onIonChange={(e) => setProductId(e.detail.value || undefined)}
                   interface="popover"
                   required
                 >

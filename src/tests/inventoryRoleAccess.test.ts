@@ -80,7 +80,7 @@ describe('INTEGRATION TEST ACCESO POR ROL - Bodega / Inventario', () => {
         localStorage.getItem('abacubiertas_products') || '[]',
       )
       expect(
-        stored.some((p: { id_producto: number }) => p.id_producto === newProduct.id_producto),
+        stored.some((p: { id_producto: string }) => p.id_producto === newProduct.id_producto),
       ).toBe(true)
 
       const list = await getProductsApi(0, 1000, 'Caballete Bodega')
@@ -135,7 +135,7 @@ describe('INTEGRATION TEST ACCESO POR ROL - Bodega / Inventario', () => {
         localStorage.getItem('abacubiertas_movements') || '[]',
       )
       const productMovements = movements.filter(
-        (m: { id_producto: number }) => m.id_producto === product.id_producto,
+        (m: { id_producto: string }) => m.id_producto === product.id_producto,
       )
       expect(productMovements.length).toBeGreaterThanOrEqual(4) // inicial + entrada + salida + ajuste
       expect(

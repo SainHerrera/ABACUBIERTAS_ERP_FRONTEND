@@ -6,7 +6,7 @@ import type { Quotation } from '../../types/sales'
 
 interface QuotationDetailDialogProps {
   quotation: Quotation | null
-  clientName: (idCliente: number) => string
+  clientName: (idCliente: string) => string
   onClose: () => void
 }
 

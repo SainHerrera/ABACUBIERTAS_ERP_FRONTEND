@@ -8,7 +8,6 @@ import { SalesRoute } from './components/guards/SalesRoute'
 import { PurchasingRoute } from './components/guards/PurchasingRoute'
 import { DashboardLayout } from './components/layout/DashboardLayout'
 import { LoginPage } from './pages/LoginPage'
-import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -38,7 +37,7 @@ function App() {
       <IonReactRouter>
         <IonRouterOutlet animated={false}>
           <Route path="/login" component={LoginPage} exact />
-          <Route path="/register" component={RegisterPage} exact />
+          <Route path="/register" exact render={() => <Redirect to="/login" />} />
           <Route
             path="/dashboard"
             render={() => (
@@ -54,11 +53,11 @@ function App() {
             path="/users"
             render={() => (
               <ProtectedRoute>
-                <LeadershipRoute>
+                <AdminRoute>
                   <DashboardLayout>
                     <UsersPage />
                   </DashboardLayout>
-                </LeadershipRoute>
+                </AdminRoute>
               </ProtectedRoute>
             )}
             exact

@@ -69,7 +69,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const { data } = await axios.post<TokenResponse>(
-          '/api/v1/refresh',
+          '/api/v1/auth/refresh',
           { refresh_token: refreshToken },
         );
 

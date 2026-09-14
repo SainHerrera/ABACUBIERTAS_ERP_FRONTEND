@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { Product, ProductCreate, ProductUpdate } from '../../types/product'
 import { getProductsApi, getProductApi, createProductApi, updateProductApi, deleteProductApi } from '../../api/productApi'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 interface ProductState {
   items: Product[]
@@ -27,18 +28,18 @@ export const fetchProducts = createAsyncThunk(
     try {
       return await getProductsApi(params.skip, params.limit, params.search)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar productos')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar productos'))
     }
   },
 )
 
 export const fetchProduct = createAsyncThunk(
   'products/fetchOne',
-  async (productId: number, { rejectWithValue }) => {
+  async (productId: string, { rejectWithValue }) => {
     try {
       return await getProductApi(productId)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar producto')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar producto'))
     }
   },
 )
@@ -49,30 +50,30 @@ export const createProduct = createAsyncThunk(
     try {
       return await createProductApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al crear producto')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al crear producto'))
     }
   },
 )
 
 export const updateProduct = createAsyncThunk(
   'products/update',
-  async ({ productId, data }: { productId: number; data: ProductUpdate }, { rejectWithValue }) => {
+  async ({ productId, data }: { productId: string; data: ProductUpdate }, { rejectWithValue }) => {
     try {
       return await updateProductApi(productId, data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al actualizar producto')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al actualizar producto'))
     }
   },
 )
 
 export const deleteProduct = createAsyncThunk(
   'products/delete',
-  async (productId: number, { rejectWithValue }) => {
+  async (productId: string, { rejectWithValue }) => {
     try {
       await deleteProductApi(productId)
       return productId
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al eliminar producto')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al eliminar producto'))
     }
   },
 )

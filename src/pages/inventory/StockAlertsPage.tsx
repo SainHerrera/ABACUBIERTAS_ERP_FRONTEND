@@ -55,10 +55,10 @@ export const StockAlertsPage = () => {
     loadData()
   }, [loadData])
 
-  const hasPendingRequest = (productId: number) =>
+  const hasPendingRequest = (productId: string) =>
     requests.some((r) => r.id_producto === productId && r.estado === 'pendiente')
 
-  const handleCreateRequest = async (data: { id_producto: number; cantidad_sugerida: number; observaciones?: string }) => {
+  const handleCreateRequest = async (data: { id_producto: string; cantidad_sugerida: number; observaciones?: string }) => {
     setSaving(true)
     setError(null)
     try {

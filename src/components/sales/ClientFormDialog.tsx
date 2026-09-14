@@ -9,7 +9,7 @@ interface ClientFormDialogProps {
   open: boolean
   client: Client | null
   onClose: () => void
-  onSave: (clientId: number | null, data: ClientCreate | ClientUpdate) => void
+  onSave: (clientId: string | null, data: ClientCreate | ClientUpdate) => void
   isLoading: boolean
   error: string | null
 }

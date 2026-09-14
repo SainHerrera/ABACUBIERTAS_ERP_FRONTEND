@@ -1,5 +1,5 @@
 export interface Provider {
-  id_proveedor: number
+  id_proveedor: string
   nombre_empresa: string
   nit: string
   contacto?: string
@@ -46,6 +46,28 @@ export interface ProviderListResponse {
   total: number
   skip: number
   limit: number
+}
+
+export interface ApiProvider {
+  id_proveedor: string
+  nombre_empresa: string
+  nit: string
+  contacto?: string
+  telefono?: string
+  email?: string
+  direccion?: string
+  ciudad?: string
+  categoria_material: string
+  condiciones_pago?: string
+  observaciones?: string
+  estado: string
+  activo: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ApiProviderListResponse extends ProviderListResponse {
+  items: ApiProvider[]
 }
 
 export const CATEGORIA_MATERIAL_OPTIONS = [

@@ -7,6 +7,11 @@ import {
 } from '../api/stockRequestApi'
 import { getProductApi } from '../api/productApi'
 import { StorageEngine } from '../services/localStorage/storageEngine'
+import {
+  SEED_PRODUCT_CUBIERTA,
+  SEED_PRODUCT_PERFIL,
+  SEED_PRODUCT_CABALLETE,
+} from '../services/localStorage/seedData'
 
 describe('STOCK REQUESTS - Solicitudes de abastecimiento (LocalStorage)', () => {
   beforeEach(() => {
@@ -23,14 +28,14 @@ describe('STOCK REQUESTS - Solicitudes de abastecimiento (LocalStorage)', () => 
       expect(first.estado).toBe('pendiente')
       expect(first.numero_solicitud).toMatch(/^SOL-/)
       // Seeded request references a product that is low stock in the seed
-      expect(first.id_producto).toBeGreaterThan(0)
+      expect([SEED_PRODUCT_PERFIL, SEED_PRODUCT_CABALLETE]).toContain(first.id_producto)
     })
   })
 
   describe('2. Crear solicitud de abastecimiento', () => {
     it('should create a pending request for a low-stock product and persist it', async () => {
-      // Product 2 (Perfil C) is low stock in the seed (stock 8 / min 15)
-      const product = await getProductApi(2)
+      // Producto Perfil C (seed) está en stock bajo (stock 8 / min 15)
+      const product = await getProductApi(SEED_PRODUCT_PERFIL)
       expect(product.low_stock).toBe(true)
 
       const request = await createStockRequestApi({
@@ -55,8 +60,8 @@ describe('STOCK REQUESTS - Solicitudes de abastecimiento (LocalStorage)', () => 
     })
 
     it('should reject creating a request for a product that is NOT low stock', async () => {
-      // Product 1 (Cubierta UPVC) has stock 45 / min 20 -> normal (not low stock)
-      const product = await getProductApi(1)
+      // Producto Cubierta UPVC (seed) tiene stock 45 / min 20 -> normal (no low stock)
+      const product = await getProductApi(SEED_PRODUCT_CUBIERTA)
       expect(product.low_stock).toBe(false)
 
       await expect(
@@ -69,7 +74,7 @@ describe('STOCK REQUESTS - Solicitudes de abastecimiento (LocalStorage)', () => 
 
     it('should reject creating a request with an invalid suggested quantity', async () => {
       await expect(
-        createStockRequestApi({ id_producto: 2, cantidad_sugerida: 0 }),
+        createStockRequestApi({ id_producto: SEED_PRODUCT_PERFIL, cantidad_sugerida: 0 }),
       ).rejects.toThrow(/mayor a 0/)
     })
   })
@@ -77,7 +82,7 @@ describe('STOCK REQUESTS - Solicitudes de abastecimiento (LocalStorage)', () => 
   describe('3. Cambiar estado de una solicitud', () => {
     it('should update the status and persist it', async () => {
       const created = await createStockRequestApi({
-        id_producto: 2,
+        id_producto: SEED_PRODUCT_PERFIL,
         cantidad_sugerida: 20,
         observaciones: 'Para reposición',
       })

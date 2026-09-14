@@ -95,6 +95,7 @@ const KEYS = {
   POS: 'abacubiertas_pos',
   STOCK_REQUESTS: 'abacubiertas_stock_requests',
   PROVIDER_QUOTATIONS: 'abacubiertas_provider_quotations',
+  REVOKED_TOKENS: 'abacubiertas_revoked_tokens',
 }
 
 const safeJsonParse = <T>(value: string | null, fallback: T): T => {
@@ -105,6 +106,12 @@ const safeJsonParse = <T>(value: string | null, fallback: T): T => {
     return fallback
   }
 }
+
+function quickUuid(): string {
+  return crypto.randomUUID()
+}
+
+let mockTokenSeq = 0
 
 export class StorageEngine {
   public static isInitialized(): boolean {
@@ -247,6 +254,14 @@ export class StorageEngine {
 
   private static setSettingsRaw(settings: SystemSettings): void {
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings))
+  }
+
+  private static getRevokedTokens(): string[] {
+    return safeJsonParse<string[]>(localStorage.getItem(KEYS.REVOKED_TOKENS), [])
+  }
+
+  private static setRevokedTokens(tokens: string[]): void {
+    localStorage.setItem(KEYS.REVOKED_TOKENS, JSON.stringify(tokens))
   }
 
   private static getAuditLogRaw(): AuditLogEntry[] {
@@ -475,7 +490,7 @@ export class StorageEngine {
     return { items, total, skip, limit }
   }
 
-  public static getProduct(productId: number): Product {
+  public static getProduct(productId: string): Product {
     const products = StorageEngine.getProductsRaw()
     const product = products.find((p) => p.id_producto === productId && p.activo !== false)
     if (!product) {
@@ -496,8 +511,7 @@ export class StorageEngine {
       throw new Error(`Ya existe un producto registrado con el nombre "${trimmedName}"`)
     }
 
-    const nextId =
-      products.length > 0 ? Math.max(...products.map((p) => p.id_producto)) + 1 : 1
+    const nextId = quickUuid()
     const stockActual = Number(data.stock_inicial || 0)
     const stockMinimo = Number(data.stock_minimo || 0)
     const lowStock = stockActual <= stockMinimo
@@ -531,11 +545,9 @@ export class StorageEngine {
     if (stockActual > 0) {
       const currentUser = StorageEngine.getCurrentUser()
       const movements = StorageEngine.getMovementsRaw()
-      const nextMovId =
-        movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
 
       const initMovement: Movement = {
-        id_movimiento: nextMovId,
+        id_movimiento: quickUuid(),
         id_producto: nextId,
         nombre_producto: newProduct.nombre,
         tipo: 'entrada',
@@ -553,7 +565,7 @@ export class StorageEngine {
     return newProduct
   }
 
-  public static updateProduct(productId: number, data: ProductUpdate): Product {
+  public static updateProduct(productId: string, data: ProductUpdate): Product {
     const products = StorageEngine.getProductsRaw()
     const index = products.findIndex((p) => p.id_producto === productId && p.activo !== false)
     if (index === -1) {
@@ -602,7 +614,7 @@ export class StorageEngine {
     return current
   }
 
-  public static deleteProduct(productId: number): void {
+  public static deleteProduct(productId: string): void {
     const products = StorageEngine.getProductsRaw()
     const index = products.findIndex((p) => p.id_producto === productId)
     if (index === -1) {
@@ -629,7 +641,7 @@ export class StorageEngine {
   public static getMovements(
     skip = 0,
     limit = 50,
-    productId?: number,
+    productId?: string,
     dateFrom?: string,
     dateTo?: string,
   ): MovementListResponse {
@@ -675,12 +687,10 @@ export class StorageEngine {
     StorageEngine.setProductsRaw(products)
 
     const movements = StorageEngine.getMovementsRaw()
-    const nextId =
-      movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
     const currentUser = StorageEngine.getCurrentUser()
 
     const newMovement: Movement = {
-      id_movimiento: nextId,
+      id_movimiento: quickUuid(),
       id_producto: product.id_producto,
       nombre_producto: product.nombre,
       tipo: 'entrada',
@@ -727,12 +737,10 @@ export class StorageEngine {
     StorageEngine.setProductsRaw(products)
 
     const movements = StorageEngine.getMovementsRaw()
-    const nextId =
-      movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
     const currentUser = StorageEngine.getCurrentUser()
 
     const newMovement: Movement = {
-      id_movimiento: nextId,
+      id_movimiento: quickUuid(),
       id_producto: product.id_producto,
       nombre_producto: product.nombre,
       tipo: 'salida',
@@ -776,12 +784,10 @@ export class StorageEngine {
     StorageEngine.setProductsRaw(products)
 
     const movements = StorageEngine.getMovementsRaw()
-    const nextId =
-      movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
     const currentUser = StorageEngine.getCurrentUser()
 
     const newMovement: Movement = {
-      id_movimiento: nextId,
+      id_movimiento: quickUuid(),
       id_producto: product.id_producto,
       nombre_producto: product.nombre,
       tipo: 'ajuste',
@@ -835,7 +841,7 @@ export class StorageEngine {
     return { items, total, skip, limit }
   }
 
-  public static getProvider(providerId: number): Provider {
+  public static getProvider(providerId: string): Provider {
     const providers = StorageEngine.getProvidersRaw()
     const provider = providers.find((p) => p.id_proveedor === providerId && p.estado !== 'inactivo')
     if (!provider) {
@@ -860,8 +866,7 @@ export class StorageEngine {
       throw new Error('El formato del correo electrónico es inválido')
     }
 
-    const nextId =
-      providers.length > 0 ? Math.max(...providers.map((p) => p.id_proveedor)) + 1 : 1
+    const nextId = quickUuid()
     const now = new Date().toISOString()
 
     const newProvider: Provider = {
@@ -887,7 +892,7 @@ export class StorageEngine {
     return newProvider
   }
 
-  public static updateProvider(providerId: number, data: ProviderUpdate): Provider {
+  public static updateProvider(providerId: string, data: ProviderUpdate): Provider {
     const providers = StorageEngine.getProvidersRaw()
     const index = providers.findIndex((p) => p.id_proveedor === providerId && p.estado !== 'inactivo')
     if (index === -1) {
@@ -932,7 +937,7 @@ export class StorageEngine {
     return current
   }
 
-  public static deleteProvider(providerId: number): void {
+  public static deleteProvider(providerId: string): void {
     const providers = StorageEngine.getProvidersRaw()
     const index = providers.findIndex((p) => p.id_proveedor === providerId)
     if (index === -1) {
@@ -982,7 +987,7 @@ export class StorageEngine {
     return { items, total, skip, limit }
   }
 
-  public static getClient(clientId: number): Client {
+  public static getClient(clientId: string): Client {
     const clients = StorageEngine.getClientsRaw()
     const client = clients.find((c) => c.id_cliente === clientId && c.activo !== false)
     if (!client) {
@@ -1003,8 +1008,7 @@ export class StorageEngine {
       throw new Error(`Ya existe un cliente registrado con el NIT/CC "${trimmedNit}"`)
     }
 
-    const nextId =
-      clients.length > 0 ? Math.max(...clients.map((c) => c.id_cliente)) + 1 : 1
+    const nextId = quickUuid()
     const now = new Date().toISOString()
 
     const newClient: Client = {
@@ -1030,7 +1034,7 @@ export class StorageEngine {
     return newClient
   }
 
-  public static updateClient(clientId: number, data: ClientUpdate): Client {
+  public static updateClient(clientId: string, data: ClientUpdate): Client {
     const clients = StorageEngine.getClientsRaw()
     const index = clients.findIndex((c) => c.id_cliente === clientId && c.activo !== false)
     if (index === -1) {
@@ -1071,7 +1075,7 @@ export class StorageEngine {
     return current
   }
 
-  public static deleteClient(clientId: number): void {
+  public static deleteClient(clientId: string): void {
     const clients = StorageEngine.getClientsRaw()
     const index = clients.findIndex((c) => c.id_cliente === clientId)
     if (index === -1) {
@@ -1090,7 +1094,7 @@ export class StorageEngine {
   public static getQuotes(
     skip = 0,
     limit = 50,
-    idCliente?: number,
+    idCliente?: string,
     estado?: string,
   ): QuotationListResponse {
     let list = StorageEngine.getQuotationsRaw()
@@ -1214,7 +1218,7 @@ export class StorageEngine {
   public static getSales(
     skip = 0,
     limit = 50,
-    idCliente?: number,
+    idCliente?: string,
     estado?: string,
   ): SaleListResponse {
     let list = StorageEngine.getSalesRaw()
@@ -1321,8 +1325,7 @@ export class StorageEngine {
         prod.status = prod.low_stock ? 'low' : 'normal'
         products[prodIndex] = prod
 
-        const nextMovId =
-          movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
+        const nextMovId = quickUuid()
         movements.unshift({
           id_movimiento: nextMovId,
           id_producto: prod.id_producto,
@@ -1403,8 +1406,7 @@ export class StorageEngine {
           prod.status = prod.low_stock ? 'low' : 'normal'
           products[prodIndex] = prod
 
-          const nextMovId =
-            movements.length > 0 ? Math.max(...movements.map((m) => m.id_movimiento)) + 1 : 1
+          const nextMovId = quickUuid()
           movements.unshift({
             id_movimiento: nextMovId,
             id_producto: prod.id_producto,
@@ -1493,7 +1495,7 @@ export class StorageEngine {
     }
 
     const accessToken = StorageEngine.createMockToken(user)
-    const refreshToken = `mock_refresh_${user.id_usuario}_${Date.now()}`
+    const refreshToken = `mock_refresh_${user.id_usuario}_${Date.now()}_${++mockTokenSeq}`
 
     StorageEngine.recordAuditLog('login', `Inicio de sesión de ${user.nombre}`, user)
 
@@ -1545,7 +1547,11 @@ export class StorageEngine {
 
   public static refresh(refreshToken: string): TokenResponse {
     if (!refreshToken) {
-      throw new Error('Token de refresco inválido')
+      throw new Error('Token inválido o expirado')
+    }
+    const revoked = StorageEngine.getRevokedTokens()
+    if (revoked.includes(refreshToken)) {
+      throw new Error('Token inválido o expirado')
     }
     const currentUser = StorageEngine.getCurrentUser()
     const accessToken = StorageEngine.createMockToken(currentUser)
@@ -1554,6 +1560,22 @@ export class StorageEngine {
       refresh_token: refreshToken,
       token_type: 'bearer',
     }
+  }
+
+  public static logout(refreshToken?: string | null): void {
+    if (refreshToken) {
+      const revoked = StorageEngine.getRevokedTokens()
+      if (!revoked.includes(refreshToken)) {
+        revoked.push(refreshToken)
+        StorageEngine.setRevokedTokens(revoked)
+      }
+    }
+    const actor = StorageEngine.getCurrentUser()
+    StorageEngine.recordAuditLog(
+      'logout',
+      `Cierre de sesión de ${actor.nombre} (${actor.email})`,
+      actor,
+    )
   }
 
   public static getUsers(skip = 0, limit = 100): User[] {
@@ -1868,7 +1890,7 @@ export class StorageEngine {
 
   public static receiveAgainstPo(
     poId: number,
-    data: { product_id: number; quantity: number; fecha?: string; note?: string },
+    data: { product_id: string; quantity: number; fecha?: string; note?: string },
   ): PurchaseOrder {
     const orders = StorageEngine.getPurchaseOrdersRaw()
     const index = orders.findIndex((o) => o.id_orden_compra === poId)
@@ -2185,13 +2207,13 @@ export class StorageEngine {
   // REPORTS (Reporte de gasto por proveedor y tiempos de entrega)
   // ----------------------------------------------------
   public static getProviderExpenseReport(): Array<{
-    id_proveedor: number
+    id_proveedor: string
     nombre_proveedor: string
     gasto_total: number
     numero_oc: number
   }> {
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const byProvider = new Map<number, { nombre_proveedor: string; gasto_total: number; numero_oc: number }>()
+    const byProvider = new Map<string, { nombre_proveedor: string; gasto_total: number; numero_oc: number }>()
 
     for (const order of orders) {
       let gasto = 0
@@ -2222,14 +2244,14 @@ export class StorageEngine {
   }
 
   public static getProviderDeliveryReport(): Array<{
-    id_proveedor: number
+    id_proveedor: string
     nombre_proveedor: string
     tiempo_promedio_dias: number
     cotizaciones: number
   }> {
     const quotations = StorageEngine.getProviderQuotationsRaw()
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const byProvider = new Map<number, { nombre_proveedor: string; total_dias: number; count: number }>()
+    const byProvider = new Map<string, { nombre_proveedor: string; total_dias: number; count: number }>()
 
     for (const q of quotations) {
       const existing = byProvider.get(q.id_proveedor)
@@ -2392,7 +2414,7 @@ export class StorageEngine {
   public static getInventoryValuationReport(): {
     valorTotal: number
     porProducto: Array<{
-      id_producto: number
+      id_producto: string
       nombre: string
       stock_actual: number
       precio_unitario: number

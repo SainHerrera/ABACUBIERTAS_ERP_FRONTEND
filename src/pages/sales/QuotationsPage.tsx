@@ -10,7 +10,8 @@ import { getQuotesApi, createQuoteApi, updateQuoteApi, updateQuoteStatusApi, del
 import { convertQuoteToSaleApi } from '../../api/saleApi'
 import { getClientsApi } from '../../api/clientApi'
 import { getProductsApi } from '../../api/productApi'
-import type { Client, Product, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
+import type { Client, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
+import type { Product } from '../../types/product'
 
 const ESTADO_FILTER_OPTIONS = ['borrador', 'enviada', 'aprobada', 'rechazada', 'vencida'] as const
 
@@ -54,7 +55,7 @@ export const QuotationsPage = () => {
   }, [loadData])
 
   const clientName = useCallback(
-    (idCliente: number) => clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
+    (idCliente: string) => clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
     [clients],
   )
 

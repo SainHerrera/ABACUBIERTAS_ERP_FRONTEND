@@ -68,7 +68,7 @@ describe('StorageEngine - Unit & Integration Tests (LocalStorage)', () => {
       const found = StorageEngine.getProduct(created.id_producto)
       expect(found.nombre).toBe('Producto Unico ID')
 
-      expect(() => StorageEngine.getProduct(999999)).toThrow('no encontrado')
+      expect(() => StorageEngine.getProduct('999999')).toThrow('no encontrado')
     })
 
     it('should update product fields and recalculate low_stock status', () => {

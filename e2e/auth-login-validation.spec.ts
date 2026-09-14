@@ -5,6 +5,7 @@ test.describe('Validación de contraseña en el login (E2E)', () => {
     await page.goto('/login')
     await page.evaluate(() => {
       localStorage.clear()
+      localStorage.setItem('abacubiertas_mock_auth', '1')
     })
     await page.reload()
   })

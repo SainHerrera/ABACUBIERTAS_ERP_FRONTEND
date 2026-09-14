@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { IonList, IonItem, IonLabel, IonInput, IonButton, IonText, useIonToast } from '@ionic/react'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { useAppSelector } from '../../hooks/useAppSelector'
@@ -87,12 +86,6 @@ export const LoginForm = () => {
       >
         {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
       </IonButton>
-
-      <div style={{ textAlign: 'center' }}>
-        <Link to="/register" style={{ color: 'var(--ion-color-primary)', fontSize: 14 }}>
-          ¿No tienes cuenta? Regístrate
-        </Link>
-      </div>
     </form>
   )
 }

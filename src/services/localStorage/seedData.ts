@@ -10,6 +10,28 @@ import type { ProviderQuotation } from '../../types/providerQuotation'
 import type { AuditLogEntry } from '../../types/auditLog'
 import { hashPassword } from '../../utils/password'
 
+// Deterministic UUIDs for seed catalogs (mirrors the FASE 5 backend UUID contract)
+export const SEED_PROVIDER_ACEROS = '00000000-0000-4000-8000-000000000001'
+export const SEED_PROVIDER_PLASTICOS = '00000000-0000-4000-8000-000000000002'
+export const SEED_PROVIDER_FIJACIONES = '00000000-0000-4000-8000-000000000003'
+
+export const SEED_PRODUCT_CUBIERTA = '00000000-0000-4000-8000-000000000101'
+export const SEED_PRODUCT_PERFIL = '00000000-0000-4000-8000-000000000102'
+export const SEED_PRODUCT_TORNILLO = '00000000-0000-4000-8000-000000000103'
+export const SEED_PRODUCT_LAMINA = '00000000-0000-4000-8000-000000000104'
+export const SEED_PRODUCT_CABALLETE = '00000000-0000-4000-8000-000000000105'
+
+export const SEED_CLIENT_ANDINAS = '00000000-0000-4000-8000-000000000201'
+export const SEED_CLIENT_OCCIDENTE = '00000000-0000-4000-8000-000000000202'
+export const SEED_CLIENT_CARLOS = '00000000-0000-4000-8000-000000000203'
+
+export const SEED_MOVEMENT_1 = '00000000-0000-4000-8000-000000000301'
+export const SEED_MOVEMENT_2 = '00000000-0000-4000-8000-000000000302'
+export const SEED_MOVEMENT_3 = '00000000-0000-4000-8000-000000000303'
+export const SEED_MOVEMENT_4 = '00000000-0000-4000-8000-000000000304'
+export const SEED_MOVEMENT_5 = '00000000-0000-4000-8000-000000000305'
+export const SEED_MOVEMENT_6 = '00000000-0000-4000-8000-000000000306'
+
 export const SEED_SETTINGS: SystemSettings = {
   stockMinimoDefault: 15,
   margenUtilidadDefault: 30,
@@ -79,7 +101,7 @@ export const SEED_USERS: User[] = [
 
 export const SEED_PROVIDERS: Provider[] = [
   {
-    id_proveedor: 1,
+    id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_empresa: 'Aceros del Caribe S.A.S.',
     nit: '900123456-1',
     contacto: 'Carlos Mendoza',
@@ -95,7 +117,7 @@ export const SEED_PROVIDERS: Provider[] = [
     actualizado_en: '2026-01-10T08:00:00Z',
   },
   {
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_empresa: 'Plásticos & Cubiertas Polímeros',
     nit: '800654321-2',
     contacto: 'Lucía Gómez',
@@ -111,7 +133,7 @@ export const SEED_PROVIDERS: Provider[] = [
     actualizado_en: '2026-01-12T09:30:00Z',
   },
   {
-    id_proveedor: 3,
+    id_proveedor: SEED_PROVIDER_FIJACIONES,
     nombre_empresa: 'Fijaciones & Tornillos Industriales',
     nit: '860777888-3',
     contacto: 'Andrés Torres',
@@ -130,70 +152,70 @@ export const SEED_PROVIDERS: Provider[] = [
 
 export const SEED_PRODUCTS: Product[] = [
   {
-    id_producto: 1,
+    id_producto: SEED_PRODUCT_CUBIERTA,
     nombre: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
     descripcion: 'Teja termoacústica UPVC color blanco/terracota de 2.44m de longitud',
     unidad_medida: 'unidad',
     precio_unitario: 85000,
     stock_actual: 45,
     stock_minimo: 20,
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     activo: true,
     status: 'normal',
     low_stock: false,
   },
   {
-    id_producto: 2,
+    id_producto: SEED_PRODUCT_PERFIL,
     nombre: 'Perfil C 100x50x2mm 6m Galvanizado',
     descripcion: 'Correa en acero galvanizado para soporte estructural de cubiertas',
     unidad_medida: 'unidad',
     precio_unitario: 62000,
     stock_actual: 8,
     stock_minimo: 15,
-    id_proveedor: 1,
+    id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_proveedor: 'Aceros del Caribe S.A.S.',
     activo: true,
     status: 'low',
     low_stock: true,
   },
   {
-    id_producto: 3,
+    id_producto: SEED_PRODUCT_TORNILLO,
     nombre: 'Tornillo Autoperforante 2" Punta Broca con Arandela (Caja x 100)',
     descripcion: 'Tornillo galvanizado con arandela EPDM para fijación de cubiertas',
     unidad_medida: 'caja',
     precio_unitario: 28000,
     stock_actual: 5,
     stock_minimo: 10,
-    id_proveedor: 3,
+    id_proveedor: SEED_PROVIDER_FIJACIONES,
     nombre_proveedor: 'Fijaciones & Tornillos Industriales',
     activo: true,
     status: 'low',
     low_stock: true,
   },
   {
-    id_producto: 4,
+    id_producto: SEED_PRODUCT_LAMINA,
     nombre: 'Lámina Policarbonato Alveolar 6mm 2.10x5.80m Cristal',
     descripcion: 'Lámina traslúcida alveolar con protección UV',
     unidad_medida: 'unidad',
     precio_unitario: 175000,
     stock_actual: 30,
     stock_minimo: 10,
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     activo: true,
     status: 'normal',
     low_stock: false,
   },
   {
-    id_producto: 5,
+    id_producto: SEED_PRODUCT_CABALLETE,
     nombre: 'Caballete Articulado UPVC Blanco 1.05m',
     descripcion: 'Cumbrera articulada para remate superior de tejados UPVC',
     unidad_medida: 'unidad',
     precio_unitario: 34000,
     stock_actual: 2,
     stock_minimo: 12,
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     activo: true,
     status: 'low',
@@ -203,8 +225,8 @@ export const SEED_PRODUCTS: Product[] = [
 
 export const SEED_MOVEMENTS: Movement[] = [
   {
-    id_movimiento: 1,
-    id_producto: 1,
+    id_movimiento: SEED_MOVEMENT_1,
+    id_producto: SEED_PRODUCT_CUBIERTA,
     nombre_producto: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
     tipo: 'entrada',
     cantidad: 50,
@@ -215,8 +237,8 @@ export const SEED_MOVEMENTS: Movement[] = [
     nota: 'Recepción inicial de compra por contenedor',
   },
   {
-    id_movimiento: 2,
-    id_producto: 1,
+    id_movimiento: SEED_MOVEMENT_2,
+    id_producto: SEED_PRODUCT_CUBIERTA,
     nombre_producto: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
     tipo: 'salida',
     cantidad: 5,
@@ -227,8 +249,8 @@ export const SEED_MOVEMENTS: Movement[] = [
     nota: 'Despacho obra bodega Guayabal',
   },
   {
-    id_movimiento: 3,
-    id_producto: 2,
+    id_movimiento: SEED_MOVEMENT_3,
+    id_producto: SEED_PRODUCT_PERFIL,
     nombre_producto: 'Perfil C 100x50x2mm 6m Galvanizado',
     tipo: 'entrada',
     cantidad: 20,
@@ -239,8 +261,8 @@ export const SEED_MOVEMENTS: Movement[] = [
     nota: 'Ingreso lote de perfiles',
   },
   {
-    id_movimiento: 4,
-    id_producto: 2,
+    id_movimiento: SEED_MOVEMENT_4,
+    id_producto: SEED_PRODUCT_PERFIL,
     nombre_producto: 'Perfil C 100x50x2mm 6m Galvanizado',
     tipo: 'salida',
     cantidad: 12,
@@ -251,8 +273,8 @@ export const SEED_MOVEMENTS: Movement[] = [
     nota: 'Despacho proyecto estructuras',
   },
   {
-    id_movimiento: 5,
-    id_producto: 3,
+    id_movimiento: SEED_MOVEMENT_5,
+    id_producto: SEED_PRODUCT_TORNILLO,
     nombre_producto: 'Tornillo Autoperforante 2" Punta Broca con Arandela (Caja x 100)',
     tipo: 'entrada',
     cantidad: 15,
@@ -263,8 +285,8 @@ export const SEED_MOVEMENTS: Movement[] = [
     nota: 'Ingreso cajas de tornillos',
   },
   {
-    id_movimiento: 6,
-    id_producto: 3,
+    id_movimiento: SEED_MOVEMENT_6,
+    id_producto: SEED_PRODUCT_TORNILLO,
     nombre_producto: 'Tornillo Autoperforante 2" Punta Broca con Arandela (Caja x 100)',
     tipo: 'salida',
     cantidad: 10,
@@ -278,7 +300,7 @@ export const SEED_MOVEMENTS: Movement[] = [
 
 export const SEED_CLIENTS: Client[] = [
   {
-    id_cliente: 1,
+    id_cliente: SEED_CLIENT_ANDINAS,
     tipo_cliente: 'empresa',
     nombre_razon_social: 'Construcciones & Cubiertas Andinas S.A.S.',
     nit_cc: '900555123-4',
@@ -294,7 +316,7 @@ export const SEED_CLIENTS: Client[] = [
     updated_at: '2026-01-10T08:00:00Z',
   },
   {
-    id_cliente: 2,
+    id_cliente: SEED_CLIENT_OCCIDENTE,
     tipo_cliente: 'empresa',
     nombre_razon_social: 'Estructuras Metálicas de Occidente',
     nit_cc: '890987654-1',
@@ -310,7 +332,7 @@ export const SEED_CLIENTS: Client[] = [
     updated_at: '2026-01-15T09:00:00Z',
   },
   {
-    id_cliente: 3,
+    id_cliente: SEED_CLIENT_CARLOS,
     tipo_cliente: 'persona_natural',
     nombre_razon_social: 'Carlos Eduardo Ramírez Gómez',
     nit_cc: '79845123',
@@ -331,7 +353,7 @@ export const SEED_QUOTATIONS: Quotation[] = [
   {
     id_cotizacion: 1,
     numero_consecutivo: 'COT-0001',
-    id_cliente: 1,
+    id_cliente: SEED_CLIENT_ANDINAS,
     id_usuario: 1,
     fecha_emision: '2026-02-15T08:00:00Z',
     fecha_vencimiento: '2026-03-15T08:00:00Z',
@@ -344,7 +366,7 @@ export const SEED_QUOTATIONS: Quotation[] = [
     detalles: [
       {
         id_detalle: 1,
-        id_producto: 1,
+        id_producto: SEED_PRODUCT_CUBIERTA,
         descripcion: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
         cantidad: 20,
         precio_unitario: 85000,
@@ -356,7 +378,7 @@ export const SEED_QUOTATIONS: Quotation[] = [
   {
     id_cotizacion: 2,
     numero_consecutivo: 'COT-0002',
-    id_cliente: 2,
+    id_cliente: SEED_CLIENT_OCCIDENTE,
     id_usuario: 1,
     fecha_emision: '2026-02-18T10:30:00Z',
     fecha_vencimiento: '2026-03-18T10:30:00Z',
@@ -369,7 +391,7 @@ export const SEED_QUOTATIONS: Quotation[] = [
     detalles: [
       {
         id_detalle: 2,
-        id_producto: 2,
+        id_producto: SEED_PRODUCT_PERFIL,
         descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
         cantidad: 10,
         precio_unitario: 62000,
@@ -384,7 +406,7 @@ export const SEED_SALES: Sale[] = [
   {
     id_orden_venta: 1,
     numero_orden: 'PED-0001',
-    id_cliente: 1,
+    id_cliente: SEED_CLIENT_ANDINAS,
     id_cotizacion: 1,
     id_usuario: 1,
     fecha_venta: '2026-02-16T14:00:00Z',
@@ -394,7 +416,7 @@ export const SEED_SALES: Sale[] = [
     detalles: [
       {
         id_detalle_venta: 1,
-        id_producto: 1,
+        id_producto: SEED_PRODUCT_CUBIERTA,
         descripcion: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
         cantidad: 20,
         precio_unitario: 85000,
@@ -409,7 +431,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
   {
     id_orden_compra: 1,
     numero_oc: 'OC-0001',
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     fecha_emision: '2026-08-20T10:00:00Z',
     estado: 'en_transito',
@@ -417,7 +439,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
     detalles: [
       {
         id_detalle_oc: 1,
-        id_producto: 1,
+        id_producto: SEED_PRODUCT_CUBIERTA,
         descripcion: 'Cubierta UPVC Termoacústica 3 Capas 2.44m',
         cantidad_ordenada: 60,
         cantidad_recibida: 0,
@@ -426,7 +448,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
       },
       {
         id_detalle_oc: 2,
-        id_producto: 2,
+        id_producto: SEED_PRODUCT_PERFIL,
         descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
         cantidad_ordenada: 30,
         cantidad_recibida: 0,
@@ -438,7 +460,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
   {
     id_orden_compra: 2,
     numero_oc: 'OC-0002',
-    id_proveedor: 2,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     fecha_emision: '2026-08-25T09:00:00Z',
     estado: 'enviada',
@@ -446,7 +468,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
     detalles: [
       {
         id_detalle_oc: 3,
-        id_producto: 5,
+        id_producto: SEED_PRODUCT_CABALLETE,
         descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
         cantidad_ordenada: 50,
         cantidad_recibida: 0,
@@ -461,7 +483,7 @@ export const SEED_STOCK_REQUESTS: StockRequest[] = [
   {
     id_solicitud: 1,
     numero_solicitud: 'SOL-0001',
-    id_producto: 2,
+    id_producto: SEED_PRODUCT_PERFIL,
     descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
     cantidad_sugerida: 25,
     stock_actual: 8,
@@ -475,7 +497,7 @@ export const SEED_STOCK_REQUESTS: StockRequest[] = [
   {
     id_solicitud: 2,
     numero_solicitud: 'SOL-0002',
-    id_producto: 5,
+    id_producto: SEED_PRODUCT_CABALLETE,
     descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
     cantidad_sugerida: 40,
     stock_actual: 2,
@@ -493,8 +515,8 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     id_cotizacion: 1,
     numero_cotizacion: 'COT-0001',
     id_solicitud: 1,
-    id_producto: 2,
-    id_proveedor: 1,
+    id_producto: SEED_PRODUCT_PERFIL,
+    id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_proveedor: 'Aceros del Caribe S.A.S.',
     precio_unitario: 59000,
     tiempo_entrega_dias: 10,
@@ -506,8 +528,8 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     id_cotizacion: 2,
     numero_cotizacion: 'COT-0002',
     id_solicitud: 1,
-    id_producto: 2,
-    id_proveedor: 2,
+    id_producto: SEED_PRODUCT_PERFIL,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     precio_unitario: 62000,
     tiempo_entrega_dias: 15,
@@ -519,8 +541,8 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     id_cotizacion: 3,
     numero_cotizacion: 'COT-0003',
     id_solicitud: 2,
-    id_producto: 5,
-    id_proveedor: 2,
+    id_producto: SEED_PRODUCT_CABALLETE,
+    id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     precio_unitario: 33000,
     tiempo_entrega_dias: 7,
@@ -532,8 +554,8 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     id_cotizacion: 4,
     numero_cotizacion: 'COT-0004',
     id_solicitud: 2,
-    id_producto: 5,
-    id_proveedor: 1,
+    id_producto: SEED_PRODUCT_CABALLETE,
+    id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_proveedor: 'Aceros del Caribe S.A.S.',
     precio_unitario: 35000,
     tiempo_entrega_dias: 9,

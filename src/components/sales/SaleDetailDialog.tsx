@@ -7,7 +7,7 @@ import type { Sale, SaleUpdate } from '../../types/sales'
 
 interface SaleDetailDialogProps {
   sale: Sale | null
-  clientName: (idCliente: number) => string
+  clientName: (idCliente: string) => string
   onClose: () => void
   onSaveStatus: (saleId: number, data: SaleUpdate) => void
   isLoading: boolean

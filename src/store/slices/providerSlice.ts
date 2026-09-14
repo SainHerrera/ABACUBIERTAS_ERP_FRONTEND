@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { Provider, ProviderCreate, ProviderUpdate } from '../../types/provider'
 import { getProvidersApi, createProviderApi, updateProviderApi } from '../../api/providerApi'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 interface ProviderState {
   items: Provider[]
@@ -25,7 +26,7 @@ export const fetchProviders = createAsyncThunk(
     try {
       return await getProvidersApi(params.skip, params.limit, params.search)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar proveedores')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar proveedores'))
     }
   },
 )
@@ -36,7 +37,7 @@ export const createProvider = createAsyncThunk(
     try {
       return await createProviderApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al crear proveedor')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al crear proveedor'))
     }
   },
 )
@@ -44,13 +45,13 @@ export const createProvider = createAsyncThunk(
 export const updateProvider = createAsyncThunk(
   'providers/update',
   async (
-    { providerId, data }: { providerId: number; data: ProviderUpdate },
+    { providerId, data }: { providerId: string; data: ProviderUpdate },
     { rejectWithValue },
   ) => {
     try {
       return await updateProviderApi(providerId, data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al actualizar proveedor')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al actualizar proveedor'))
     }
   },
 )

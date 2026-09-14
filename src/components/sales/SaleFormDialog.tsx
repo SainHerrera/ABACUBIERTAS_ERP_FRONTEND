@@ -3,12 +3,13 @@ import {
   IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonList, IonItem, IonLabel, IonInput, IonText, IonSelect, IonSelectOption,
 } from '@ionic/react'
-import type { Client, Product, SaleCreate } from '../../types/sales'
+import type { Client, SaleCreate } from '../../types/sales'
+import type { Product } from '../../types/product'
 import { TAX_RATE, formatMoney } from '../../utils/totals'
 
 interface DetailRow {
   key: number
-  id_producto: number | null
+  id_producto: string | null
   descripcion: string
   cantidad: number
   precio_unitario: number
@@ -35,7 +36,7 @@ export const SaleFormDialog = ({
   isLoading,
   error,
 }: SaleFormDialogProps) => {
-  const [idCliente, setIdCliente] = useState<number | null>(null)
+  const [idCliente, setIdCliente] = useState<string | null>(null)
   const [observaciones, setObservaciones] = useState('')
   const [rows, setRows] = useState<DetailRow[]>([])
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -53,7 +54,7 @@ export const SaleFormDialog = ({
     setRows((prev) => prev.map((row) => (row.key === key ? { ...row, ...patch } : row)))
   }
 
-  const handleProductChange = (key: number, productId: number) => {
+  const handleProductChange = (key: number, productId: string) => {
     const product = products.find((p) => p.id_producto === productId)
     updateRow(key, { id_producto: productId, descripcion: product?.nombre || '', precio_unitario: Number(product?.precio_unitario ?? 0) })
   }
@@ -91,12 +92,14 @@ export const SaleFormDialog = ({
     onSave({
       id_cliente: idCliente,
       observaciones: observaciones || undefined,
-      detalles: validRows.map((row) => ({
+      detalles: validRows.map((row, index) => ({
+        id_detalle_venta: index + 1,
         id_producto: row.id_producto!,
-        descripcion: row.descripcion || undefined,
+        descripcion: row.descripcion || '',
         cantidad: Math.max(1, Math.round(Number(row.cantidad))),
         precio_unitario: Number(row.precio_unitario) || 0,
         descuento: 0,
+        subtotal: (Number(row.cantidad) || 0) * (Number(row.precio_unitario) || 0),
       })),
     })
   }
@@ -127,7 +130,7 @@ export const SaleFormDialog = ({
                   value={idCliente}
                   placeholder="Selecciona un cliente"
                   interface="popover"
-                  onIonChange={(e) => setIdCliente(e.detail.value ? Number(e.detail.value) : null)}
+                  onIonChange={(e) => setIdCliente(e.detail.value || null)}
                 >
                   {clients.map((c) => (
                     <IonSelectOption key={c.id_cliente} value={c.id_cliente}>{c.nombre_razon_social}</IonSelectOption>
@@ -146,7 +149,7 @@ export const SaleFormDialog = ({
                     value={row.id_producto}
                     placeholder="Selecciona un producto"
                     interface="popover"
-                    onIonChange={(e) => handleProductChange(row.key, Number(e.detail.value))}
+                    onIonChange={(e) => handleProductChange(row.key, e.detail.value)}
                   >
                     {products.map((p) => (
                       <IonSelectOption key={p.id_producto} value={p.id_producto}>

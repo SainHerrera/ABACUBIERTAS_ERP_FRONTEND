@@ -48,7 +48,7 @@ export const ProductsPage = () => {
     loadProducts()
   }, [loadProducts])
 
-  const handleSave = async (productId: number | null, data: ProductCreate | ProductUpdate) => {
+  const handleSave = async (productId: string | null, data: ProductCreate | ProductUpdate) => {
     setSaving(true)
     setError(null)
     try {
@@ -72,7 +72,7 @@ export const ProductsPage = () => {
     }
   }
 
-  const handleDelete = async (productId: number) => {
+  const handleDelete = async (productId: string) => {
     if (!window.confirm('¿Estás seguro de eliminar este producto?')) return
     setLoading(true)
     try {

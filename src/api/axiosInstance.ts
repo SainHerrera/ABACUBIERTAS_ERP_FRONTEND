@@ -3,6 +3,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import type { TokenResponse } from '../types/auth';
+import { API_BASE_URL } from './config';
 
 interface FailedRequest {
   resolve: (token: string) => void;
@@ -24,7 +25,7 @@ const processQueue = (error: unknown, token: string | null) => {
 };
 
 const axiosInstance = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -76,7 +77,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const { data } = await axios.post<TokenResponse>(
-          '/api/v1/auth/refresh',
+          `${API_BASE_URL}/auth/refresh`,
           { refresh_token: refreshToken },
         );
 

@@ -10,6 +10,7 @@ import type {
 } from '../types/auth';
 import { StorageEngine } from '../services/localStorage/storageEngine';
 import { getCurrentUserFromToken } from '../utils/jwt';
+import { API_BASE_URL } from './config';
 
 const MOCK_AUTH_KEY = 'abacubiertas_mock_auth';
 
@@ -121,7 +122,7 @@ export const refreshApi = async (
 export const logoutApi = async (refreshToken?: string | null): Promise<void> => {
   if (!refreshToken) return;
   if (!isMockAuthEnabled()) {
-    await axios.post('/auth/logout', { refresh_token: refreshToken }, { baseURL: '/api/v1' });
+    await axios.post('/auth/logout', { refresh_token: refreshToken }, { baseURL: API_BASE_URL });
     return;
   }
   StorageEngine.logout(refreshToken);

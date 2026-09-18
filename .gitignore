@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Entorno local (los archivos .env.example y .env.production quedan versionados)
+.env
+.env.*.local
+
 # Playwright / testing
 playwright-report/
 test-results/

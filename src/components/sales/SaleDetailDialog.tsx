@@ -9,7 +9,7 @@ interface SaleDetailDialogProps {
   sale: Sale | null
   clientName: (idCliente: string) => string
   onClose: () => void
-  onSaveStatus: (saleId: number, data: SaleUpdate) => void
+  onSaveStatus: (saleId: string, data: SaleUpdate) => void
   isLoading: boolean
 }
 
@@ -30,11 +30,24 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
     }
   }, [sale])
 
+  const allowedNextStates = (): Sale['estado'][] => {
+    switch (sale?.estado) {
+      case 'pendiente':
+        return ['en_proceso']
+      case 'en_proceso':
+        return ['entregada']
+      default:
+        return []
+    }
+  }
+
+  const nextStates = allowedNextStates()
+
   return (
     <IonModal isOpen={!!sale} onDidDismiss={onClose}>
       <IonHeader>
         <IonToolbar style={{ '--background': 'var(--ion-color-primary)', '--color': '#fff' }}>
-          <IonTitle>Pedido {sale?.numero_orden || `OV-${sale?.id_orden_venta ?? ''}`}</IonTitle>
+          <IonTitle>{sale?.numero_orden ? `Pedido ${sale.numero_orden}` : 'Detalle del pedido'}</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onClose} style={{ color: '#fff' }}>Cerrar</IonButton>
           </IonButtons>
@@ -59,7 +72,7 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
               {sale.id_cotizacion && (
                 <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                   <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Cotización origen</IonText>
-                  <IonText style={{ fontWeight: 600 }}>COT-{sale.id_cotizacion}</IonText>
+                  <IonText style={{ fontWeight: 600 }}>Vinculada</IonText>
                 </div>
               )}
             </div>
@@ -98,18 +111,26 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
 
             {sale.estado !== 'cancelada' ? (
               <>
-                <IonItem lines="none" style={{ '--background': 'var(--app-surface)', borderRadius: 8, marginBottom: 12 }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cambiar estado</IonLabel>
-                  <IonSelect
-                    value={estado}
-                    interface="popover"
-                    onIonChange={(e) => setEstado(e.detail.value)}
-                  >
-                    <IonSelectOption value="pendiente">Pendiente</IonSelectOption>
-                    <IonSelectOption value="en_proceso">En proceso</IonSelectOption>
-                    <IonSelectOption value="entregada">Entregada</IonSelectOption>
-                  </IonSelect>
-                </IonItem>
+                {nextStates.length > 0 ? (
+                  <IonItem lines="none" style={{ '--background': 'var(--app-surface)', borderRadius: 8, marginBottom: 12 }}>
+                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cambiar estado</IonLabel>
+                    <IonSelect
+                      value={estado}
+                      interface="popover"
+                      onIonChange={(e) => setEstado(e.detail.value)}
+                    >
+                      {nextStates.map((s) => (
+                        <IonSelectOption key={s} value={s}>
+                          {s === 'en_proceso' ? 'En proceso' : s === 'entregada' ? 'Entregada' : s}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+                ) : (
+                  <IonText color="medium" style={{ fontSize: 12, display: 'block', marginBottom: 12 }}>
+                    El pedido ya está en su estado final (entregada).
+                  </IonText>
+                )}
 
                 <IonItem lines="none" style={{ '--background': 'transparent', marginBottom: 12 }}>
                   <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Observaciones</IonLabel>

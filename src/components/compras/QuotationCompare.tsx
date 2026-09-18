@@ -5,13 +5,13 @@ import { checkmarkCircle, ribbonOutline } from 'ionicons/icons'
 import type { ProviderQuotation } from '../../types/providerQuotation'
 
 interface QuotationCompareProps {
-  requestId: number
+  requestId: string
   productName: string
   quantity: number
   quotations: ProviderQuotation[]
-  onRegister: (requestId: number) => void
-  onSelect: (quotationId: number) => void
-  onCreatePo: (requestId: number) => void
+  onRegister: (requestId: string) => void
+  onSelect: (quotationId: string) => void
+  onCreatePo: (requestId: string) => void
   canManage: boolean
   isLoading: boolean
   error: string | null

@@ -12,7 +12,7 @@ interface QuotationFormDialogProps {
   providers: Provider[]
   onClose: () => void
   onSave: (data: {
-    id_solicitud: number
+    id_solicitud: string
     id_producto: string
     id_proveedor: string
     precio_unitario: number

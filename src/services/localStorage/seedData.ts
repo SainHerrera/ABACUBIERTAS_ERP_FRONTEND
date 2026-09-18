@@ -349,12 +349,24 @@ export const SEED_CLIENTS: Client[] = [
   },
 ]
 
+export const SEED_USER_ADMIN_UUID = '00000000-0000-4000-8000-000000000401'
+
+export const SEED_QUOTATION_1 = '00000000-0000-4000-8000-000000000501'
+export const SEED_QUOTATION_2 = '00000000-0000-4000-8000-000000000502'
+
+export const SEED_SALE_1 = '00000000-0000-4000-8000-000000000601'
+export const SEED_SALE_2 = '00000000-0000-4000-8000-000000000602'
+
+export const SEED_PURCHASE_ORDER_1 = '00000000-0000-4000-8000-000000000701'
+export const SEED_PURCHASE_ORDER_2 = '00000000-0000-4000-8000-000000000702'
+
 export const SEED_QUOTATIONS: Quotation[] = [
   {
-    id_cotizacion: 1,
+    id_cotizacion: SEED_QUOTATION_1,
     numero_consecutivo: 'COT-0001',
     id_cliente: SEED_CLIENT_ANDINAS,
-    id_usuario: 1,
+    nombre_cliente: 'Construcciones & Cubiertas Andinas S.A.S.',
+    id_usuario: SEED_USER_ADMIN_UUID,
     fecha_emision: '2026-02-15T08:00:00Z',
     fecha_vencimiento: '2026-03-15T08:00:00Z',
     estado: 'enviada',
@@ -376,10 +388,11 @@ export const SEED_QUOTATIONS: Quotation[] = [
     ],
   },
   {
-    id_cotizacion: 2,
+    id_cotizacion: SEED_QUOTATION_2,
     numero_consecutivo: 'COT-0002',
     id_cliente: SEED_CLIENT_OCCIDENTE,
-    id_usuario: 1,
+    nombre_cliente: 'Cubiertas & Estructuras de Occidente S.A.S.',
+    id_usuario: SEED_USER_ADMIN_UUID,
     fecha_emision: '2026-02-18T10:30:00Z',
     fecha_vencimiento: '2026-03-18T10:30:00Z',
     estado: 'borrador',
@@ -404,13 +417,16 @@ export const SEED_QUOTATIONS: Quotation[] = [
 
 export const SEED_SALES: Sale[] = [
   {
-    id_orden_venta: 1,
+    id_orden_venta: SEED_SALE_1,
     numero_orden: 'PED-0001',
     id_cliente: SEED_CLIENT_ANDINAS,
-    id_cotizacion: 1,
-    id_usuario: 1,
+    nombre_cliente: 'Construcciones & Cubiertas Andinas S.A.S.',
+    id_cotizacion: SEED_QUOTATION_1,
+    id_usuario: SEED_USER_ADMIN_UUID,
     fecha_venta: '2026-02-16T14:00:00Z',
     estado: 'en_proceso',
+    subtotal: 1700000,
+    impuestos: 323000,
     total: 2023000,
     observaciones: 'Pedido confirmado según cotización COT-0001',
     detalles: [
@@ -429,13 +445,14 @@ export const SEED_SALES: Sale[] = [
 
 export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
   {
-    id_orden_compra: 1,
+    id_orden_compra: SEED_PURCHASE_ORDER_1,
     numero_oc: 'OC-0001',
     id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     fecha_emision: '2026-08-20T10:00:00Z',
     estado: 'en_transito',
     observaciones: 'Mercancía en tránsito, pendiente de recepción por Bodega',
+    total: 6720000,
     detalles: [
       {
         id_detalle_oc: 1,
@@ -458,13 +475,14 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
     ],
   },
   {
-    id_orden_compra: 2,
+    id_orden_compra: SEED_PURCHASE_ORDER_2,
     numero_oc: 'OC-0002',
     id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
     fecha_emision: '2026-08-25T09:00:00Z',
     estado: 'enviada',
     observaciones: 'Compra de accesorios para remate de cubiertas',
+    total: 1600000,
     detalles: [
       {
         id_detalle_oc: 3,
@@ -481,7 +499,7 @@ export const SEED_PURCHASE_ORDERS: PurchaseOrder[] = [
 
 export const SEED_STOCK_REQUESTS: StockRequest[] = [
   {
-    id_solicitud: 1,
+    id_solicitud: '1',
     numero_solicitud: 'SOL-0001',
     id_producto: SEED_PRODUCT_PERFIL,
     descripcion: 'Perfil C 100x50x2mm 6m Galvanizado',
@@ -490,12 +508,12 @@ export const SEED_STOCK_REQUESTS: StockRequest[] = [
     stock_minimo: 15,
     estado: 'pendiente',
     fecha: '2026-08-26T09:00:00Z',
-    id_usuario: 4,
+    id_usuario: '4',
     nombre_usuario: 'Encargado Bodega',
     observaciones: 'Stock bajo, requiere reposición de perfiles',
   },
   {
-    id_solicitud: 2,
+    id_solicitud: '2',
     numero_solicitud: 'SOL-0002',
     id_producto: SEED_PRODUCT_CABALLETE,
     descripcion: 'Caballete Articulado UPVC Blanco 1.05m',
@@ -504,7 +522,7 @@ export const SEED_STOCK_REQUESTS: StockRequest[] = [
     stock_minimo: 12,
     estado: 'pendiente',
     fecha: '2026-08-27T09:00:00Z',
-    id_usuario: 4,
+    id_usuario: '4',
     nombre_usuario: 'Encargado Bodega',
     observaciones: 'Bajo inventario de caballetes',
   },
@@ -512,9 +530,9 @@ export const SEED_STOCK_REQUESTS: StockRequest[] = [
 
 export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
   {
-    id_cotizacion: 1,
+    id_cotizacion: '1',
     numero_cotizacion: 'COT-0001',
-    id_solicitud: 1,
+    id_solicitud: '1',
     id_producto: SEED_PRODUCT_PERFIL,
     id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_proveedor: 'Aceros del Caribe S.A.S.',
@@ -525,9 +543,9 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     seleccionada: true,
   },
   {
-    id_cotizacion: 2,
+    id_cotizacion: '2',
     numero_cotizacion: 'COT-0002',
-    id_solicitud: 1,
+    id_solicitud: '1',
     id_producto: SEED_PRODUCT_PERFIL,
     id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
@@ -538,9 +556,9 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     seleccionada: false,
   },
   {
-    id_cotizacion: 3,
+    id_cotizacion: '3',
     numero_cotizacion: 'COT-0003',
-    id_solicitud: 2,
+    id_solicitud: '2',
     id_producto: SEED_PRODUCT_CABALLETE,
     id_proveedor: SEED_PROVIDER_PLASTICOS,
     nombre_proveedor: 'Plásticos & Cubiertas Polímeros',
@@ -551,9 +569,9 @@ export const SEED_PROVIDER_QUOTATIONS: ProviderQuotation[] = [
     seleccionada: false,
   },
   {
-    id_cotizacion: 4,
+    id_cotizacion: '4',
     numero_cotizacion: 'COT-0004',
-    id_solicitud: 2,
+    id_solicitud: '2',
     id_producto: SEED_PRODUCT_CABALLETE,
     id_proveedor: SEED_PROVIDER_ACEROS,
     nombre_proveedor: 'Aceros del Caribe S.A.S.',

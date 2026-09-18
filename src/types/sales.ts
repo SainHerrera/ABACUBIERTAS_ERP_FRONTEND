@@ -70,10 +70,11 @@ export interface ApiClientListResponse extends ClientListResponse {
 }
 
 export interface Quotation {
-  id_cotizacion: number
+  id_cotizacion: string
   numero_consecutivo: string
   id_cliente: string
-  id_usuario: number
+  nombre_cliente?: string
+  id_usuario: string
   fecha_emision: string
   fecha_vencimiento?: string
   estado: 'borrador' | 'enviada' | 'aprobada' | 'rechazada' | 'vencida'
@@ -88,11 +89,44 @@ export interface Quotation {
 export interface QuotationDetail {
   id_detalle: number
   id_producto: string
-  descripcion: string
+  descripcion: string | null
   cantidad: number
   precio_unitario: number
   descuento: number
   subtotal: number
+}
+
+export interface ApiQuotationDetail {
+  id_detalle: number
+  id_producto: string
+  descripcion: string | null
+  cantidad: number
+  precio_unitario: number
+  descuento: number
+  subtotal: number
+}
+
+export interface ApiQuotation {
+  id_cotizacion: string
+  numero_consecutivo: string
+  id_cliente: string
+  nombre_cliente?: string
+  id_usuario?: string
+  fecha_emision: string
+  fecha_vencimiento?: string
+  estado: Quotation['estado']
+  subtotal: number
+  impuestos: number
+  descuento: number
+  total: number
+  observaciones?: string
+  detalles: ApiQuotationDetail[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ApiQuotationListResponse extends QuotationListResponse {
+  items: ApiQuotation[]
 }
 
 export interface QuotationCreate {
@@ -123,13 +157,16 @@ export interface QuotationListResponse {
 }
 
 export interface Sale {
-  id_orden_venta: number
+  id_orden_venta: string
   numero_orden: string
   id_cliente: string
-  id_cotizacion?: number
-  id_usuario: number
+  nombre_cliente?: string
+  id_cotizacion?: string
+  id_usuario?: string
   fecha_venta: string
   estado: 'pendiente' | 'en_proceso' | 'entregada' | 'cancelada'
+  subtotal: number
+  impuestos: number
   total: number
   observaciones?: string
   detalles: SaleDetail[]
@@ -147,6 +184,7 @@ export interface SaleDetail {
 
 export interface SaleCreate {
   id_cliente: string
+  id_cotizacion?: string
   detalles: SaleDetail[]
   observaciones?: string
 }
@@ -163,4 +201,36 @@ export interface SaleListResponse {
   total: number
   skip: number
   limit: number
+}
+
+export interface ApiSaleDetail {
+  id_detalle: number
+  id_producto: string
+  descripcion: string | null
+  cantidad: number
+  precio_unitario: string
+  descuento: string
+  subtotal: string
+}
+
+export interface ApiSale {
+  id_orden_venta: string
+  numero_orden: string
+  id_cliente: string
+  nombre_cliente?: string | null
+  id_cotizacion?: string | null
+  id_usuario?: string | null
+  fecha_venta: string
+  estado: Sale['estado']
+  subtotal: string
+  impuestos: string
+  total: string
+  observaciones?: string | null
+  detalles: ApiSaleDetail[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ApiSaleListResponse extends SaleListResponse {
+  items: ApiSale[]
 }

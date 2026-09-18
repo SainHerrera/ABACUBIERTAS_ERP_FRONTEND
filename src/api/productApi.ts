@@ -19,7 +19,10 @@ export const getProductsApi = async (
   search?: string,
 ): Promise<ProductListResponse> => {
   if (!isMockAuthEnabled()) {
-    const params: { skip: number; limit: number; search?: string } = { skip, limit }
+    const params: { skip: number; limit: number; search?: string } = {
+      skip,
+      limit: Math.min(limit, 500),
+    }
     if (search) params.search = search
     const { data } = await axiosInstance.get<ApiProductListResponse>('/products', {
       params,
@@ -42,6 +45,10 @@ export const createProductApi = async (data: ProductCreate): Promise<Product> =>
   if (!isMockAuthEnabled()) {
     const { data: created } = await axiosInstance.post<ApiProduct>('/products', data)
     return mapApiProduct(created)
+  }
+  const currentUser = StorageEngine.getCurrentUser()
+  if (currentUser.rol !== 'admin' && currentUser.rol !== 'compras') {
+    throw new Error('No tienes permisos para esta acción')
   }
   return StorageEngine.createProduct(data)
 }

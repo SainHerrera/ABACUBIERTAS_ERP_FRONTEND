@@ -17,31 +17,27 @@ import {
 } from '@ionic/react'
 import { settingsOutline, cubeOutline, businessOutline } from 'ionicons/icons'
 import { useAppDispatch } from '../hooks/useAppDispatch'
+import { useAppSelector } from '../hooks/useAppSelector'
 import {
   updateSettings,
   loadInitialCatalog,
 } from '../store/slices/settingsSlice'
 import { getProvidersApi } from '../api/providerApi'
 import { getProductsApi } from '../api/productApi'
-import { StorageEngine } from '../services/localStorage/storageEngine'
+import { getSettingsApi } from '../api/settingsApi'
+import { isMockAuthEnabled } from '../api/authApi'
 
 export const SettingsPage = () => {
   const dispatch = useAppDispatch()
+  const { user } = useAppSelector((state) => state.auth)
   const [present] = useIonToast()
 
-  const [stockMinimo, setStockMinimo] = useState(() =>
-    String(StorageEngine.getSettings().stockMinimoDefault),
-  )
-  const [margen, setMargen] = useState(() =>
-    String(StorageEngine.getSettings().margenUtilidadDefault),
-  )
-  const [aprobacionHabilitada, setAprobacionHabilitada] = useState(() =>
-    StorageEngine.getSettings().aprobacionOcHabilitada,
-  )
-  const [aprobacionMonto, setAprobacionMonto] = useState(() =>
-    String(StorageEngine.getSettings().aprobacionOcMontoMinimo),
-  )
+  const [stockMinimo, setStockMinimo] = useState('')
+  const [margen, setMargen] = useState('')
+  const [aprobacionHabilitada, setAprobacionHabilitada] = useState(false)
+  const [aprobacionMonto, setAprobacionMonto] = useState('')
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [catalogProducts, setCatalogProducts] = useState(0)
   const [catalogProviders, setCatalogProviders] = useState(0)
 
@@ -55,10 +51,46 @@ export const SettingsPage = () => {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
+    const loadSettings = async () => {
+      try {
+        const settings = await getSettingsApi()
+        if (cancelled) return
+        setStockMinimo(String(settings.stockMinimoDefault))
+        setMargen(String(settings.margenUtilidadDefault))
+        setAprobacionHabilitada(settings.aprobacionOcHabilitada)
+        setAprobacionMonto(String(settings.aprobacionOcMontoMinimo))
+      } catch {
+        if (!cancelled) {
+          present({
+            message: 'Error al cargar los parámetros del sistema',
+            duration: 3500,
+            color: 'danger',
+            position: 'top',
+          })
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    loadSettings()
     loadCatalogCounts()
-  }, [loadCatalogCounts])
+    return () => {
+      cancelled = true
+    }
+  }, [loadCatalogCounts, present])
 
   const handleSave = async () => {
+    const margenNum = Number(margen)
+    if (Number.isFinite(margenNum) && (margenNum < 0 || margenNum > 100)) {
+      present({
+        message: 'El margen de utilidad debe estar entre 0 y 100',
+        duration: 3500,
+        color: 'danger',
+        position: 'top',
+      })
+      return
+    }
     setSaving(true)
     const payload = {
       stockMinimoDefault: Number(stockMinimo),
@@ -154,8 +186,8 @@ export const SettingsPage = () => {
                 </IonItem>
               </div>
 
-              <IonButton expand="block" onClick={handleSave} disabled={saving} style={{ marginTop: 24 }}>
-                {saving ? 'Guardando...' : 'Guardar parámetros'}
+              <IonButton expand="block" onClick={handleSave} disabled={saving || loading} style={{ marginTop: 24 }}>
+                {loading ? 'Cargando...' : saving ? 'Guardando...' : 'Guardar parámetros'}
               </IonButton>
             </IonList>
           </IonCardContent>
@@ -216,9 +248,11 @@ export const SettingsPage = () => {
                 <IonText>Proveedores: {catalogProviders}</IonText>
               </div>
             </div>
-            <IonButton expand="block" fill="outline" onClick={handleLoadCatalog}>
-              Cargar catálogo inicial
-            </IonButton>
+            {(isMockAuthEnabled() || user?.rol === 'admin') && (
+              <IonButton expand="block" fill="outline" onClick={handleLoadCatalog}>
+                Cargar catálogo inicial
+              </IonButton>
+            )}
           </IonCardContent>
         </IonCard>
       </div>

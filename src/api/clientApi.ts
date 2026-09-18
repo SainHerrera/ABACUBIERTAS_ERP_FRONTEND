@@ -27,7 +27,7 @@ export const getClientsApi = async (
       search?: string
       estado?: string
       tipo?: string
-    } = { skip, limit }
+    } = { skip, limit: Math.min(limit, 500) }
     if (search) params.search = search
     if (estado) params.estado = estado
     if (tipo) params.tipo = tipo

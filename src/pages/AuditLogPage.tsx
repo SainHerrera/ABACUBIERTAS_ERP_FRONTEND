@@ -12,6 +12,7 @@ import {
 } from '@ionic/react'
 import { documentTextOutline, trashOutline } from 'ionicons/icons'
 import { useAppDispatch } from '../hooks/useAppDispatch'
+import { useAppSelector } from '../hooks/useAppSelector'
 import { fetchAuditLog, clearAuditLog } from '../store/slices/auditLogSlice'
 import type { AuditAction, AuditLogEntry } from '../types/auditLog'
 import { roleLabels } from '../components/users/roleConfig'
@@ -47,6 +48,7 @@ const formatDate = (iso: string) => {
 
 export const AuditLogPage = () => {
   const dispatch = useAppDispatch()
+  const { user } = useAppSelector((state) => state.auth)
   const [present] = useIonToast()
 
   const [items, setItems] = useState<AuditLogEntry[]>([])
@@ -121,10 +123,12 @@ export const AuditLogPage = () => {
               Registro de Auditoría
             </IonText>
           </div>
-          <IonButton fill="outline" color="danger" onClick={handleClear}>
-            <IonIcon slot="start" icon={trashOutline} />
-            Borrar log
-          </IonButton>
+          {user?.rol === 'admin' && (
+            <IonButton fill="outline" color="danger" onClick={handleClear}>
+              <IonIcon slot="start" icon={trashOutline} />
+              Borrar log
+            </IonButton>
+          )}
         </div>
 
         <div

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { Quotation, QuotationCreate, QuotationUpdate, QuotationEstadoUpdate } from '../../types/sales'
 import { getQuotesApi, getQuoteApi, createQuoteApi, updateQuoteApi, updateQuoteStatusApi, getQuotesByClientApi, deleteQuoteApi } from '../../api/quotationApi'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 interface QuotationState {
   items: Quotation[]
@@ -27,18 +28,18 @@ export const fetchQuotes = createAsyncThunk(
     try {
       return await getQuotesApi(params.skip, params.limit, params.id_cliente, params.estado)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar cotizaciones')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar cotizaciones'))
     }
   },
 )
 
 export const fetchQuote = createAsyncThunk(
   'quotes/fetchOne',
-  async (quoteId: number, { rejectWithValue }) => {
+  async (quoteId: string, { rejectWithValue }) => {
     try {
       return await getQuoteApi(quoteId)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar cotización')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar cotización'))
     }
   },
 )
@@ -49,29 +50,29 @@ export const createQuote = createAsyncThunk(
     try {
       return await createQuoteApi(data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al crear cotización')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al crear cotización'))
     }
   },
 )
 
 export const updateQuote = createAsyncThunk(
   'quotes/update',
-  async ({ quoteId, data }: { quoteId: number; data: QuotationUpdate }, { rejectWithValue }) => {
+  async ({ quoteId, data }: { quoteId: string; data: QuotationUpdate }, { rejectWithValue }) => {
     try {
       return await updateQuoteApi(quoteId, data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al actualizar cotización')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al actualizar cotización'))
     }
   },
 )
 
 export const updateQuoteStatus = createAsyncThunk(
   'quotes/status',
-  async ({ quoteId, data }: { quoteId: number; data: QuotationEstadoUpdate }, { rejectWithValue }) => {
+  async ({ quoteId, data }: { quoteId: string; data: QuotationEstadoUpdate }, { rejectWithValue }) => {
     try {
       return await updateQuoteStatusApi(quoteId, data)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al actualizar estado de cotización')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al actualizar estado de cotización'))
     }
   },
 )
@@ -82,19 +83,19 @@ export const fetchQuotesByClient = createAsyncThunk(
     try {
       return await getQuotesByClientApi(clientId)
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al cargar cotizaciones del cliente')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al cargar cotizaciones del cliente'))
     }
   },
 )
 
 export const deleteQuote = createAsyncThunk(
   'quotes/delete',
-  async (quoteId: number, { rejectWithValue }) => {
+  async (quoteId: string, { rejectWithValue }) => {
     try {
       await deleteQuoteApi(quoteId)
       return quoteId
     } catch (error: unknown) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Error al eliminar cotización')
+      return rejectWithValue(getApiErrorMessage(error, 'Error al eliminar cotización'))
     }
   },
 )

@@ -34,7 +34,7 @@ export const fetchSales = createAsyncThunk(
 
 export const fetchSale = createAsyncThunk(
   'sales/fetchOne',
-  async (saleId: number, { rejectWithValue }) => {
+  async (saleId: string, { rejectWithValue }) => {
     try {
       return await getSaleApi(saleId)
     } catch (error: unknown) {
@@ -56,7 +56,7 @@ export const createSale = createAsyncThunk(
 
 export const updateSale = createAsyncThunk(
   'sales/update',
-  async ({ saleId, data }: { saleId: number; data: SaleUpdate }, { rejectWithValue }) => {
+  async ({ saleId, data }: { saleId: string; data: SaleUpdate }, { rejectWithValue }) => {
     try {
       return await updateSaleApi(saleId, data)
     } catch (error: unknown) {
@@ -67,7 +67,7 @@ export const updateSale = createAsyncThunk(
 
 export const cancelSale = createAsyncThunk(
   'sales/cancel',
-  async (saleId: number, { rejectWithValue }) => {
+  async (saleId: string, { rejectWithValue }) => {
     try {
       return await cancelSaleApi(saleId)
     } catch (error: unknown) {
@@ -78,7 +78,7 @@ export const cancelSale = createAsyncThunk(
 
 export const convertQuoteToSale = createAsyncThunk(
   'sales/convertQuote',
-  async (quoteId: number, { rejectWithValue }) => {
+  async (quoteId: string, { rejectWithValue }) => {
     try {
       return await convertQuoteToSaleApi(quoteId)
     } catch (error: unknown) {

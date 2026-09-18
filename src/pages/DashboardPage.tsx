@@ -55,8 +55,12 @@ export const DashboardPage = () => {
 
   const loadKpis = useCallback(async () => {
     if (!isLeadership(user?.rol)) return
-    const data = await getDashboardKpisApi()
-    setKpis(data)
+    try {
+      const data = await getDashboardKpisApi()
+      setKpis(data)
+    } catch {
+      setKpis(null)
+    }
   }, [user?.rol])
 
   useEffect(() => {

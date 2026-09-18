@@ -4,6 +4,7 @@ import type { Quotation } from '../../types/sales'
 interface QuotationListProps {
   quotations: Quotation[]
   clientName: (idCliente: string) => string
+  canWrite: boolean
   onView: (quotation: Quotation) => void
   onEdit: (quotation: Quotation) => void
   onStatusChange: (quotation: Quotation, estado: Quotation['estado']) => void
@@ -28,6 +29,7 @@ const estadoChipClass: Record<Quotation['estado'], string> = {
 export const QuotationList = ({
   quotations,
   clientName,
+  canWrite,
   onView,
   onEdit,
   onStatusChange,
@@ -54,7 +56,7 @@ export const QuotationList = ({
               <td>
                 <IonText style={{ fontWeight: 600 }}>{q.numero_consecutivo || `COT-${q.id_cotizacion}`}</IonText>
               </td>
-              <td>{clientName(q.id_cliente)}</td>
+              <td>{q.nombre_cliente || clientName(q.id_cliente)}</td>
               <td>{formatDate(q.fecha_emision)}</td>
               <td>{formatDate(q.fecha_vencimiento)}</td>
               <td>
@@ -66,7 +68,7 @@ export const QuotationList = ({
                   <button className="btn-icon" onClick={() => onView(q)} title="Ver detalle">
                     👁️
                   </button>
-                  {q.estado === 'borrador' && (
+                  {canWrite && q.estado === 'borrador' && (
                     <>
                       <button className="btn-icon" onClick={() => onEdit(q)} title="Editar">
                         ✏️
@@ -79,7 +81,7 @@ export const QuotationList = ({
                       </button>
                     </>
                   )}
-                  {q.estado === 'enviada' && (
+                  {canWrite && q.estado === 'enviada' && (
                     <>
                       <button className="btn-icon" onClick={() => onStatusChange(q, 'aprobada')} title="Aprobar">
                         ✅
@@ -89,7 +91,7 @@ export const QuotationList = ({
                       </button>
                     </>
                   )}
-                  {q.estado === 'aprobada' && (
+                  {canWrite && q.estado === 'aprobada' && (
                     <button className="btn-icon" onClick={() => onConvertToSale(q)} title="Convertir en pedido">
                       🧾
                     </button>

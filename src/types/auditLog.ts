@@ -22,14 +22,14 @@ export type AuditAction =
   | 'stock_request_updated'
 
 export interface AuditLogEntry {
-  id: number
+  id: string
   fecha: string
-  id_usuario: number
-  nombre_usuario: string
-  email_usuario: string
-  rol_usuario: string
+  id_usuario: string | null
+  nombre_usuario: string | null
+  email_usuario: string | null
+  rol_usuario: string | null
   accion: AuditAction
-  detalle: string
+  detalle: string | null
 }
 
 export interface AuditLogListResponse {

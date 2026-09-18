@@ -39,6 +39,10 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+// El 401 del propio login (credenciales inválidas) no debe tratarse como sesión
+// expirada: sin ese guard el interceptor redirige a /login y se pierde el toast.
+const SKIP_REFRESH_URLS = ['/auth/login', '/auth/refresh']
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -46,7 +50,10 @@ axiosInstance.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthCall =
+      SKIP_REFRESH_URLS.some((u) => error.config?.url?.includes(u)) ?? false;
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthCall) {
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });

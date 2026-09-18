@@ -77,6 +77,7 @@ import {
   SEED_PURCHASE_ORDERS,
   SEED_STOCK_REQUESTS,
   SEED_PROVIDER_QUOTATIONS,
+  SEED_USER_ADMIN_UUID,
 } from './seedData'
 import { getCurrentUserFromToken } from '../../utils/jwt'
 import { hashPassword, verifyPassword } from '../../utils/password'
@@ -276,7 +277,7 @@ export class StorageEngine {
     localStorage.setItem(KEYS.AUDIT_LOG, JSON.stringify(entries))
   }
 
-  private static getCurrentUser(): User {
+  public static getCurrentUser(): User {
     const token = localStorage.getItem('accessToken')
     if (token) {
       const user = getCurrentUserFromToken(token)
@@ -398,12 +399,12 @@ export class StorageEngine {
     const user = actor || StorageEngine.getCurrentUser()
     const entries = StorageEngine.getAuditLogRaw()
     const nextId =
-      entries.length > 0 ? Math.max(...entries.map((e) => e.id)) + 1 : 1
+      entries.length > 0 ? Math.max(...entries.map((e) => Number(e.id))) + 1 : 1
 
     const entry: AuditLogEntry = {
-      id: nextId,
+      id: String(nextId),
       fecha: new Date().toISOString(),
-      id_usuario: user.id_usuario,
+      id_usuario: String(user.id_usuario),
       nombre_usuario: user.nombre,
       email_usuario: user.email,
       rol_usuario: user.rol,
@@ -1112,9 +1113,9 @@ export class StorageEngine {
     return { items, total, skip, limit }
   }
 
-  public static getQuote(quoteId: number): Quotation {
+  public static getQuote(quoteId: string): Quotation {
     const quotations = StorageEngine.getQuotationsRaw()
-    const quote = quotations.find((q) => q.id_cotizacion === quoteId)
+    const quote = quotations.find((q) => String(q.id_cotizacion) === String(quoteId))
     if (!quote) {
       throw new Error(`Cotización con ID ${quoteId} no encontrada`)
     }
@@ -1123,8 +1124,7 @@ export class StorageEngine {
 
   public static createQuote(data: QuotationCreate): Quotation {
     const quotations = StorageEngine.getQuotationsRaw()
-    const nextId =
-      quotations.length > 0 ? Math.max(...quotations.map((q) => q.id_cotizacion)) + 1 : 1
+    const nextId = quotations.length + 1
     const currentUser = StorageEngine.getCurrentUser()
     const detalles = StorageEngine.applyDefaultMargin(data.detalles || [])
 
@@ -1138,10 +1138,10 @@ export class StorageEngine {
     const total = subtotalAfterDescuento + impuestos
 
     const newQuote: Quotation = {
-      id_cotizacion: nextId,
+      id_cotizacion: quickUuid(),
       numero_consecutivo: `COT-${String(nextId).padStart(4, '0')}`,
       id_cliente: data.id_cliente,
-      id_usuario: currentUser.id_usuario,
+      id_usuario: String(currentUser.id_usuario),
       fecha_emision: new Date().toISOString(),
       fecha_vencimiento: data.fecha_vencimiento || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
       estado: 'borrador',
@@ -1159,9 +1159,9 @@ export class StorageEngine {
     return newQuote
   }
 
-  public static updateQuote(quoteId: number, data: QuotationUpdate): Quotation {
+  public static updateQuote(quoteId: string, data: QuotationUpdate): Quotation {
     const quotations = StorageEngine.getQuotationsRaw()
-    const index = quotations.findIndex((q) => q.id_cotizacion === quoteId)
+    const index = quotations.findIndex((q) => String(q.id_cotizacion) === String(quoteId))
     if (index === -1) {
       throw new Error(`Cotización con ID ${quoteId} no encontrada`)
     }
@@ -1188,9 +1188,9 @@ export class StorageEngine {
     return current
   }
 
-  public static updateQuoteStatus(quoteId: number, data: QuotationEstadoUpdate): Quotation {
+  public static updateQuoteStatus(quoteId: string, data: QuotationEstadoUpdate): Quotation {
     const quotations = StorageEngine.getQuotationsRaw()
-    const index = quotations.findIndex((q) => q.id_cotizacion === quoteId)
+    const index = quotations.findIndex((q) => String(q.id_cotizacion) === String(quoteId))
     if (index === -1) {
       throw new Error(`Cotización con ID ${quoteId} no encontrada`)
     }
@@ -1201,9 +1201,9 @@ export class StorageEngine {
     return quotations[index]
   }
 
-  public static deleteQuote(quoteId: number): void {
+  public static deleteQuote(quoteId: string): void {
     const quotations = StorageEngine.getQuotationsRaw()
-    const index = quotations.findIndex((q) => q.id_cotizacion === quoteId)
+    const index = quotations.findIndex((q) => String(q.id_cotizacion) === String(quoteId))
     if (index === -1) {
       throw new Error(`Cotización con ID ${quoteId} no encontrada`)
     }
@@ -1236,9 +1236,9 @@ export class StorageEngine {
     return { items, total, skip, limit }
   }
 
-  public static getSale(saleId: number): Sale {
+  public static getSale(saleId: string): Sale {
     const sales = StorageEngine.getSalesRaw()
-    const sale = sales.find((s) => s.id_orden_venta === saleId)
+    const sale = sales.find((s) => String(s.id_orden_venta) === String(saleId))
     if (!sale) {
       throw new Error(`Pedido con ID ${saleId} no encontrado`)
     }
@@ -1258,23 +1258,26 @@ export class StorageEngine {
 
     const currentUser = StorageEngine.getCurrentUser()
     const sales = StorageEngine.getSalesRaw()
-    const nextSaleId =
-      sales.length > 0 ? Math.max(...sales.map((s) => s.id_orden_venta)) + 1 : 1
+    const nextSaleId = sales.length + 1
     const orderNumber = `PED-${String(nextSaleId).padStart(4, '0')}`
 
-    const total = data.detalles.reduce(
+    const subtotal = data.detalles.reduce(
       (sum, d) => sum + (d.subtotal || d.cantidad * d.precio_unitario - (d.descuento || 0)),
       0,
     )
+    const impuestos = Math.round(subtotal * 0.19)
+    const total = subtotal + impuestos
 
     const newSale: Sale = {
-      id_orden_venta: nextSaleId,
+      id_orden_venta: quickUuid(),
       numero_orden: orderNumber,
       id_cliente: data.id_cliente,
       id_cotizacion: data.id_cotizacion,
-      id_usuario: currentUser.id_usuario,
+      id_usuario: String(currentUser.id_usuario),
       fecha_venta: new Date().toISOString(),
       estado: 'pendiente',
+      subtotal,
+      impuestos,
       total,
       observaciones: data.observaciones?.trim() || undefined,
       detalles: data.detalles,
@@ -1286,9 +1289,9 @@ export class StorageEngine {
     return newSale
   }
 
-  public static confirmDispatch(saleId: number, observaciones?: string): Sale {
+  public static confirmDispatch(saleId: string, observaciones?: string): Sale {
     const sales = StorageEngine.getSalesRaw()
-    const index = sales.findIndex((s) => s.id_orden_venta === saleId)
+    const index = sales.findIndex((s) => String(s.id_orden_venta) === String(saleId))
     if (index === -1) {
       throw new Error(`Pedido con ID ${saleId} no encontrado`)
     }
@@ -1358,15 +1361,31 @@ export class StorageEngine {
     return sale
   }
 
-  public static updateSale(saleId: number, data: SaleUpdate): Sale {
+  public static updateSale(saleId: string, data: SaleUpdate): Sale {
     const sales = StorageEngine.getSalesRaw()
-    const index = sales.findIndex((s) => s.id_orden_venta === saleId)
+    const index = sales.findIndex((s) => String(s.id_orden_venta) === String(saleId))
     if (index === -1) {
       throw new Error(`Pedido con ID ${saleId} no encontrado`)
     }
 
     const current = sales[index]
-    if (data.estado !== undefined) current.estado = data.estado
+    if (data.estado !== undefined) {
+      if (data.estado !== current.estado) {
+        const allowedTransitions: Record<Sale['estado'], Sale['estado'][]> = {
+          pendiente: ['en_proceso'],
+          en_proceso: ['entregada'],
+          entregada: [],
+          cancelada: [],
+        }
+        const allowed = allowedTransitions[current.estado]
+        if (!allowed || !allowed.includes(data.estado)) {
+          throw new Error(
+            `Transición de estado no válida: ${current.estado} → ${data.estado}`,
+          )
+        }
+        current.estado = data.estado
+      }
+    }
     if (data.observaciones !== undefined) current.observaciones = data.observaciones?.trim() || undefined
 
     sales[index] = current
@@ -1375,9 +1394,9 @@ export class StorageEngine {
     return current
   }
 
-  public static cancelSale(saleId: number): Sale {
+  public static cancelSale(saleId: string): Sale {
     const sales = StorageEngine.getSalesRaw()
-    const index = sales.findIndex((s) => s.id_orden_venta === saleId)
+    const index = sales.findIndex((s) => String(s.id_orden_venta) === String(saleId))
     if (index === -1) {
       throw new Error(`Pedido con ID ${saleId} no encontrado`)
     }
@@ -1433,7 +1452,7 @@ export class StorageEngine {
     return sale
   }
 
-  public static convertQuoteToSale(quoteId: number, observaciones?: string): Sale {
+  public static convertQuoteToSale(quoteId: string, observaciones?: string): Sale {
     const quotation = StorageEngine.getQuote(quoteId)
     const saleCreateData: SaleCreate = {
       id_cliente: quotation.id_cliente,
@@ -1712,8 +1731,8 @@ export class StorageEngine {
     return { items: sliced, total, skip, limit }
   }
 
-  public static getPurchaseOrder(poId: number): PurchaseOrder {
-    const order = StorageEngine.getPurchaseOrdersRaw().find((o) => o.id_orden_compra === poId)
+  public static getPurchaseOrder(poId: string): PurchaseOrder {
+    const order = StorageEngine.getPurchaseOrdersRaw().find((o) => String(o.id_orden_compra) === String(poId))
     if (!order) {
       throw new Error(`Orden de compra con ID ${poId} no encontrada`)
     }
@@ -1765,8 +1784,7 @@ export class StorageEngine {
     }
 
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const nextId =
-      orders.length > 0 ? Math.max(...orders.map((o) => o.id_orden_compra)) + 1 : 1
+    const nextId = orders.length + 1
     const numero_oc = `OC-${String(nextId).padStart(4, '0')}`
 
     const currentUser = StorageEngine.getCurrentUser()
@@ -1794,7 +1812,7 @@ export class StorageEngine {
       totalOc >= settings.aprobacionOcMontoMinimo
 
     const newOrder: PurchaseOrder = {
-      id_orden_compra: nextId,
+      id_orden_compra: quickUuid(),
       numero_oc,
       id_proveedor: data.id_proveedor,
       nombre_proveedor: provider?.nombre_empresa || undefined,
@@ -1804,6 +1822,7 @@ export class StorageEngine {
       id_solicitud: selectedQuotation?.id_solicitud ?? data.id_solicitud,
       numero_solicitud,
       id_cotizacion: selectedQuotation?.id_cotizacion ?? data.id_cotizacion,
+      total: totalOc,
       detalles,
     }
 
@@ -1821,9 +1840,9 @@ export class StorageEngine {
     return newOrder
   }
 
-  public static markPoTransit(poId: number): PurchaseOrder {
+  public static markPoTransit(poId: string): PurchaseOrder {
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    const index = orders.findIndex((o) => String(o.id_orden_compra) === String(poId))
     if (index === -1) {
       throw new Error(`Orden de compra con ID ${poId} no encontrada`)
     }
@@ -1844,11 +1863,11 @@ export class StorageEngine {
   }
 
   public static approvePurchaseOrder(
-    poId: number,
+    poId: string,
     aprobar: boolean,
   ): PurchaseOrder {
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    const index = orders.findIndex((o) => String(o.id_orden_compra) === String(poId))
     if (index === -1) {
       throw new Error(`Orden de compra con ID ${poId} no encontrada`)
     }
@@ -1889,11 +1908,11 @@ export class StorageEngine {
   }
 
   public static receiveAgainstPo(
-    poId: number,
+    poId: string,
     data: { product_id: string; quantity: number; fecha?: string; note?: string },
   ): PurchaseOrder {
     const orders = StorageEngine.getPurchaseOrdersRaw()
-    const index = orders.findIndex((o) => o.id_orden_compra === poId)
+    const index = orders.findIndex((o) => String(o.id_orden_compra) === String(poId))
     if (index === -1) {
       throw new Error(`Orden de compra con ID ${poId} no encontrada`)
     }
@@ -1979,7 +1998,7 @@ export class StorageEngine {
     return { items: sliced, total, skip, limit }
   }
 
-  public static getStockRequest(requestId: number): StockRequest {
+  public static getStockRequest(requestId: string): StockRequest {
     const request = StorageEngine.getStockRequestsRaw().find((r) => r.id_solicitud === requestId)
     if (!request) {
       throw new Error(`Solicitud de abastecimiento con ID ${requestId} no encontrada`)
@@ -2005,12 +2024,13 @@ export class StorageEngine {
 
     const requests = StorageEngine.getStockRequestsRaw()
     const nextId =
-      requests.length > 0 ? Math.max(...requests.map((r) => r.id_solicitud)) + 1 : 1
+      requests.length > 0 ? Math.max(...requests.map((r) => Number(r.id_solicitud))) + 1 : 1
+    const id_solicitud = String(nextId)
     const numero_solicitud = `SOL-${String(nextId).padStart(4, '0')}`
     const currentUser = StorageEngine.getCurrentUser()
 
     const newRequest: StockRequest = {
-      id_solicitud: nextId,
+      id_solicitud,
       numero_solicitud,
       id_producto: product.id_producto,
       descripcion: product.nombre,
@@ -2019,7 +2039,7 @@ export class StorageEngine {
       stock_minimo: product.stock_minimo,
       estado: 'pendiente',
       fecha: new Date().toISOString(),
-      id_usuario: currentUser.id_usuario,
+      id_usuario: String(currentUser.id_usuario),
       nombre_usuario: currentUser.nombre,
       observaciones: data.observaciones?.trim() || undefined,
     }
@@ -2037,7 +2057,7 @@ export class StorageEngine {
   }
 
   public static updateStockRequestStatus(
-    requestId: number,
+    requestId: string,
     estado: StockRequestStatus,
     observaciones?: string,
   ): StockRequest {
@@ -2084,7 +2104,7 @@ export class StorageEngine {
   public static getProviderQuotations(
     skip = 0,
     limit = 50,
-    id_solicitud?: number,
+    id_solicitud?: string,
   ): ProviderQuotationListResponse {
     let items = StorageEngine.getProviderQuotationsRaw()
     if (id_solicitud !== undefined) {
@@ -2095,7 +2115,7 @@ export class StorageEngine {
     return { items: sliced, total, skip, limit }
   }
 
-  public static getProviderQuotation(quotationId: number): ProviderQuotation {
+  public static getProviderQuotation(quotationId: string): ProviderQuotation {
     const quotation = StorageEngine.getProviderQuotationsRaw().find(
       (q) => q.id_cotizacion === quotationId,
     )
@@ -2138,12 +2158,13 @@ export class StorageEngine {
 
     const quotations = StorageEngine.getProviderQuotationsRaw()
     const nextId =
-      quotations.length > 0 ? Math.max(...quotations.map((q) => q.id_cotizacion)) + 1 : 1
+      quotations.length > 0 ? Math.max(...quotations.map((q) => Number(q.id_cotizacion))) + 1 : 1
+    const id_cotizacion = String(nextId)
     const numero_cotizacion = `COT-${String(nextId).padStart(4, '0')}`
     const currentUser = StorageEngine.getCurrentUser()
 
     const newQuotation: ProviderQuotation = {
-      id_cotizacion: nextId,
+      id_cotizacion,
       numero_cotizacion,
       id_solicitud: request.id_solicitud,
       id_producto: request.id_producto,
@@ -2168,7 +2189,7 @@ export class StorageEngine {
     return newQuotation
   }
 
-  public static selectProviderQuotation(quotationId: number): ProviderQuotation {
+  public static selectProviderQuotation(quotationId: string): ProviderQuotation {
     const quotations = StorageEngine.getProviderQuotationsRaw()
     const target = quotations.find((q) => q.id_cotizacion === quotationId)
     if (!target) {
@@ -2359,29 +2380,32 @@ export class StorageEngine {
   }
 
   public static getSalesBySellerReport(): Array<{
-    id_usuario: number
+    id_usuario: string
     vendedor: string
     total: number
     ventas: number
   }> {
     const sales = StorageEngine.getSalesRaw()
     const users = StorageEngine.getUsersRaw()
-    const bySeller = new Map<number, { total: number; ventas: number }>()
+    const bySeller = new Map<string, { total: number; ventas: number }>()
 
     for (const sale of sales) {
       if (sale.estado === 'cancelada') continue
-      const existing = bySeller.get(sale.id_usuario)
+      const key = sale.id_usuario ? String(sale.id_usuario) : 'sin_usuario'
+      const existing = bySeller.get(key)
       if (existing) {
         existing.total += sale.total
         existing.ventas += 1
       } else {
-        bySeller.set(sale.id_usuario, { total: sale.total, ventas: 1 })
+        bySeller.set(key, { total: sale.total, ventas: 1 })
       }
     }
 
     return Array.from(bySeller.entries())
       .map(([id_usuario, value]) => {
-        const user = users.find((u) => u.id_usuario === id_usuario)
+        const user =
+          users.find((u) => String(u.id_usuario) === id_usuario) ??
+          (id_usuario === SEED_USER_ADMIN_UUID ? SEED_USERS[0] : undefined)
         return {
           id_usuario,
           vendedor: user ? user.nombre : `Usuario ${id_usuario}`,

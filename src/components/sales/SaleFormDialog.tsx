@@ -202,7 +202,7 @@ export const SaleFormDialog = ({
           </div>
 
           <IonText color="medium" style={{ fontSize: 13, display: 'block', marginTop: 8 }}>
-            Al crear el pedido el stock se descuenta automáticamente del inventario.
+            El stock se descuenta del inventario al confirmar el despacho físico del pedido.
           </IonText>
 
           <IonButton expand="block" type="submit" disabled={isLoading} style={{ marginTop: 24 }}>

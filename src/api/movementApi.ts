@@ -52,7 +52,7 @@ export const getMovementsApi = async (
       product_id?: string
       date_from?: string
       date_to?: string
-    } = { skip, limit }
+    } = { skip, limit: Math.min(limit, 500) }
     if (product_id) params.product_id = product_id
     if (date_from) params.date_from = date_from
     if (date_to) params.date_to = date_to

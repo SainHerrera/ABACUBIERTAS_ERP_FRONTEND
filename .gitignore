@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Playwright
+# Playwright / testing
 playwright-report/
 test-results/
+
+# Evidence & artifacts
+evidencias/
+evidencias.zip
+*.tsbuildinfo

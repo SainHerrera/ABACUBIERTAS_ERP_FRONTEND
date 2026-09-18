@@ -17,7 +17,7 @@ export const DispatchesPage = () => {
   const [clients, setClients] = useState<Client[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
-  const [savingId, setSavingId] = useState<number | null>(null)
+  const [savingId, setSavingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')

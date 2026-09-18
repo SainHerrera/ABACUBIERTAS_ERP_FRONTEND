@@ -76,7 +76,7 @@ export const OrdersPage = () => {
     }
   }
 
-  const handleSaveStatus = async (saleId: number, data: SaleUpdate) => {
+  const handleSaveStatus = async (saleId: string, data: SaleUpdate) => {
     setLoading(true)
     setError(null)
     try {

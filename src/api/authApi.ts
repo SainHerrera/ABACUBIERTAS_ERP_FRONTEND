@@ -170,6 +170,10 @@ export const updateUserApi = async (
     );
     return mapApiUser(user);
   }
+  const currentUser = StorageEngine.getCurrentUser();
+  if (currentUser.rol !== 'admin') {
+    throw new Error('Se requieren permisos de administrador');
+  }
   return StorageEngine.updateUser(userId as number, data);
 };
 
@@ -177,6 +181,10 @@ export const deleteUserApi = async (userId: string | number): Promise<void> => {
   if (!isMockAuthEnabled()) {
     await axiosInstance.delete(`/users/${userId}`);
     return;
+  }
+  const currentUser = StorageEngine.getCurrentUser();
+  if (currentUser.rol !== 'admin') {
+    throw new Error('Se requieren permisos de administrador');
   }
   StorageEngine.deleteUser(userId as number);
 };

@@ -22,6 +22,10 @@ export function canAccessSales(role?: UserRole): boolean {
   return role !== undefined && SALES_ROLES.includes(role)
 }
 
+export function canWriteQuotations(role?: UserRole): boolean {
+  return role === 'admin' || role === 'ventas'
+}
+
 export function isAdmin(role?: UserRole): boolean {
   return role !== undefined && ADMIN_ROLES.includes(role)
 }

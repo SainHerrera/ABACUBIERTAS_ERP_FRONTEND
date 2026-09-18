@@ -83,6 +83,12 @@ export const ReportCenterPage = () => {
       setValuation(v)
       setExpenses(e)
       setDeliveries(d)
+    } catch {
+      setSellers([])
+      setTrend([])
+      setValuation({ valorTotal: 0, porProducto: [] })
+      setExpenses([])
+      setDeliveries([])
     } finally {
       setLoading(false)
     }

@@ -10,16 +10,24 @@ import { getQuotesApi, createQuoteApi, updateQuoteApi, updateQuoteStatusApi, del
 import { convertQuoteToSaleApi } from '../../api/saleApi'
 import { getClientsApi } from '../../api/clientApi'
 import { getProductsApi } from '../../api/productApi'
+import { useAppSelector } from '../../hooks/useAppSelector'
+import { canWriteQuotations } from '../../utils/permissions'
 import type { Client, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
 import type { Product } from '../../types/product'
 
 const ESTADO_FILTER_OPTIONS = ['borrador', 'enviada', 'aprobada', 'rechazada', 'vencida'] as const
+const PAGE_SIZE = 25
 
 export const QuotationsPage = () => {
+  const { user } = useAppSelector((state) => state.auth)
+  const canWrite = canWriteQuotations(user?.rol)
+
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [estadoFilter, setEstadoFilter] = useState<string | undefined>(undefined)
+  const [page, setPage] = useState(0)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -34,11 +42,12 @@ export const QuotationsPage = () => {
     setError(null)
     try {
       const [quotationsResponse, clientsResponse, productsResponse] = await Promise.all([
-        getQuotesApi(0, 1000, undefined, estadoFilter),
+        getQuotesApi(page * PAGE_SIZE, PAGE_SIZE, undefined, estadoFilter),
         getClientsApi(0, 1000),
         getProductsApi(0, 1000),
       ])
       setQuotations(quotationsResponse.items)
+      setTotal(quotationsResponse.total)
       setClients(clientsResponse.items)
       setProducts(productsResponse.items)
     } catch (err: unknown) {
@@ -48,18 +57,20 @@ export const QuotationsPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [estadoFilter])
+  }, [estadoFilter, page])
 
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const clientName = useCallback(
     (idCliente: string) => clients.find((c) => c.id_cliente === idCliente)?.nombre_razon_social || `Cliente ${idCliente}`,
     [clients],
   )
 
-  const handleSave = async (quotationId: number | null, data: QuotationCreate | QuotationUpdate) => {
+  const handleSave = async (quotationId: string | null, data: QuotationCreate | QuotationUpdate) => {
     setSaving(true)
     setError(null)
     try {
@@ -101,7 +112,7 @@ export const QuotationsPage = () => {
   }
 
   const handleConvertToSale = async (quotation: Quotation) => {
-    if (!window.confirm(`¿Convertir la cotización ${quotation.numero_consecutivo || quotation.id_cotizacion} en un pedido? El stock será descontado.`)) return
+    if (!window.confirm(`¿Convertir la cotización ${quotation.numero_consecutivo || quotation.id_cotizacion} en un pedido? El stock no se descuenta; se descontará al confirmar el despacho del pedido.`)) return
     setLoading(true)
     setError(null)
     try {
@@ -142,9 +153,11 @@ export const QuotationsPage = () => {
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Cotizaciones</IonText>
-          <IonButton onClick={() => { setEditingQuotation(null); setFormOpen(true) }}>
-            Nueva Cotización
-          </IonButton>
+          {canWrite && (
+            <IonButton onClick={() => { setEditingQuotation(null); setFormOpen(true) }}>
+              Nueva Cotización
+            </IonButton>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
@@ -153,7 +166,7 @@ export const QuotationsPage = () => {
             placeholder="Todos los estados"
             interface="popover"
             style={{ background: 'var(--app-surface)', borderRadius: 8 }}
-            onIonChange={(e) => setEstadoFilter(e.detail.value || undefined)}
+            onIonChange={(e) => { setEstadoFilter(e.detail.value || undefined); setPage(0) }}
           >
             <IonSelectOption value="">Todos los estados</IonSelectOption>
             {ESTADO_FILTER_OPTIONS.map((opt) => (
@@ -174,12 +187,25 @@ export const QuotationsPage = () => {
         <QuotationList
           quotations={quotations}
           clientName={clientName}
+          canWrite={canWrite}
           onView={(q) => setDetailQuotation(q)}
           onEdit={(q) => { setEditingQuotation(q); setFormOpen(true) }}
           onStatusChange={handleStatusChange}
           onConvertToSale={handleConvertToSale}
           onDelete={handleDelete}
         />
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 16 }}>
+          <IonButton size="small" fill="outline" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>
+            Anterior
+          </IonButton>
+          <IonText color="medium" style={{ fontSize: 13 }}>
+            Página {page + 1} de {totalPages} · {total} cotizaciones
+          </IonText>
+          <IonButton size="small" fill="outline" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}>
+            Siguiente
+          </IonButton>
+        </div>
 
         <QuotationFormDialog
           open={formOpen}

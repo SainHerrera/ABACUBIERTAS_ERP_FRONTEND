@@ -19,7 +19,10 @@ export const getProvidersApi = async (
   search?: string,
 ): Promise<ProviderListResponse> => {
   if (!isMockAuthEnabled()) {
-    const params: { skip: number; limit: number; search?: string } = { skip, limit }
+    const params: { skip: number; limit: number; search?: string } = {
+      skip,
+      limit: Math.min(limit, 500),
+    }
     if (search) params.search = search
     const { data } = await axiosInstance.get<ApiProviderListResponse>('/providers', {
       params,

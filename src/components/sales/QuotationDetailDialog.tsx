@@ -35,7 +35,7 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
               <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Cliente</IonText>
-                <IonText style={{ fontWeight: 600 }}>{clientName(quotation.id_cliente)}</IonText>
+                <IonText style={{ fontWeight: 600 }}>{quotation.nombre_cliente || clientName(quotation.id_cliente)}</IonText>
               </div>
               <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 12 }}>
                 <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>Estado</IonText>
@@ -64,7 +64,7 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
                     <th>Producto</th>
                     <th>Cantidad</th>
                     <th>Precio unitario</th>
-                    <th>Descuento (%)</th>
+                    <th>Descuento</th>
                     <th>Subtotal</th>
                   </tr>
                 </thead>
@@ -74,7 +74,7 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
                       <td>{d.descripcion || `Producto ${d.id_producto}`}</td>
                       <td>{d.cantidad}</td>
                       <td>{formatMoney(d.precio_unitario)}</td>
-                      <td>{Number(d.descuento)}</td>
+                      <td>{Number(d.descuento) > 0 ? `-${formatMoney(d.descuento)}` : '0'}</td>
                       <td style={{ fontWeight: 600 }}>{formatMoney(d.subtotal)}</td>
                     </tr>
                   ))}
@@ -88,8 +88,8 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
                 <span style={{ fontWeight: 600 }}>{formatMoney(quotation.subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span>Descuento ({Number(quotation.descuento)}%)</span>
-                <span style={{ fontWeight: 600 }}>-{formatMoney(Number(quotation.subtotal) * (Number(quotation.descuento) / 100))}</span>
+                <span>Descuento</span>
+                <span style={{ fontWeight: 600 }}>-{formatMoney(quotation.descuento)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>IVA (19%)</span>

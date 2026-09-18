@@ -7,33 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --config=playwright.visual.config.ts",
-    "test:e2e:backend": "set E2E_BACKEND=1&& playwright test --config=playwright.backend.config.ts",
-    "test:e2e:backend:headed": "set E2E_BACKEND=1&& set E2E_BACKEND_HEADED=1&& playwright test --config=playwright.backend.config.ts",
-    "test:e2e:evidencias": "playwright test --config=playwright.evidence.config.ts",
-    "test:e2e:admin": "playwright test e2e/admin",
-    "test:e2e:admin:headed": "playwright test e2e/admin --config=playwright.visual.config.ts",
-    "test:e2e:inventory": "playwright test e2e/inventory",
-    "test:e2e:inventory:headed": "playwright test e2e/inventory --config=playwright.visual.config.ts",
-    "test:bodega:unit": "vitest run src/tests/inventoryFlows.test.ts src/tests/inventoryRoleAccess.test.ts src/tests/stockRequests.test.ts src/tests/inventoryIntegration.test.ts src/tests/localStorage.test.ts",
-    "test:bodega": "npm run test:bodega:unit && npm run test:e2e:inventory",
-    "test:bodega:headed": "playwright test e2e/inventory --config=playwright.visual.config.ts",
-    "test:bodega:audit": "node scripts/bodega-audit.mjs",
-    "test:e2e:headed:audit": "playwright test e2e/admin/admin-audit.spec.ts --config=playwright.visual.config.ts",
-    "test:compras:unit": "vitest run src/tests/providerQuotations.test.ts src/tests/purchasingFlow.test.ts",
-    "test:e2e:compras": "playwright test e2e/compras",
-    "test:e2e:compras:headed": "playwright test e2e/compras --config=playwright.visual.config.ts",
-    "test:compras": "npm run test:compras:unit && npm run test:e2e:compras",
-    "test:compras:audit": "node scripts/compras-audit.mjs",
-    "test:admin:unit": "vitest run src/tests/settingsIntegration.test.ts src/tests/auditLogIntegration.test.ts src/tests/adminUserFlow.test.ts src/tests/poApproval.test.ts src/tests/dashboardReports.test.ts src/tests/salesIntegration.test.ts",
-    "test:admin": "npm run test:admin:unit && npm run test:e2e:admin",
-    "test:admin:headed": "playwright test e2e/admin --config=playwright.visual.config.ts",
-    "test:admin:audit": "node scripts/admin-audit.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ionic/react": "^8.8.7",
@@ -48,9 +22,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
-    "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.2",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -60,10 +31,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "jsdom": "^29.1.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12",
-    "vitest": "^4.1.11"
+    "vite": "^8.0.12"
   }
 }

@@ -53,11 +53,11 @@ function App() {
             path="/users"
             render={() => (
               <ProtectedRoute>
-                <AdminRoute>
+                <LeadershipRoute>
                   <DashboardLayout>
                     <UsersPage />
                   </DashboardLayout>
-                </AdminRoute>
+                </LeadershipRoute>
               </ProtectedRoute>
             )}
             exact

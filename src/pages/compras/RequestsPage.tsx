@@ -26,7 +26,7 @@ export const RequestsPage = () => {
 
   const [requests, setRequests] = useState<StockRequest[]>([])
   const [providers, setProviders] = useState<Provider[]>([])
-  const [quotationsByRequest, setQuotationsByRequest] = useState<Record<number, ProviderQuotation[]>>({})
+  const [quotationsByRequest, setQuotationsByRequest] = useState<Record<string, ProviderQuotation[]>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false)
@@ -56,7 +56,7 @@ export const RequestsPage = () => {
     }
   }
 
-  const loadQuotations = async (requestId: number) => {
+  const loadQuotations = async (requestId: string) => {
     try {
       const res = await getProviderQuotationsApi(0, 100, requestId)
       setQuotationsByRequest((prev) => ({ ...prev, [requestId]: res.items }))
@@ -83,7 +83,7 @@ export const RequestsPage = () => {
   }
 
   const handleSaveQuotation = async (data: {
-    id_solicitud: number
+    id_solicitud: string
     id_producto: string
     id_proveedor: string
     precio_unitario: number
@@ -104,7 +104,7 @@ export const RequestsPage = () => {
     }
   }
 
-  const handleSelect = async (quotationId: number) => {
+  const handleSelect = async (quotationId: string) => {
     setSaving(true)
     setError(null)
     try {
@@ -113,7 +113,7 @@ export const RequestsPage = () => {
       const entry = Object.entries(quotationsByRequest).find(([, qs]) =>
         qs.some((q) => q.id_cotizacion === quotationId),
       )
-      if (entry) await loadQuotations(Number(entry[0]))
+      if (entry) await loadQuotations(entry[0])
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'No se pudo seleccionar')
     } finally {
@@ -121,7 +121,7 @@ export const RequestsPage = () => {
     }
   }
 
-  const handleCreatePo = async (requestId: number) => {
+  const handleCreatePo = async (requestId: string) => {
     setSaving(true)
     setError(null)
     try {

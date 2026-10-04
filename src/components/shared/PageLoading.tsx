@@ -1,4 +1,4 @@
-import { IonSpinner, IonText } from '@ionic/react'
+import { IonText } from '@ionic/react'
 
 interface PageLoadingProps {
   message: string
@@ -7,30 +7,32 @@ interface PageLoadingProps {
 export const PageLoading = ({ message }: PageLoadingProps) => {
   return (
     <div
+      aria-live="polite"
+      aria-busy="true"
       style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        position: 'sticky',
+        top: 0,
         pointerEvents: 'none',
-        zIndex: 1,
+        zIndex: 5,
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '14px 22px',
-          borderRadius: 12,
-          background: 'var(--app-surface)',
-          border: '1px solid var(--app-border)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-        }}
-      >
-        <IonSpinner name="crescent" />
-        <IonText style={{ fontSize: 14 }}>{message}</IonText>
+      <div className="app-progress-bar" />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 0' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 12px',
+            borderRadius: 999,
+            background: 'var(--app-surface)',
+            border: '1px solid var(--app-border)',
+            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.08)',
+          }}
+        >
+          <span className="app-progress-dot" />
+          <IonText style={{ fontSize: 12, fontWeight: 500 }}>{message}</IonText>
+        </div>
       </div>
     </div>
   )

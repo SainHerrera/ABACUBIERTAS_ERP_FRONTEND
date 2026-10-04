@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { IonContent, IonMenu, IonList, IonItem, IonIcon, IonLabel, IonAvatar, IonText, IonButton } from '@ionic/react'
 import { gridOutline, peopleOutline, cubeOutline, swapHorizontalOutline, businessOutline, calculatorOutline, logOutOutline, settingsOutline, documentTextOutline, receiptOutline, checkmarkDoneOutline, warningOutline, cartOutline, analyticsOutline, checkmarkDoneCircleOutline, moonOutline, sunnyOutline } from 'ionicons/icons'
 import { useLocation, useHistory } from 'react-router-dom'
@@ -13,8 +14,10 @@ export const Sidebar = () => {
   const dispatch = useAppDispatch()
   const { user } = useAppSelector((state) => state.auth)
   const { theme, toggleTheme } = useTheme()
+  const menuRef = useRef<HTMLIonMenuElement>(null)
 
   const navigate = (path: string) => {
+    void menuRef.current?.close()
     navigateFn.push(path)
   }
 
@@ -25,7 +28,7 @@ export const Sidebar = () => {
   const isSelected = (path: string) => location.pathname === path
 
   return (
-    <IonMenu contentId="main-content" className="sidebar-menu">
+    <IonMenu ref={menuRef} contentId="main-content" className="sidebar-menu">
       <IonContent className="sidebar-menu" style={{ '--background': 'var(--app-sidebar-bg)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <div

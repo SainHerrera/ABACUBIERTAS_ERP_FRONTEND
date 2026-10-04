@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { IonPage, IonText, IonButton, IonToast, IonSelect, IonSelectOption, IonItem, IonLabel } from '@ionic/react'
 import { PageLoading } from '../../components/shared/PageLoading'
 import { MovementList } from '../../components/inventory/MovementList'
@@ -17,6 +17,7 @@ export const MovementsPage = () => {
   const [movements, setMovements] = useState<Movement[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [productFilter, setProductFilter] = useState<string | undefined>(undefined)
+  const requestIdRef = useRef(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +27,7 @@ export const MovementsPage = () => {
   const [toastMessage, setToastMessage] = useState('')
 
   const loadData = useCallback(async () => {
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError(null)
     try {
@@ -33,14 +35,16 @@ export const MovementsPage = () => {
         getMovementsApi(0, 1000, productFilter),
         getProductsApi(0, 1000),
       ])
+      if (requestId !== requestIdRef.current) return
       setMovements(movementsResponse.items)
       setProducts(productsResponse.items)
     } catch (err: unknown) {
+      if (requestId !== requestIdRef.current) return
       const msg = err instanceof Error ? err.message : 'Error al cargar movimientos. Intenta de nuevo.'
       setError(msg)
       console.error(err)
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }, [productFilter])
 

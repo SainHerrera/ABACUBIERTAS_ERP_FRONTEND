@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { IonPage, IonText, IonButton, IonSearchbar, IonToast } from '@ionic/react'
 import { PageLoading } from '../../components/shared/PageLoading'
 import { ProductList } from '../../components/inventory/ProductList'
@@ -6,6 +6,7 @@ import { ProductFormDialog } from '../../components/inventory/ProductFormDialog'
 import { getProductsApi, createProductApi, updateProductApi, deleteProductApi } from '../../api/productApi'
 import { getProvidersApi } from '../../api/providerApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { canManageInventory } from '../../utils/permissions'
 import type { Product, ProductCreate, ProductUpdate } from '../../types/product'
 import type { Provider } from '../../types/provider'
@@ -16,7 +17,9 @@ export const ProductsPage = () => {
 
   const [products, setProducts] = useState<Product[]>([])
   const [providers, setProviders] = useState<Provider[]>([])
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const search = useDebouncedValue(searchInput, 350)
+  const requestIdRef = useRef(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +29,7 @@ export const ProductsPage = () => {
   const [toastMessage, setToastMessage] = useState('')
 
   const loadProducts = useCallback(async () => {
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError(null)
     try {
@@ -33,14 +37,16 @@ export const ProductsPage = () => {
         getProductsApi(0, 1000, search || undefined),
         getProvidersApi(0, 1000),
       ])
+      if (requestId !== requestIdRef.current) return
       setProducts(productsResponse.items)
       setProviders(providersResponse.items)
     } catch (err: unknown) {
+      if (requestId !== requestIdRef.current) return
       const msg = err instanceof Error ? err.message : 'Error al cargar productos. Intenta de nuevo.'
       setError(msg)
       console.error(err)
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }, [search])
 
@@ -74,7 +80,6 @@ export const ProductsPage = () => {
 
   const handleDelete = async (productId: string) => {
     if (!window.confirm('¿Estás seguro de eliminar este producto?')) return
-    setLoading(true)
     try {
       await deleteProductApi(productId)
       setToastMessage('Producto eliminado correctamente')
@@ -84,14 +89,12 @@ export const ProductsPage = () => {
       const msg = err instanceof Error ? err.message : 'Error al eliminar el producto.'
       setError(msg)
       console.error(err)
-    } finally {
-      setLoading(false)
     }
   }
 
   return (
     <IonPage>
-      <div style={{ height: '100%', overflow: 'auto' }}>
+      <div style={{ height: '100%', overflow: 'hidden' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Productos</IonText>
@@ -103,8 +106,8 @@ export const ProductsPage = () => {
         </div>
 
         <IonSearchbar
-          value={search}
-          onIonChange={(e) => setSearch(e.detail.value || '')}
+          value={searchInput}
+          onIonChange={(e) => setSearchInput(e.detail.value || '')}
           placeholder="Buscar productos..."
           style={{ marginBottom: 16 }}
         />

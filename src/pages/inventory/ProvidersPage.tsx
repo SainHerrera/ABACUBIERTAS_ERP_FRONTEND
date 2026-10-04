@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { IonPage, IonText, IonButton, IonSearchbar, IonToast } from '@ionic/react'
 import { PageLoading } from '../../components/shared/PageLoading'
 import { ProviderList } from '../../components/inventory/ProviderList'
 import { ProviderFormDialog } from '../../components/inventory/ProviderFormDialog'
 import { getProvidersApi, createProviderApi, updateProviderApi } from '../../api/providerApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { canManageInventory } from '../../utils/permissions'
 import type { Provider, ProviderCreate, ProviderUpdate } from '../../types/provider'
 
@@ -13,7 +14,9 @@ export const ProvidersPage = () => {
   const canEdit = canManageInventory(user?.rol)
 
   const [providers, setProviders] = useState<Provider[]>([])
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const search = useDebouncedValue(searchInput, 350)
+  const requestIdRef = useRef(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,17 +26,20 @@ export const ProvidersPage = () => {
   const [toastMessage, setToastMessage] = useState('')
 
   const loadProviders = useCallback(async () => {
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError(null)
     try {
       const response = await getProvidersApi(0, 1000, search || undefined)
+      if (requestId !== requestIdRef.current) return
       setProviders(response.items)
     } catch (err: unknown) {
+      if (requestId !== requestIdRef.current) return
       const msg = err instanceof Error ? err.message : 'Error al cargar proveedores. Intenta de nuevo.'
       setError(msg)
       console.error(err)
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }, [search])
 
@@ -79,8 +85,8 @@ export const ProvidersPage = () => {
         </div>
 
         <IonSearchbar
-          value={search}
-          onIonChange={(e) => setSearch(e.detail.value || '')}
+          value={searchInput}
+          onIonChange={(e) => setSearchInput(e.detail.value || '')}
           placeholder="Buscar proveedores..."
           style={{ marginBottom: 16 }}
         />

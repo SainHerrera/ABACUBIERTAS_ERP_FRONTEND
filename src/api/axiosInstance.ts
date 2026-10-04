@@ -24,9 +24,13 @@ const processQueue = (error: unknown, token: string | null) => {
   failedQueue = [];
 };
 
+const REQUEST_TIMEOUT_MS = 20000;
+const REFRESH_TIMEOUT_MS = 15000;
+
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: REQUEST_TIMEOUT_MS,
 });
 
 axiosInstance.interceptors.request.use(
@@ -79,6 +83,7 @@ axiosInstance.interceptors.response.use(
         const { data } = await axios.post<TokenResponse>(
           `${API_BASE_URL}/auth/refresh`,
           { refresh_token: refreshToken },
+          { timeout: REFRESH_TIMEOUT_MS },
         );
 
         localStorage.setItem('accessToken', data.access_token);

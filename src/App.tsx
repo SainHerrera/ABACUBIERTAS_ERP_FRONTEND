@@ -1,6 +1,6 @@
-import { IonApp, IonRouterOutlet } from '@ionic/react'
+import { IonApp } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
-import { Route, Redirect } from 'react-router-dom'
+import { Route, Redirect, Switch } from 'react-router-dom'
 import { ProtectedRoute } from './components/guards/ProtectedRoute'
 import { AdminRoute } from './components/guards/AdminRoute'
 import { LeadershipRoute } from './components/guards/LeadershipRoute'
@@ -35,7 +35,13 @@ function App() {
   return (
     <IonApp>
       <IonReactRouter>
-        <IonRouterOutlet animated={false}>
+        {/*
+          No se usa IonRouterOutlet a proposito: su stack mantiene cada pagina
+          visitada montada para siempre, y en una app de dashboard eso acumula
+          paginas, modales y overlays en el DOM hasta bloquear los clics.
+          Sin el outlet cada ruta se monta y desmonta con normalidad.
+        */}
+        <Switch>
           <Route path="/login" component={LoginPage} exact />
           <Route path="/register" exact render={() => <Redirect to="/login" />} />
           <Route
@@ -296,7 +302,7 @@ function App() {
           />
           <Redirect exact from="/" to="/dashboard" />
           <Route component={NotFoundPage} />
-        </IonRouterOutlet>
+        </Switch>
       </IonReactRouter>
     </IonApp>
   )

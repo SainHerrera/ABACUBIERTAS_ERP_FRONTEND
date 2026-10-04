@@ -51,7 +51,7 @@ export const ProductFormDialog = ({
       setIdProveedor(undefined)
     }
     setValidationError(null)
-  }, [product, open])
+  }, [open])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

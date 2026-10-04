@@ -67,7 +67,14 @@ export const QuotationFormDialog = ({
       setValidationError('El tiempo de entrega debe ser mayor a 0')
       return
     }
-    if (!request) return
+    if (!request) {
+      setValidationError('No hay una solicitud seleccionada para cotizar')
+      return
+    }
+    if (!request.id_solicitud || !request.id_producto) {
+      setValidationError('La solicitud no tiene id_solicitud o id_producto válidos')
+      return
+    }
 
     onSave({
       id_solicitud: request.id_solicitud,

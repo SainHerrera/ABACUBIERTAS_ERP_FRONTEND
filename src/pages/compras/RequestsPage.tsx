@@ -76,7 +76,12 @@ export const RequestsPage = () => {
     }
   }, [requests])
 
-  const handleOpenQuoteDialog = (request: StockRequest) => {
+  const handleOpenQuoteDialog = (requestId: string) => {
+    const request = requests.find((r) => r.id_solicitud === requestId)
+    if (!request) {
+      setError('No se encontró la solicitud para registrar la cotización')
+      return
+    }
     setActiveRequest(request)
     setError(null)
     setQuoteDialogOpen(true)
@@ -90,6 +95,10 @@ export const RequestsPage = () => {
     tiempo_entrega_dias: number
     condiciones?: string
   }) => {
+    if (!data.id_solicitud || !data.id_producto) {
+      setError('La solicitud no tiene id_solicitud o id_producto válidos')
+      return
+    }
     setSaving(true)
     setError(null)
     try {
@@ -208,7 +217,7 @@ export const RequestsPage = () => {
           onClose={() => setQuoteDialogOpen(false)}
           onSave={handleSaveQuotation}
           isLoading={saving}
-          error={null}
+          error={error}
         />
 
         <IonToast isOpen={!!toast} message={toast || ''} duration={2500} onDidDismiss={() => setToast(null)} />

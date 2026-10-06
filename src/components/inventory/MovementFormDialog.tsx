@@ -5,6 +5,8 @@ import {
 } from '@ionic/react'
 import type { Product } from '../../types/product'
 import type { MovementType } from '../../types/movement'
+import { QuantityInput } from '../shared/NumberField'
+import { formatNumber } from '../../utils/format'
 
 interface MovementFormDialogProps {
   open: boolean
@@ -75,7 +77,7 @@ export const MovementFormDialog = ({
 
     if (movementType === 'salida' && selectedProduct && qty > selectedProduct.stock_actual) {
       setValidationError(
-        `Stock insuficiente para "${selectedProduct.nombre}". Stock disponible: ${selectedProduct.stock_actual}, solicitado: ${qty}`,
+        `Stock insuficiente para "${selectedProduct.nombre}". Stock disponible: ${formatNumber(selectedProduct.stock_actual)}, solicitado: ${formatNumber(qty)}`,
       )
       return
     }
@@ -124,7 +126,7 @@ export const MovementFormDialog = ({
                 >
                   {products.map((p) => (
                     <IonSelectOption key={p.id_producto} value={p.id_producto}>
-                      {p.nombre} (Stock: {p.stock_actual})
+                      {p.nombre} (Stock: {formatNumber(p.stock_actual)})
                     </IonSelectOption>
                   ))}
                 </IonSelect>
@@ -133,25 +135,16 @@ export const MovementFormDialog = ({
 
             {selectedProduct && (
               <div style={{ padding: '4px 16px 12px 16px', fontSize: 13, color: 'var(--app-text-muted)' }}>
-                Stock actual: <strong style={{ color: selectedProduct.low_stock ? '#dc2626' : '#16a34a' }}>{selectedProduct.stock_actual} {selectedProduct.unidad_medida}</strong> (Mínimo: {selectedProduct.stock_minimo})
+                Stock actual: <strong style={{ color: selectedProduct.low_stock ? '#dc2626' : '#16a34a' }}>{formatNumber(selectedProduct.stock_actual)} {selectedProduct.unidad_medida}</strong> (Mínimo: {formatNumber(selectedProduct.stock_minimo)})
               </div>
             )}
 
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
-                  {movementType === 'ajuste' ? 'Nuevo Stock Total' : 'Cantidad'}
-                </IonLabel>
-                <IonInput
-                  type="number"
-                  step="1"
-                  min={movementType === 'ajuste' ? '0' : '1'}
-                  value={quantity}
-                  onIonChange={(e) => setQuantity(e.detail.value || '')}
-                  required
-                />
-              </IonItem>
-            </div>
+            <QuantityInput
+              label={movementType === 'ajuste' ? 'Nuevo Stock Total' : 'Cantidad'}
+              value={quantity}
+              onValueChange={setQuantity}
+              required
+            />
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>

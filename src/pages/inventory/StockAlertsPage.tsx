@@ -7,6 +7,7 @@ import { getProductsApi } from '../../api/productApi'
 import { getStockRequestsApi, createStockRequestApi } from '../../api/stockRequestApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { canManageInventory } from '../../utils/permissions'
+import { formatNumber } from '../../utils/format'
 import { StockRequestDialog } from '../../components/inventory/StockRequestDialog'
 import type { Product } from '../../types/product'
 import type { StockRequest } from '../../types/stockRequest'
@@ -111,7 +112,7 @@ export const StockAlertsPage = () => {
                       <div style={{ minWidth: 0 }}>
                         <IonText style={{ fontSize: 15, fontWeight: 600, display: 'block' }}>{p.nombre}</IonText>
                         <IonText style={{ fontSize: 13, color: '#dc2626' }}>
-                          Stock: <strong>{p.stock_actual}</strong> / Mínimo: {p.stock_minimo}
+                          Stock: <strong>{formatNumber(p.stock_actual)}</strong> / Mínimo: {formatNumber(p.stock_minimo)}
                         </IonText>
                       </div>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -151,7 +152,7 @@ export const StockAlertsPage = () => {
                       {r.numero_solicitud} · {r.descripcion}
                     </IonText>
                     <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
-                      Cantidad sugerida: {r.cantidad_sugerida} · {r.numero_solicitud ? '' : ''}
+                      Cantidad sugerida: {formatNumber(r.cantidad_sugerida)} · {r.numero_solicitud ? '' : ''}
                       {r.observaciones || 'Sin observaciones'}
                     </IonText>
                   </div>

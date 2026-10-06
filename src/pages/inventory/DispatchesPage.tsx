@@ -6,6 +6,7 @@ import { getClientsApi } from '../../api/clientApi'
 import { getProductsApi } from '../../api/productApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { canManageInventory } from '../../utils/permissions'
+import { formatNumber } from '../../utils/format'
 import type { Client, Sale } from '../../types/sales'
 import type { Product } from '../../types/product'
 
@@ -123,7 +124,7 @@ export const DispatchesPage = () => {
               <div key={d.id_detalle_venta} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '6px 0', borderBottom: '1px solid var(--app-surface-hover)' }}>
                 <IonText style={{ fontSize: 13 }}>{d.descripcion || productName(d.id_producto)}</IonText>
                 <IonText style={{ fontSize: 13, color: enough ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap' }}>
-                  {d.cantidad} / Stock: {prod ? available : '—'}
+                  {formatNumber(d.cantidad)} / Stock: {prod ? formatNumber(available) : '—'}
                 </IonText>
               </div>
             )

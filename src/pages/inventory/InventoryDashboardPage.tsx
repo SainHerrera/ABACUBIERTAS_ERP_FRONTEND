@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { getProductsApi } from '../../api/productApi'
 import { getProvidersApi } from '../../api/providerApi'
 import { getMovementsApi } from '../../api/movementApi'
+import { formatNumber } from '../../utils/format'
 import type { Product } from '../../types/product'
 import type { Movement } from '../../types/movement'
 
@@ -66,7 +67,7 @@ export const InventoryDashboardPage = () => {
 
   return (
     <IonPage>
-      <div style={{ height: '100%', overflow: 'auto' }}>
+      <div style={{ height: '100%', overflow: 'hidden' }}>
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <IonText style={{ fontSize: 24, fontWeight: 700 }}>Panel de Inventario</IonText>
@@ -78,31 +79,31 @@ export const InventoryDashboardPage = () => {
           </IonText>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, marginBottom: 24 }}>
           <IonCard>
             <IonCardContent>
               <IonText color="medium" style={{ fontSize: 14 }}>Total Productos</IonText>
-              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{stats.totalProducts}</IonText>
+              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{formatNumber(stats.totalProducts)}</IonText>
             </IonCardContent>
           </IonCard>
           <IonCard>
             <IonCardContent>
               <IonText color="medium" style={{ fontSize: 14 }}>Stock Bajo</IonText>
               <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block', color: stats.lowStockProducts > 0 ? '#dc2626' : undefined }}>
-                {stats.lowStockProducts}
+                {formatNumber(stats.lowStockProducts)}
               </IonText>
             </IonCardContent>
           </IonCard>
           <IonCard>
             <IonCardContent>
               <IonText color="medium" style={{ fontSize: 14 }}>Proveedores</IonText>
-              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{stats.totalProviders}</IonText>
+              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{formatNumber(stats.totalProviders)}</IonText>
             </IonCardContent>
           </IonCard>
           <IonCard>
             <IonCardContent>
               <IonText color="medium" style={{ fontSize: 14 }}>Total Movimientos</IonText>
-              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{stats.totalMovements}</IonText>
+              <IonText style={{ fontSize: 32, fontWeight: 700, display: 'block' }}>{formatNumber(stats.totalMovements)}</IonText>
             </IonCardContent>
           </IonCard>
         </div>
@@ -118,11 +119,11 @@ export const InventoryDashboardPage = () => {
                   {lowStockProducts.map((p) => (
                     <div key={p.id_producto} onClick={() => navigate(`/inventory/products/${p.id_producto}`)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(220, 38, 38, 0.12)', borderRadius: 8, cursor: 'pointer' }}>
                       <IonText>{p.nombre}</IonText>
-                      <IonText style={{ fontWeight: 600, color: '#dc2626' }}>{p.stock_actual} / {p.stock_minimo}</IonText>
+                      <IonText style={{ fontWeight: 600, color: '#dc2626' }}>{formatNumber(p.stock_actual)} / {formatNumber(p.stock_minimo)}</IonText>
                     </div>
                   ))}
                   {lowStockProducts.length > 0 && (
-                    <IonButton size="small" fill="outline" onClick={() => navigate('/inventory/alerts')} style={{ marginTop: 8 }}>
+                    <IonButton size="small" fill="outline" onClick={() => navigate('/inventory/alerts')} style={{ marginTop: 8, minWidth: 200 }}>
                       Ver todas y generar solicitud
                     </IonButton>
                   )}
@@ -144,7 +145,7 @@ export const InventoryDashboardPage = () => {
                         <IonText style={{ fontWeight: 600 }}>{m.nombre_producto || `Producto ${m.id_producto}`}</IonText>
                         <IonText color="medium" style={{ fontSize: 12, display: 'block' }}>{m.tipo} · {m.referencia || 'Sin referencia'}</IonText>
                       </div>
-                      <IonText style={{ fontWeight: 600 }}>{m.cantidad}</IonText>
+                      <IonText style={{ fontWeight: 600 }}>{formatNumber(m.cantidad)}</IonText>
                     </div>
                   ))}
                 </div>

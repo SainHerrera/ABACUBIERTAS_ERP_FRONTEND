@@ -1,5 +1,6 @@
 import { IonText } from '@ionic/react'
 import type { Sale } from '../../types/sales'
+import { formatCurrency } from '../../utils/format'
 
 interface SaleListProps {
   sales: Sale[]
@@ -7,9 +8,6 @@ interface SaleListProps {
   onView: (sale: Sale) => void
   onCancel: (sale: Sale) => void
 }
-
-const formatMoney = (value: number | string) =>
-  `$${Number(value || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 })}`
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString('es-CO') : '-'
@@ -46,7 +44,7 @@ export const SaleList = ({ sales, clientName, onView, onCancel }: SaleListProps)
               <td>
                 <span className={estadoChipClass[s.estado] || 'chip chip-default'}>{s.estado}</span>
               </td>
-              <td style={{ fontWeight: 600 }}>{formatMoney(s.total)}</td>
+              <td style={{ fontWeight: 600 }}>{formatCurrency(s.total)}</td>
               <td>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <button className="btn-icon" onClick={() => onView(s)} title="Ver detalle">

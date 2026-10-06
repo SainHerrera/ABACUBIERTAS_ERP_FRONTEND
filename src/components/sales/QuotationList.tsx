@@ -1,5 +1,6 @@
 import { IonText } from '@ionic/react'
 import type { Quotation } from '../../types/sales'
+import { formatCurrency } from '../../utils/format'
 
 interface QuotationListProps {
   quotations: Quotation[]
@@ -11,9 +12,6 @@ interface QuotationListProps {
   onConvertToSale: (quotation: Quotation) => void
   onDelete: (quotation: Quotation) => void
 }
-
-const formatMoney = (value: number | string) =>
-  `$${Number(value || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 })}`
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString('es-CO') : '-'
@@ -62,7 +60,7 @@ export const QuotationList = ({
               <td>
                 <span className={estadoChipClass[q.estado] || 'chip chip-default'}>{q.estado}</span>
               </td>
-              <td style={{ fontWeight: 600 }}>{formatMoney(q.total)}</td>
+              <td style={{ fontWeight: 600 }}>{formatCurrency(q.total)}</td>
               <td>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   <button className="btn-icon" onClick={() => onView(q)} title="Ver detalle">

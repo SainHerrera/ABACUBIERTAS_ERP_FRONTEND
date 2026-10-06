@@ -1,5 +1,6 @@
 import { IonText } from '@ionic/react'
 import type { Product } from '../../types/product'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface ProductListProps {
   products: Product[]
@@ -36,13 +37,13 @@ export const ProductList = ({ products, onEdit, onDelete, canEdit = true }: Prod
                 )}
               </td>
               <td>{product.unidad_medida}</td>
-              <td>${Number(product.precio_unitario).toFixed(2)}</td>
+              <td>{formatCurrency(product.precio_unitario)}</td>
               <td>
                 <span className={product.low_stock ? 'chip chip-warning' : 'chip chip-success'}>
-                  {product.stock_actual}
+                  {formatNumber(product.stock_actual)}
                 </span>
               </td>
-              <td>{product.stock_minimo}</td>
+              <td>{formatNumber(product.stock_minimo)} /und</td>
               <td>
                 <span className={product.activo ? 'chip chip-success' : 'chip chip-danger'}>
                   {product.activo ? 'Activo' : 'Inactivo'}

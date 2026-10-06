@@ -6,6 +6,8 @@ import {
 import type { Client, SaleCreate } from '../../types/sales'
 import type { Product } from '../../types/product'
 import { TAX_RATE, formatMoney } from '../../utils/totals'
+import { formatNumber } from '../../utils/format'
+import { MoneyInput, QuantityInput } from '../shared/NumberField'
 
 interface DetailRow {
   key: number
@@ -153,20 +155,25 @@ export const SaleFormDialog = ({
                   >
                     {products.map((p) => (
                       <IonSelectOption key={p.id_producto} value={p.id_producto}>
-                        {p.nombre} (stock: {p.stock_actual})
+                        {p.nombre} (stock: {formatNumber(p.stock_actual)})
                       </IonSelectOption>
                     ))}
                   </IonSelect>
                 </IonItem>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cantidad</IonLabel>
-                    <IonInput type="number" min={1} value={row.cantidad} onIonChange={(e) => updateRow(row.key, { cantidad: Number(e.detail.value) || 0 })} />
-                  </IonItem>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario</IonLabel>
-                    <IonInput type="number" min={0} value={row.precio_unitario} onIonChange={(e) => updateRow(row.key, { precio_unitario: Number(e.detail.value) || 0 })} />
-                  </IonItem>
+                  <QuantityInput
+                    label="Cantidad"
+                    value={String(row.cantidad)}
+                    onValueChange={(raw) => updateRow(row.key, { cantidad: Number(raw) || 0 })}
+                    className="flat-field"
+                  />
+                  <MoneyInput
+                    label="Precio unitario"
+                    value={String(row.precio_unitario)}
+                    onValueChange={(raw) => updateRow(row.key, { precio_unitario: Number(raw) || 0 })}
+                    min="0"
+                    className="flat-field"
+                  />
                 </div>
                 {rows.length > 1 && (
                   <IonButton size="small" fill="clear" color="danger" onClick={() => removeRow(row.key)}>

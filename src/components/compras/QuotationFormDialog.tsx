@@ -5,6 +5,8 @@ import {
 } from '@ionic/react'
 import type { Provider } from '../../types/provider'
 import type { StockRequest } from '../../types/stockRequest'
+import { MoneyInput } from '../shared/NumberField'
+import { formatNumber } from '../../utils/format'
 
 interface QuotationFormDialogProps {
   open: boolean
@@ -104,7 +106,7 @@ export const QuotationFormDialog = ({
                 {request.descripcion}
               </IonText>
               <IonText style={{ fontSize: 13, color: 'var(--app-text-muted)', display: 'block', marginBottom: 16 }}>
-                Solicitud {request.numero_solicitud} · Cantidad sugerida: {request.cantidad_sugerida}
+                Solicitud {request.numero_solicitud} · Cantidad sugerida: {formatNumber(request.cantidad_sugerida)}
               </IonText>
             </>
           )}
@@ -116,50 +118,53 @@ export const QuotationFormDialog = ({
           )}
 
           <IonList style={{ background: 'transparent' }}>
-            <IonItem lines="none">
-              <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Proveedor</IonLabel>
-              <IonSelect
-                value={id_proveedor}
-                placeholder="Seleccionar proveedor"
-                interface="popover"
-                onIonChange={(e) => setIdProveedor(e.detail.value)}
-              >
-                {providers.map((p) => (
-                  <IonSelectOption key={p.id_proveedor} value={p.id_proveedor}>
-                    {p.nombre_empresa}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
+            <div className="ion-input-wrapper">
+              <IonItem lines="none" style={{ '--background': 'transparent' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Proveedor</IonLabel>
+                <IonSelect
+                  value={id_proveedor}
+                  placeholder="Seleccionar proveedor"
+                  interface="popover"
+                  onIonChange={(e) => setIdProveedor(e.detail.value)}
+                >
+                  {providers.map((p) => (
+                    <IonSelectOption key={p.id_proveedor} value={p.id_proveedor}>
+                      {p.nombre_empresa}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </IonItem>
+            </div>
 
-            <IonItem lines="none">
-              <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario</IonLabel>
-              <IonInput
-                type="number"
-                step="1"
-                min="0"
-                value={precio}
-                onIonChange={(e) => setPrecio(e.detail.value || '')}
-                required
-              />
-            </IonItem>
+            <MoneyInput
+              label="Precio unitario"
+              value={precio}
+              onValueChange={setPrecio}
+              step="1"
+              min="0"
+              required
+            />
 
-            <IonItem lines="none">
-              <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Tiempo de entrega (días)</IonLabel>
-              <IonInput
-                type="number"
-                step="1"
-                min="0"
-                value={tiempo}
-                onIonChange={(e) => setTiempo(e.detail.value || '')}
-                required
-              />
-            </IonItem>
+            <div className="ion-input-wrapper">
+              <IonItem lines="none" style={{ '--background': 'transparent' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Tiempo de entrega (días)</IonLabel>
+                <IonInput
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={tiempo}
+                  onIonChange={(e) => setTiempo(e.detail.value || '')}
+                  required
+                />
+              </IonItem>
+            </div>
 
-            <IonItem lines="none">
-              <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Condiciones</IonLabel>
-              <IonInput value={condiciones} onIonChange={(e) => setCondiciones(e.detail.value || '')} placeholder="Pago, flete, validez..." />
-            </IonItem>
+            <div className="ion-input-wrapper">
+              <IonItem lines="none" style={{ '--background': 'transparent' }}>
+                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Condiciones</IonLabel>
+                <IonInput value={condiciones} onIonChange={(e) => setCondiciones(e.detail.value || '')} placeholder="Pago, flete, validez..." />
+              </IonItem>
+            </div>
           </IonList>
 
           <IonButton expand="block" type="submit" disabled={isLoading} style={{ marginTop: 24 }}>

@@ -4,6 +4,8 @@ import {
   IonContent, IonList, IonItem, IonLabel, IonInput, IonText,
 } from '@ionic/react'
 import type { Product } from '../../types/product'
+import { QuantityInput } from '../shared/NumberField'
+import { formatNumber } from '../../utils/format'
 
 interface StockRequestDialogProps {
   open: boolean
@@ -74,8 +76,8 @@ export const StockRequestDialog = ({
                 {product.nombre}
               </IonText>
               <IonText style={{ fontSize: 13, color: 'var(--app-text-muted)', display: 'block', marginBottom: 16 }}>
-                Stock actual <strong>{product.stock_actual}</strong> · Stock mínimo{' '}
-                <strong>{product.stock_minimo}</strong> ({product.unidad_medida})
+                Stock actual <strong>{formatNumber(product.stock_actual)}</strong> · Stock mínimo{' '}
+                <strong>{formatNumber(product.stock_minimo)}</strong> ({product.unidad_medida})
               </IonText>
             </>
           )}
@@ -87,19 +89,12 @@ export const StockRequestDialog = ({
           )}
 
           <IonList style={{ background: 'transparent' }}>
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cantidad sugerida</IonLabel>
-                <IonInput
-                  type="number"
-                  step="1"
-                  min="1"
-                  value={quantity}
-                  onIonChange={(e) => setQuantity(e.detail.value || '')}
-                  required
-                />
-              </IonItem>
-            </div>
+            <QuantityInput
+              label="Cantidad sugerida"
+              value={quantity}
+              onValueChange={setQuantity}
+              required
+            />
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>

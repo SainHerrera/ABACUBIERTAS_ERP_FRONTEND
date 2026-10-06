@@ -26,6 +26,8 @@ import { getProvidersApi } from '../api/providerApi'
 import { getProductsApi } from '../api/productApi'
 import { getSettingsApi } from '../api/settingsApi'
 import { isMockAuthEnabled } from '../api/authApi'
+import { MoneyInput, QuantityInput } from '../components/shared/NumberField'
+import { formatNumber } from '../utils/format'
 
 export const SettingsPage = () => {
   const dispatch = useAppDispatch()
@@ -125,7 +127,7 @@ export const SettingsPage = () => {
       setCatalogProducts(products)
       setCatalogProviders(providers)
       present({
-        message: `Catálogo inicial cargado (${products} productos, ${providers} proveedores)`,
+        message: `Catálogo inicial cargado (${formatNumber(products)} productos, ${formatNumber(providers)} proveedores)`,
         duration: 3500,
         color: 'success',
         position: 'top',
@@ -156,20 +158,11 @@ export const SettingsPage = () => {
           </IonCardHeader>
           <IonCardContent>
             <IonList style={{ background: 'transparent' }}>
-              <div className="ion-input-wrapper">
-                <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
-                    Stock mínimo por defecto
-                  </IonLabel>
-                  <IonInput
-                    type="number"
-                    step="1"
-                    min={0}
-                    value={stockMinimo}
-                    onIonInput={(e) => setStockMinimo(e.detail.value || '')}
-                  />
-                </IonItem>
-              </div>
+              <QuantityInput
+                label="Stock mínimo por defecto"
+                value={stockMinimo}
+                onValueChange={setStockMinimo}
+              />
 
               <div className="ion-input-wrapper">
                 <IonItem lines="none" style={{ '--background': 'transparent' }}>
@@ -210,21 +203,14 @@ export const SettingsPage = () => {
                   data-testid="toggle-aprobacion"
                 />
               </IonItem>
-              <div className="ion-input-wrapper">
-                <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                  <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
-                    Monto mínimo para aprobación ($)
-                  </IonLabel>
-                  <IonInput
-                    type="number"
-                    step="1"
-                    min={0}
-                    value={aprobacionMonto}
-                    onIonInput={(e) => setAprobacionMonto(e.detail.value || '')}
-                    data-testid="input-aprobacion-monto"
-                  />
-                </IonItem>
-              </div>
+              <MoneyInput
+                label="Monto mínimo para aprobación"
+                value={aprobacionMonto}
+                onValueChange={setAprobacionMonto}
+                step="1"
+                min="0"
+                dataTestId="input-aprobacion-monto"
+              />
               <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)', display: 'block', marginTop: 8 }}>
                 Las órdenes de compra cuyo monto sea mayor o igual al umbral quedarán
                 pendientes de aprobación por Gerencia/Administración.
@@ -241,11 +227,11 @@ export const SettingsPage = () => {
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <IonIcon icon={cubeOutline} style={{ color: 'var(--ion-color-primary)' }} />
-                <IonText>Productos: {catalogProducts}</IonText>
+                <IonText>Productos: {formatNumber(catalogProducts)}</IonText>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <IonIcon icon={businessOutline} style={{ color: 'var(--ion-color-primary)' }} />
-                <IonText>Proveedores: {catalogProviders}</IonText>
+                <IonText>Proveedores: {formatNumber(catalogProviders)}</IonText>
               </div>
             </div>
             {(isMockAuthEnabled() || user?.rol === 'admin') && (

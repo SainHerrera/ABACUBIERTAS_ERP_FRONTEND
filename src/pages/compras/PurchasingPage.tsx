@@ -9,6 +9,7 @@ import {
 import { getStockRequestsApi } from '../../api/stockRequestApi'
 import { getPurchaseOrdersApi } from '../../api/purchaseOrderApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
+import { formatNumber } from '../../utils/format'
 
 export const PurchasingPage = () => {
   const { user } = useAppSelector((state) => state.auth)
@@ -39,14 +40,14 @@ export const PurchasingPage = () => {
   const menu = [
     {
       title: 'Solicitudes de abastecimiento',
-      desc: `${pendingRequests} pendientes o aprobadas`,
+      desc: `${formatNumber(pendingRequests)} pendientes o aprobadas`,
       icon: documentTextOutline,
       route: '/compras/requests',
       color: '#2563eb',
     },
     {
       title: 'Órdenes de compra',
-      desc: `${pendingOrders} en curso`,
+      desc: `${formatNumber(pendingOrders)} en curso`,
       icon: paperPlaneOutline,
       route: '/compras/purchase-orders',
       color: '#7c3aed',

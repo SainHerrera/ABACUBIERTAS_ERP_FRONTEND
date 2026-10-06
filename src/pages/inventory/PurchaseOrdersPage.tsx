@@ -9,6 +9,7 @@ import { ReceiveFromPoDialog } from '../../components/inventory/ReceiveFromPoDia
 import type { PurchaseOrder } from '../../types/purchaseOrder'
 import type { Product } from '../../types/product'
 import { purchaseOrderStatusStyle } from '../../utils/purchaseOrderStatus'
+import { formatNumber } from '../../utils/format'
 
 interface PendingReceive {
   po: PurchaseOrder
@@ -76,7 +77,7 @@ export const PurchaseOrdersPage = () => {
   }
 
   const isProgressSymbol = (received: number, ordered: number) =>
-    received >= ordered ? 'Completo' : `${received} / ${ordered}`
+    received >= ordered ? 'Completo' : `${formatNumber(received)} / ${formatNumber(ordered)}`
 
   return (
     <IonPage>
@@ -152,7 +153,7 @@ export const PurchaseOrdersPage = () => {
                     <div style={{ minWidth: 0 }}>
                       <IonText style={{ fontSize: 14, fontWeight: 500, display: 'block' }}>{d.descripcion}</IonText>
                       <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>
-                        Recibido: {isProgressSymbol(received, ordered)} de {ordered}
+                        Recibido: {isProgressSymbol(received, ordered)} de {formatNumber(ordered)}
                       </IonText>
                     </div>
                     {canReceive && (

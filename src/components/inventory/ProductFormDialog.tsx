@@ -5,6 +5,7 @@ import {
 } from '@ionic/react'
 import type { Product, ProductCreate, ProductUpdate } from '../../types/product'
 import type { Provider } from '../../types/provider'
+import { MoneyInput, QuantityInput } from '../shared/NumberField'
 
 interface ProductFormDialogProps {
   open: boolean
@@ -133,19 +134,18 @@ export const ProductFormDialog = ({
               </IonItem>
             </div>
 
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario</IonLabel>
-                <IonInput type="number" step="0.01" value={precioUnitario} onIonChange={(e) => setPrecioUnitario(e.detail.value || '')} />
-              </IonItem>
-            </div>
+            <MoneyInput
+              label="Precio unitario"
+              value={precioUnitario}
+              onValueChange={setPrecioUnitario}
+              step="0.01"
+            />
 
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Stock mínimo</IonLabel>
-                <IonInput type="number" step="1" value={stockMinimo} onIonChange={(e) => setStockMinimo(e.detail.value || '0')} />
-              </IonItem>
-            </div>
+            <QuantityInput
+              label="Stock mínimo"
+              value={stockMinimo}
+              onValueChange={setStockMinimo}
+            />
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>

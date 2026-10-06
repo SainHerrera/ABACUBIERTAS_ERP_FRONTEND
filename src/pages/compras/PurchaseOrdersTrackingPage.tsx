@@ -10,6 +10,7 @@ import type { PurchaseOrder } from '../../types/purchaseOrder'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { canManagePurchasing } from '../../utils/permissions'
 import { purchaseOrderStatusStyle } from '../../utils/purchaseOrderStatus'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 export const PurchaseOrdersTrackingPage = () => {
   const { user } = useAppSelector((state) => state.auth)
@@ -108,7 +109,7 @@ export const PurchaseOrdersTrackingPage = () => {
                           <IonLabel>
                             <h2>{d.descripcion}</h2>
                             <p>
-                              {d.cantidad_recibida}/{d.cantidad_ordenada} · ${d.precio_unitario.toLocaleString()}
+                              {formatNumber(d.cantidad_recibida)}/{formatNumber(d.cantidad_ordenada)} · {formatCurrency(d.precio_unitario)}
                               {d.tiempo_entrega_dias ? ` · ${d.tiempo_entrega_dias} días` : ''}
                             </p>
                           </IonLabel>

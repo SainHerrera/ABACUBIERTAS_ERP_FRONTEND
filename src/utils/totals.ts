@@ -6,8 +6,8 @@ export interface TotalsRow {
   descuento: number
 }
 
-export const formatMoney = (value: number | string) =>
-  `$${Number(value || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 })}`
+export { formatCurrency, formatNumber } from './format'
+export { formatCurrency as formatMoney } from './format'
 
 export const lineSubtotal = ({ cantidad, precio_unitario, descuento }: TotalsRow) => {
   const gross = (Number(cantidad) || 0) * (Number(precio_unitario) || 0)

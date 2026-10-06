@@ -6,6 +6,7 @@ import {
 import type { Client, Quotation, QuotationCreate, QuotationUpdate } from '../../types/sales'
 import type { Product } from '../../types/product'
 import { formatMoney, TAX_RATE } from '../../utils/totals'
+import { MoneyInput, QuantityInput } from '../shared/NumberField'
 
 interface DetailRow {
   key: number
@@ -215,22 +216,33 @@ export const QuotationFormDialog = ({
                   </IonSelect>
                 </IonItem>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cantidad</IonLabel>
-                    <IonInput type="number" min={1} value={row.cantidad} disabled={readOnly} onIonChange={(e) => updateRow(row.key, { cantidad: Number(e.detail.value) || 0 })} />
-                  </IonItem>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Precio unitario (0 = margen)</IonLabel>
-                    <IonInput type="number" min={0} value={row.precio_unitario} disabled={readOnly} onIonChange={(e) => updateRow(row.key, { precio_unitario: Number(e.detail.value) || 0 })} />
-                  </IonItem>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Descuento ($)</IonLabel>
-                    <IonInput type="number" min={0} value={row.descuento} disabled={readOnly} onIonChange={(e) => updateRow(row.key, { descuento: Number(e.detail.value) || 0 })} />
-                  </IonItem>
-                  <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                    <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Subtotal línea</IonLabel>
-                    <IonText style={{ fontWeight: 600 }}>{formatMoney(rowSubtotal(row))}</IonText>
-                  </IonItem>
+                  <QuantityInput
+                    label="Cantidad"
+                    value={String(row.cantidad)}
+                    onValueChange={(raw) => updateRow(row.key, { cantidad: Number(raw) || 0 })}
+                    disabled={readOnly}
+                    className="flat-field"
+                  />
+                  <MoneyInput
+                    label="Precio unitario (0 = margen)"
+                    value={String(row.precio_unitario)}
+                    onValueChange={(raw) => updateRow(row.key, { precio_unitario: Number(raw) || 0 })}
+                    disabled={readOnly}
+                    className="flat-field"
+                  />
+                  <MoneyInput
+                    label="Descuento"
+                    value={String(row.descuento)}
+                    onValueChange={(raw) => updateRow(row.key, { descuento: Number(raw) || 0 })}
+                    disabled={readOnly}
+                    className="flat-field"
+                  />
+                  <div className="ion-input-wrapper flat-field">
+                    <IonItem lines="none" style={{ '--background': 'transparent' }}>
+                      <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Subtotal línea</IonLabel>
+                      <IonText style={{ fontWeight: 600 }}>{formatMoney(rowSubtotal(row))}</IonText>
+                    </IonItem>
+                  </div>
                 </div>
                 {!readOnly && rows.length > 1 && (
                   <IonButton size="small" fill="clear" color="danger" onClick={() => removeRow(row.key)}>
@@ -244,12 +256,12 @@ export const QuotationFormDialog = ({
               <IonButton size="small" fill="outline" onClick={addRow}>+ Agregar producto</IonButton>
             )}
 
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Descuento global ($)</IonLabel>
-                <IonInput type="number" min={0} value={descuentoGlobal} disabled={readOnly} onIonChange={(e) => setDescuentoGlobal(Number(e.detail.value) || 0)} />
-              </IonItem>
-            </div>
+            <MoneyInput
+              label="Descuento global"
+              value={String(descuentoGlobal)}
+              onValueChange={(raw) => setDescuentoGlobal(Number(raw) || 0)}
+              disabled={readOnly}
+            />
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>

@@ -3,6 +3,7 @@ import {
 } from '@ionic/react'
 import { checkmarkCircle, ribbonOutline } from 'ionicons/icons'
 import type { ProviderQuotation } from '../../types/providerQuotation'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface QuotationCompareProps {
   requestId: string
@@ -36,7 +37,7 @@ export const QuotationCompare = ({
     <IonCard style={{ margin: '8px 0' }}>
       <IonCardContent>
         <IonText style={{ fontWeight: 600, fontSize: 15, display: 'block', marginBottom: 4 }}>
-          {productName} · Cantidad: {quantity}
+          {productName} · Cantidad: {formatNumber(quantity)}
         </IonText>
         {quotations.length === 0 ? (
           <IonText style={{ fontSize: 13, color: 'var(--app-text-muted)', display: 'block', marginBottom: 8 }}>
@@ -61,7 +62,7 @@ export const QuotationCompare = ({
                       {q.nombre_proveedor}
                     </IonText>
                     <IonText style={{ fontSize: 13, color: 'var(--app-text-muted)', display: 'block' }}>
-                      Precio: <strong>${q.precio_unitario.toLocaleString()}</strong> · Entrega: {q.tiempo_entrega_dias} días
+                      Precio: <strong>{formatCurrency(q.precio_unitario)}</strong> · Entrega: {q.tiempo_entrega_dias} días
                     </IonText>
                     {q.condiciones && (
                       <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)', display: 'block' }}>

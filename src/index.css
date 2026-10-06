@@ -129,6 +129,30 @@ html.ion-palette-dark {
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
+.input-prefixed-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-prefix {
+  color: var(--app-text-muted);
+  font-weight: 600;
+  margin-inline-end: 6px;
+  user-select: none;
+}
+
+.input-prefixed-row ion-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.flat-field {
+  background: transparent;
+  border: none;
+  margin-bottom: 0;
+}
+
 .sidebar-menu {
   --ion-background-color: var(--app-sidebar-bg);
   --ion-text-color: var(--app-text-faint);

@@ -15,6 +15,7 @@ import { useHistory } from 'react-router-dom'
 
 import { roleLabels } from '../components/users/roleConfig'
 import { getDashboardKpisApi } from '../api/reportApi'
+import { formatCurrency, formatNumber } from '../utils/format'
 
 interface Kpi {
   label: string
@@ -24,14 +25,6 @@ interface Kpi {
   bg: string
   path?: string
 }
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
 
 const isLeadership = (rol?: string) => rol === 'admin' || rol === 'gerencia'
 
@@ -78,7 +71,7 @@ export const DashboardPage = () => {
     },
     {
       label: 'Cotizaciones Pendientes',
-      value: kpis ? String(kpis.cotizacionesPendientes) : '—',
+      value: kpis ? formatNumber(kpis.cotizacionesPendientes) : '—',
       icon: documentTextOutline,
       color: '#2563eb',
       bg: 'rgba(37, 99, 235, 0.1)',
@@ -86,7 +79,7 @@ export const DashboardPage = () => {
     },
     {
       label: 'Stock Crítico',
-      value: kpis ? String(kpis.stockCritico) : '—',
+      value: kpis ? formatNumber(kpis.stockCritico) : '—',
       icon: warningOutline,
       color: '#f59e0b',
       bg: 'rgba(245, 158, 11, 0.1)',
@@ -94,7 +87,7 @@ export const DashboardPage = () => {
     },
     {
       label: 'Compras Pendientes de Recibir',
-      value: kpis ? String(kpis.comprasPendientes) : '—',
+      value: kpis ? formatNumber(kpis.comprasPendientes) : '—',
       icon: cartOutline,
       color: '#7c3aed',
       bg: 'rgba(124, 58, 237, 0.1)',
@@ -102,7 +95,7 @@ export const DashboardPage = () => {
     },
     {
       label: 'OC Pendientes de Aprobación',
-      value: kpis ? String(kpis.aprobacionesPendientes) : '—',
+      value: kpis ? formatNumber(kpis.aprobacionesPendientes) : '—',
       icon: checkmarkDoneCircleOutline,
       color: '#dc2626',
       bg: 'rgba(220, 38, 38, 0.12)',

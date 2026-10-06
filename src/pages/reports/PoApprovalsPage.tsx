@@ -13,14 +13,7 @@ import {
   approvePurchaseOrderApi,
 } from '../../api/purchaseOrderApi'
 import type { PurchaseOrder } from '../../types/purchaseOrder'
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
+import { formatCurrency } from '../../utils/format'
 
 export const PoApprovalsPage = () => {
   const [orders, setOrders] = useState<PurchaseOrder[]>([])

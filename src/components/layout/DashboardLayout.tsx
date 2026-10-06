@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { IonSplitPane } from '@ionic/react'
 import { useLocation } from 'react-router-dom'
+import { useSessionTimeout } from '../../hooks/useSessionTimeout'
 import { Sidebar } from './Sidebar'
 
 interface DashboardLayoutProps {
@@ -17,6 +18,7 @@ const OVERLAY_SELECTOR =
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation()
+  useSessionTimeout()
 
   useEffect(() => {
     // Solo se descartan los overlays realmente presentados. React renderiza el

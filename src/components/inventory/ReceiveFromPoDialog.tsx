@@ -5,6 +5,8 @@ import {
 } from '@ionic/react'
 import type { Product } from '../../types/product'
 import type { PurchaseOrder } from '../../types/purchaseOrder'
+import { QuantityInput } from '../shared/NumberField'
+import { formatNumber } from '../../utils/format'
 
 interface ReceiveFromPoDialogProps {
   open: boolean
@@ -57,7 +59,7 @@ export const ReceiveFromPoDialog = ({
     }
     if (qty > maxReceive) {
       setValidationError(
-        `No puede recibir más de lo pendiente (${maxReceive}) de "${detail?.descripcion}"`,
+        `No puede recibir más de lo pendiente (${formatNumber(maxReceive)}) de "${detail?.descripcion}"`,
       )
       return
     }
@@ -86,8 +88,8 @@ export const ReceiveFromPoDialog = ({
             {po.numero_oc} · {detail?.descripcion}
           </IonText>
           <IonText style={{ fontSize: 13, color: 'var(--app-text-muted)', display: 'block', marginBottom: 16 }}>
-            Pendiente por recibir: <strong>{maxReceive}</strong> · Stock actual del producto:{' '}
-            <strong>{product ? `${product.stock_actual} ${product.unidad_medida}` : '—'}</strong>
+            Pendiente por recibir: <strong>{formatNumber(maxReceive)}</strong> · Stock actual del producto:{' '}
+            <strong>{product ? `${formatNumber(product.stock_actual)} ${product.unidad_medida}` : '—'}</strong>
           </IonText>
 
           {(validationError || error) && (
@@ -97,20 +99,12 @@ export const ReceiveFromPoDialog = ({
           )}
 
           <IonList style={{ background: 'transparent' }}>
-            <div className="ion-input-wrapper">
-              <IonItem lines="none" style={{ '--background': 'transparent' }}>
-                <IonLabel position="stacked" style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>Cantidad recibida</IonLabel>
-                <IonInput
-                  type="number"
-                  step="1"
-                  min="1"
-                  max={maxReceive}
-                  value={quantity}
-                  onIonChange={(e) => setQuantity(e.detail.value || '')}
-                  required
-                />
-              </IonItem>
-            </div>
+            <QuantityInput
+              label="Cantidad recibida"
+              value={quantity}
+              onValueChange={setQuantity}
+              required
+            />
 
             <div className="ion-input-wrapper">
               <IonItem lines="none" style={{ '--background': 'transparent' }}>

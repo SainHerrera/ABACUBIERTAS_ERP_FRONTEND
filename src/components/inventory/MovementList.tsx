@@ -1,5 +1,6 @@
 import { IonText } from '@ionic/react'
 import type { Movement } from '../../types/movement'
+import { formatNumber } from '../../utils/format'
 
 interface MovementListProps {
   movements: Movement[]
@@ -52,7 +53,7 @@ export const MovementList = ({ movements }: MovementListProps) => {
                   {typeLabels[mov.tipo] || mov.tipo}
                 </span>
               </td>
-              <td style={{ fontWeight: 600 }}>{mov.cantidad}</td>
+              <td style={{ fontWeight: 600 }}>{formatNumber(mov.cantidad)}</td>
               <td>{mov.referencia || '-'}</td>
               <td>{mov.nombre_usuario || '-'}</td>
               <td>

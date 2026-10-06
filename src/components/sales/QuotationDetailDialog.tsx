@@ -3,15 +3,13 @@ import {
   IonContent, IonText,
 } from '@ionic/react'
 import type { Quotation } from '../../types/sales'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface QuotationDetailDialogProps {
   quotation: Quotation | null
   clientName: (idCliente: string) => string
   onClose: () => void
 }
-
-const formatMoney = (value: number | string) =>
-  `$${Number(value || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 })}`
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString('es-CO') : '-'
@@ -71,11 +69,11 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
                 <tbody>
                   {quotation.detalles.map((d) => (
                     <tr key={d.id_detalle}>
-                      <td>{d.descripcion || `Producto ${d.id_producto}`}</td>
-                      <td>{d.cantidad}</td>
-                      <td>{formatMoney(d.precio_unitario)}</td>
-                      <td>{Number(d.descuento) > 0 ? `-${formatMoney(d.descuento)}` : '0'}</td>
-                      <td style={{ fontWeight: 600 }}>{formatMoney(d.subtotal)}</td>
+                        <td>{d.descripcion || `Producto ${d.id_producto}`}</td>
+                        <td>{formatNumber(d.cantidad)}</td>
+                        <td>{formatCurrency(d.precio_unitario)}</td>
+                        <td>{Number(d.descuento) > 0 ? `-${formatCurrency(d.descuento)}` : formatCurrency(0)}</td>
+                        <td style={{ fontWeight: 600 }}>{formatCurrency(d.subtotal)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -85,19 +83,19 @@ export const QuotationDetailDialog = ({ quotation, clientName, onClose }: Quotat
             <div style={{ background: 'var(--app-surface)', borderRadius: 8, padding: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>Subtotal</span>
-                <span style={{ fontWeight: 600 }}>{formatMoney(quotation.subtotal)}</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(quotation.subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>Descuento</span>
-                <span style={{ fontWeight: 600 }}>-{formatMoney(quotation.descuento)}</span>
+                <span style={{ fontWeight: 600 }}>-{formatCurrency(quotation.descuento)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>IVA (19%)</span>
-                <span style={{ fontWeight: 600 }}>{formatMoney(quotation.impuestos)}</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(quotation.impuestos)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700 }}>
                 <span>Total</span>
-                <span>{formatMoney(quotation.total)}</span>
+                <span>{formatCurrency(quotation.total)}</span>
               </div>
             </div>
           </div>

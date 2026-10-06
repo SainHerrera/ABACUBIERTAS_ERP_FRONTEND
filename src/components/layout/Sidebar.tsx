@@ -193,7 +193,7 @@ export const Sidebar = () => {
 
         {(user?.rol === 'admin' || user?.rol === 'gerencia') && (
           <>
-            <p className="section-label">Reportes</p>
+            <p className="section-label">Reportes y gráficos</p>
             <IonList lines="none">
               <IonItem
                 button
@@ -201,7 +201,7 @@ export const Sidebar = () => {
                 onClick={() => navigate('/reports')}
               >
                 <IonIcon slot="start" icon={analyticsOutline} />
-                <IonLabel>Dashboard y reportes</IonLabel>
+                <IonLabel>Reportes y gráficos</IonLabel>
               </IonItem>
               <IonItem
                 button

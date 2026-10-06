@@ -4,6 +4,7 @@ import {
   IonContent, IonText, IonSelect, IonSelectOption, IonItem, IonLabel,
 } from '@ionic/react'
 import type { Sale, SaleUpdate } from '../../types/sales'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface SaleDetailDialogProps {
   sale: Sale | null
@@ -12,9 +13,6 @@ interface SaleDetailDialogProps {
   onSaveStatus: (saleId: string, data: SaleUpdate) => void
   isLoading: boolean
 }
-
-const formatMoney = (value: number | string) =>
-  `$${Number(value || 0).toLocaleString('es-CO', { maximumFractionDigits: 2 })}`
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString('es-CO') : '-'
@@ -93,10 +91,10 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
                     {sale.detalles.map((d) => (
                       <tr key={d.id_detalle_venta}>
                         <td>{d.descripcion || `Producto ${d.id_producto}`}</td>
-                        <td>{d.cantidad}</td>
-                        <td>{formatMoney(d.precio_unitario)}</td>
+                        <td>{formatNumber(d.cantidad)}</td>
+                        <td>{formatCurrency(d.precio_unitario)}</td>
                         <td>{Number(d.descuento)}</td>
-                        <td style={{ fontWeight: 600 }}>{formatMoney(d.subtotal)}</td>
+                        <td style={{ fontWeight: 600 }}>{formatCurrency(d.subtotal)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -106,7 +104,7 @@ export const SaleDetailDialog = ({ sale, clientName, onClose, onSaveStatus, isLo
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, marginBottom: 20 }}>
               <span>Total del pedido</span>
-              <span>{formatMoney(sale.total)}</span>
+              <span>{formatCurrency(sale.total)}</span>
             </div>
 
             {sale.estado !== 'cancelada' ? (

@@ -81,6 +81,7 @@ import {
 } from './seedData'
 import { getCurrentUserFromToken } from '../../utils/jwt'
 import { hashPassword, verifyPassword } from '../../utils/password'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 const KEYS = {
   USERS: 'abacubiertas_users',
@@ -349,7 +350,7 @@ export class StorageEngine {
     StorageEngine.setSettingsRaw(current)
     StorageEngine.recordAuditLog(
       'settings_updated',
-      `Parámetros del sistema actualizados (stock mínimo: ${current.stockMinimoDefault}, margen de utilidad: ${current.margenUtilidadDefault}%)`,
+      `Parámetros del sistema actualizados (stock mínimo: ${formatNumber(current.stockMinimoDefault)}, margen de utilidad: ${current.margenUtilidadDefault}%)`,
     )
     return current
   }
@@ -727,7 +728,7 @@ export class StorageEngine {
     // Stock sufficiency check: prevent negative stock
     if (data.quantity > product.stock_actual) {
       throw new Error(
-        `Stock insuficiente para "${product.nombre}". Stock disponible: ${product.stock_actual}, solicitado: ${data.quantity}`,
+        `Stock insuficiente para "${product.nombre}". Stock disponible: ${formatNumber(product.stock_actual)}, solicitado: ${formatNumber(data.quantity)}`,
       )
     }
 
@@ -1313,7 +1314,7 @@ export class StorageEngine {
       }
       if (prod.stock_actual < detail.cantidad) {
         throw new Error(
-          `Stock insuficiente para "${prod.nombre}". Stock disponible: ${prod.stock_actual}, solicitado: ${detail.cantidad}`,
+          `Stock insuficiente para "${prod.nombre}". Stock disponible: ${formatNumber(prod.stock_actual)}, solicitado: ${formatNumber(detail.cantidad)}`,
         )
       }
     }
@@ -1832,7 +1833,7 @@ export class StorageEngine {
     StorageEngine.recordAuditLog(
       requiereAprobacion ? 'purchase_order_pending_approval' : 'purchase_order_created',
       requiereAprobacion
-        ? `La orden de compra ${numero_oc} supera el umbral de aprobación ($${totalOc.toLocaleString('es-CO')}) y queda pendiente de aprobación`
+        ? `La orden de compra ${numero_oc} supera el umbral de aprobación (${formatCurrency(totalOc)}) y queda pendiente de aprobación`
         : `Se creó la orden de compra ${numero_oc}`,
       currentUser,
     )
@@ -1934,7 +1935,7 @@ export class StorageEngine {
     const nuevoRecibido = detail.cantidad_recibida + data.quantity
     if (nuevoRecibido > detail.cantidad_ordenada) {
       throw new Error(
-        `No se puede recibir más de lo ordenado para "${detail.descripcion}". Ordenado: ${detail.cantidad_ordenada}, recibido: ${detail.cantidad_recibida}, solicitado: ${data.quantity}`,
+        `No se puede recibir más de lo ordenado para "${detail.descripcion}". Ordenado: ${formatNumber(detail.cantidad_ordenada)}, recibido: ${formatNumber(detail.cantidad_recibida)}, solicitado: ${formatNumber(data.quantity)}`,
       )
     }
 

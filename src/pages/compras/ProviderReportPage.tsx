@@ -6,6 +6,7 @@ import {
 } from '@ionic/react'
 import { arrowBack } from 'ionicons/icons'
 import { getProviderExpenseReportApi, getProviderDeliveryReportApi } from '../../api/purchaseOrderApi'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface ExpenseRow {
   nombre_proveedor: string
@@ -94,7 +95,7 @@ export const ProviderReportPage = () => {
                       <IonText style={{ fontWeight: 600, display: 'block' }}>{e.nombre_proveedor}</IonText>
                       <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>{e.numero_oc} orden(es)</IonText>
                     </div>
-                    <IonText style={{ fontWeight: 700 }}>${e.gasto_total.toLocaleString()}</IonText>
+                    <IonText style={{ fontWeight: 700 }}>{formatCurrency(e.gasto_total)}</IonText>
                   </div>
                 ))}
               </IonCardContent>
@@ -115,7 +116,7 @@ export const ProviderReportPage = () => {
                 >
                   <div>
                     <IonText style={{ fontWeight: 600, display: 'block' }}>{d.nombre_proveedor}</IonText>
-                    <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>{d.cotizaciones} registro(s)</IonText>
+                    <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)' }}>{formatNumber(d.cotizaciones)} registro(s)</IonText>
                   </div>
                   <IonText style={{ fontWeight: 700 }}>{d.tiempo_promedio_dias.toFixed(1)} días</IonText>
                 </div>

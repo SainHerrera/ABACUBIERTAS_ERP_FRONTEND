@@ -20,14 +20,8 @@ import {
   getProviderExpenseReportApi,
   getProviderDeliveryReportApi,
 } from '../../api/purchaseOrderApi'
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
+import { formatCurrency, formatMonthLabel, formatNumber } from '../../utils/format'
+import { BarChart } from '../../components/reports/BarChart'
 
 type Segment = 'sales' | 'trend' | 'valuation' | 'expense' | 'delivery'
 
@@ -109,46 +103,12 @@ export const ReportCenterPage = () => {
     return () => document.body.classList.remove('has-print-area')
   }, [isTableSegment])
 
-  const maxTrend = trend.length > 0 ? Math.max(...trend.map((t) => t.total)) : 0
-
-  const renderTrend = () => (
-    <div data-testid="trend-chart" style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 220, padding: '16px 8px 0' }}>
-      {trend.length === 0 ? (
-        <IonText color="medium">No hay ventas registradas.</IonText>
-      ) : (
-        trend.map((t) => {
-          const height = maxTrend > 0 ? Math.max(8, (t.total / maxTrend) * 180) : 8
-          return (
-            <div key={t.mes} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-              <IonText style={{ fontSize: 11, color: 'var(--app-text-secondary)', fontWeight: 600 }} data-testid={`trend-bar-${t.mes}`}>
-                {formatCurrency(t.total)}
-              </IonText>
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: 64,
-                  height,
-                  background: 'var(--ion-color-primary)',
-                  borderRadius: '6px 6px 0 0',
-                  marginTop: 4,
-                }}
-              />
-              <IonText style={{ fontSize: 12, color: 'var(--app-text-muted)', marginTop: 6, textTransform: 'capitalize' }}>
-                {t.mes}
-              </IonText>
-            </div>
-          )
-        })
-      )}
-    </div>
-  )
-
   return (
     <IonPage>
       <div style={{ height: '100%', overflow: 'auto' }} data-testid="report-center">
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <IonText style={{ fontSize: 24, fontWeight: 700 }}>Centro de Reportes</IonText>
+          <IonText style={{ fontSize: 24, fontWeight: 700 }}>Reportes y gráficos</IonText>
         </div>
 
         <IonSegment
@@ -160,7 +120,7 @@ export const ReportCenterPage = () => {
             <IonLabel>Ventas por vendedor</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="trend" data-testid="segment-trend">
-            <IonLabel>Tendencia de ventas</IonLabel>
+            <IonLabel>Ingresos mensuales</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="valuation">
             <IonLabel>Valorización</IonLabel>
@@ -239,7 +199,7 @@ export const ReportCenterPage = () => {
                     sellers.map((s) => (
                       <tr key={s.vendedor} data-testid="seller-row">
                         <td>{s.vendedor}</td>
-                        <td>{s.ventas}</td>
+                        <td>{formatNumber(s.ventas)}</td>
                         <td>{formatCurrency(s.total)}</td>
                       </tr>
                     ))
@@ -248,10 +208,29 @@ export const ReportCenterPage = () => {
               </table>
             )}
 
-            {segment === 'trend' && renderTrend()}
+            {segment === 'trend' && (
+              <BarChart
+                data={trend.map((t) => ({ label: formatMonthLabel(t.mes), value: t.total }))}
+                formatValue={formatCurrency}
+                testId="trend-chart"
+              />
+            )}
 
             {segment === 'valuation' && (
               <div>
+                {valuation.porProducto.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <IonText style={{ fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                      Top productos por valor de inventario
+                    </IonText>
+                    <BarChart
+                      data={valuation.porProducto.slice(0, 10).map((p) => ({ label: p.nombre, value: p.valor }))}
+                      formatValue={formatCurrency}
+                      height={200}
+                      maxBars={10}
+                    />
+                  </div>
+                )}
                 <IonText style={{ fontSize: 18, fontWeight: 700, display: 'block', marginBottom: 16 }}>
                   Valor total del inventario: {formatCurrency(valuation.valorTotal)}
                 </IonText>
@@ -268,7 +247,7 @@ export const ReportCenterPage = () => {
                     {valuation.porProducto.map((p) => (
                       <tr key={p.nombre} data-testid="valuation-row">
                         <td>{p.nombre}</td>
-                        <td>{p.stock_actual}</td>
+                        <td>{formatNumber(p.stock_actual)}</td>
                         <td>{formatCurrency(p.precio_unitario)}</td>
                         <td>{formatCurrency(p.valor)}</td>
                       </tr>
@@ -279,6 +258,20 @@ export const ReportCenterPage = () => {
             )}
 
             {segment === 'expense' && (
+              <div>
+                {expenses.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <IonText style={{ fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 4 }}>
+                      Gasto por proveedor
+                    </IonText>
+                    <BarChart
+                      data={expenses.map((e) => ({ label: e.nombre_proveedor, value: e.gasto_total }))}
+                      formatValue={formatCurrency}
+                      height={200}
+                      testId="expense-chart"
+                    />
+                  </div>
+                )}
               <table className="data-table">
                 <thead>
                   <tr>
@@ -305,6 +298,7 @@ export const ReportCenterPage = () => {
                   )}
                 </tbody>
               </table>
+              </div>
             )}
 
             {segment === 'delivery' && (
@@ -320,7 +314,7 @@ export const ReportCenterPage = () => {
                   {deliveries.map((d) => (
                     <tr key={d.nombre_proveedor} data-testid="delivery-row">
                       <td>{d.nombre_proveedor}</td>
-                      <td>{d.cotizaciones}</td>
+                      <td>{formatNumber(d.cotizaciones)}</td>
                       <td>{d.tiempo_promedio_dias.toFixed(1)} días</td>
                     </tr>
                   ))}

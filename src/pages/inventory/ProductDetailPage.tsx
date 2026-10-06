@@ -9,6 +9,7 @@ import { getMovementsApi } from '../../api/movementApi'
 import { getProvidersApi } from '../../api/providerApi'
 import { useAppSelector } from '../../hooks/useAppSelector'
 import { canManageInventory } from '../../utils/permissions'
+import { formatCurrency, formatNumber } from '../../utils/format'
 import type { Product, ProductUpdate } from '../../types/product'
 import type { Movement } from '../../types/movement'
 import type { Provider } from '../../types/provider'
@@ -116,7 +117,7 @@ export const ProductDetailPage = () => {
                 <IonCardContent>
                   <IonText color="medium" style={{ fontSize: 14 }}>Precio unitario</IonText>
                   <IonText style={{ fontSize: 24, fontWeight: 700, display: 'block' }}>
-                    ${Number(product.precio_unitario).toLocaleString('es-CO')}
+                    {formatCurrency(product.precio_unitario)}
                   </IonText>
                 </IonCardContent>
               </IonCard>
@@ -124,14 +125,14 @@ export const ProductDetailPage = () => {
                 <IonCardContent>
                   <IonText color="medium" style={{ fontSize: 14 }}>Stock actual</IonText>
                   <IonText style={{ fontSize: 24, fontWeight: 700, display: 'block', color: product.low_stock ? '#dc2626' : '#16a34a' }}>
-                    {product.stock_actual}
+                    {formatNumber(product.stock_actual)}
                   </IonText>
                 </IonCardContent>
               </IonCard>
               <IonCard>
                 <IonCardContent>
                   <IonText color="medium" style={{ fontSize: 14 }}>Stock mínimo</IonText>
-                  <IonText style={{ fontSize: 24, fontWeight: 700, display: 'block' }}>{product.stock_minimo}</IonText>
+                  <IonText style={{ fontSize: 24, fontWeight: 700, display: 'block' }}>{formatNumber(product.stock_minimo)} /und</IonText>
                 </IonCardContent>
               </IonCard>
               <IonCard>
